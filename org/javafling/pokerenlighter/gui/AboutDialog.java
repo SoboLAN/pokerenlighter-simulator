@@ -46,7 +46,7 @@ public class AboutDialog
 		JLabel aboutauthor = new JLabel ("Author: Murzea Radu");
 		infoPanel.add (aboutauthor);
 
-		JLabel aboutdate = new JLabel ("Build Date: 23 January 2013");
+		JLabel aboutdate = new JLabel ("Build Date: 25 March 2013");
 		infoPanel.add (aboutdate);
 		
 		imageInfoPanel.add (infoPanel);

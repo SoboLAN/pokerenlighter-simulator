@@ -1,6 +1,5 @@
 package org.javafling.pokerenlighter.gui;
 
-import org.javafling.pokerenlighter.combination.Card;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import javax.swing.BorderFactory;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,6 +25,11 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import org.javafling.pokerenlighter.combination.Card;
+import org.javafling.pokerenlighter.combination.Deck;
+import org.javafling.pokerenlighter.simulation.HandType;
+import org.javafling.pokerenlighter.simulation.PlayerProfile;
+import org.javafling.pokerenlighter.simulation.PokerType;
 
 /**
  *
@@ -62,6 +66,8 @@ public class GUI
 	private JLabel flopCard1, flopCard2, flopCard3, turnCard, riverCard;
 	private JProgressBar progressBar;
 	
+	private PlayerProfile[][] playersInfo;
+	
 	public static GUI getGUI (PEDictionary lang)
 	{
 		if (_instance == null)
@@ -75,6 +81,16 @@ public class GUI
 	private GUI (PEDictionary language)
 	{
 		dictionary = language;
+		
+		playersInfo = new PlayerProfile[3][7];
+		
+		for (int i = 0; i < 7; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				playersInfo[j][i] = new PlayerProfile (HandType.RANDOM);
+			}
+		}
 
 		mainframe = new JFrame (windowTitle);
 		mainframe.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
@@ -194,7 +210,7 @@ public class GUI
 		JPanel panel = new JPanel (new BorderLayout ());
 		
 		GUIUtilities.setBorder (panel, dictionary.getValue ("title.handoptions"), TitledBorder.LEFT);
-		
+
 		JPanel topPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
 		
 		topPanel.add (new JLabel (dictionary.getValue ("label.handoptions.player")));
@@ -213,9 +229,8 @@ public class GUI
 		topPanel.add (handTypeBox);
 		
 		selectButton = new JButton (dictionary.getValue ("button.handoptions.chooserange"));
-		selectButton.setEnabled (false);
 		topPanel.add (selectButton);
-		selectButton.addActionListener (new ShowRangeButtonListener ());
+		selectButton.addActionListener (new SelectButtonListener ());
 		
 		panel.add (topPanel, BorderLayout.NORTH);
 		
@@ -253,6 +268,7 @@ public class GUI
 		JPanel variationPanel = new JPanel (new FlowLayout (FlowLayout.RIGHT));
 		
 		variationBox = new JComboBox (new String[]{"Texas Hold'em", "Omaha", "Omaha Hi/Lo"});
+		variationBox.addItemListener (new PokerTypeListener ());
 		variationPanel.add (new JLabel (dictionary.getValue ("label.general.pokertype")));
 		variationPanel.add (variationBox);
 		
@@ -392,23 +408,82 @@ public class GUI
 		return panel;
 	}
 	
-	private class ShowRangeButtonListener implements ActionListener
+	private ArrayList<Card> getUsedCards (PokerType selectedVariation)
+	{
+		ArrayList<Card> usedCards = new ArrayList<> ();
+				
+		for (int i = 0; i < 7; i++)
+		{					
+			Card[] cards = playersInfo[selectedVariation.ordinal ()][i].getCards ();
+					
+			if (cards == null)
+			{
+				continue;
+			}
+				
+			for (int j = 0; j < cards.length; j++)
+			{
+				if (cards[j] != null)
+				{
+					usedCards.add (cards[j]);
+				}
+			}
+		}
+				
+		return usedCards;
+	}
+	
+	private PokerType getSelectedVariation ()
+	{
+		int selectedVariation = variationBox.getSelectedIndex ();
+
+		switch (selectedVariation)
+		{
+			case 0: return PokerType.TEXAS_HOLDEM;
+			case 1: return PokerType.OMAHA;
+			case 2: return PokerType.OMAHA_HILO;
+			default: return null;
+		}
+	}
+	
+	private HandType getSelectedHandType ()
+	{
+		int selectedType = handTypeBox.getSelectedIndex ();
+		
+		switch (selectedType)
+		{
+			case 0: return HandType.RANDOM;
+			case 1: return HandType.RANGE;
+			case 2: return HandType.EXACTCARDS;
+			default: return null;
+		}
+	}
+	
+	private class SelectButtonListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			String buttonName = selectButton.getText ();
+			PokerType selectedPokerType = getSelectedVariation ();
+			HandType selectedHandType = getSelectedHandType ();
 			
-			if (buttonName.equals (dictionary.getValue ("button.handoptions.chooserange")))
+			if (selectedHandType == HandType.RANGE)
 			{
-				RangeDialog rd = new RangeDialog (mainframe);
+				if (selectedPokerType == PokerType.TEXAS_HOLDEM)
+				{
+					RangeDialog rd = new RangeDialog (mainframe);
 			
-				rd.setLocationRelativeTo (mainframe);
-				rd.setVisible (true);
+					rd.setLocationRelativeTo (mainframe);
+					rd.setVisible (true);
+				}
 			}
-			else if (buttonName.equals (dictionary.getValue ("button.handoptions.choosecards")))
+			else if (selectedHandType == HandType.EXACTCARDS)
 			{
-				CardsDialog cd = new CardsDialog (mainframe, 2);
+				ArrayList<Card> usedCards = getUsedCards (selectedPokerType);
+				
+				Card[] playerCards = playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].getCards ();
+				
+				CardsDialog cd = new CardsDialog (mainframe, selectedPokerType, playerCards, usedCards);
 				
 				cd.setLocationRelativeTo (mainframe);
 				cd.setVisible (true);
@@ -426,22 +501,25 @@ public class GUI
 				return;
 			}
 			
-			String newValue = (String) handTypeBox.getSelectedItem ();
-			
-			if (newValue.equals (dictionary.getValue ("combobox.handoptions.random")))
+			HandType selectedHandType = getSelectedHandType ();
+	
+			if (selectedHandType == HandType.RANGE)
 			{
-				selectButton.setEnabled (false);
+				selectButton.setText (dictionary.getValue ("button.handoptions.chooserange"));
 			}
-			else if (newValue.equals (dictionary.getValue ("combobox.handoptions.range")))
-			{
-					selectButton.setText (dictionary.getValue ("button.handoptions.chooserange"));
-					selectButton.setEnabled (true);
-			}
-			else if (newValue.equals (dictionary.getValue ("combobox.handoptions.exactcards")))
+			else if (selectedHandType == HandType.EXACTCARDS)
 			{
 				selectButton.setText (dictionary.getValue ("button.handoptions.choosecards"));
-				selectButton.setEnabled (true);
 			}
 		}
+	}
+	
+	private class PokerTypeListener implements ItemListener
+	{
+		@Override
+		public void itemStateChanged(ItemEvent e)
+		{
+			
+		}	
 	}
 }

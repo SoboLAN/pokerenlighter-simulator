@@ -1,5 +1,6 @@
 package org.javafling.pokerenlighter.gui;
 
+import org.javafling.pokerenlighter.simulation.Range;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -104,7 +105,7 @@ public class RangeDialog extends JDialog
 				path.append (Range.rangeNames[i][j]);
 				path.append (".png");
 				
-				ImageIcon icon = new ImageIcon (GUI.class.getResource (path.toString ()));
+				ImageIcon icon = new ImageIcon (getClass ().getResource (path.toString ()));
 				
 				if (cardButtons[i][j] == null)
 				{
@@ -157,7 +158,7 @@ public class RangeDialog extends JDialog
 			path.append (Range.rangeNames[row][column]);
 			path.append (".png");
 
-			cardButtons[row][column].setIcon (new ImageIcon (GUI.class.getResource (path.toString ())));
+			cardButtons[row][column].setIcon (new ImageIcon (getClass ().getResource (path.toString ())));
 		}
 	}
 	
