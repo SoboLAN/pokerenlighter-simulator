@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 import org.javafling.pokerenlighter.combination.Card;
-import org.javafling.pokerenlighter.simulation.PokerType;
 
 /**
  *
@@ -32,25 +31,22 @@ public class CardsDialog extends JDialog
 	
 	private Card[] selectedCards;
 	
-	private PokerType pokerType;
-	
 	private JButton okButton;
 	
-	public CardsDialog (JFrame parent, PokerType pokerType, Card[] playerCards, ArrayList<Card> usedCards)
+	public CardsDialog (JFrame parent, int nrOfRequestedCards, Card[] alreadySelectedCards, ArrayList<Card> usedCards)
 	{
 		super (parent, "Cards Dialog", true);
 		
-		this.pokerType = pokerType;
-		
 		setResizable (false);
-		setDefaultCloseOperation (JDialog.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation (DISPOSE_ON_CLOSE);
 		
-		//order is important here !! (createButtonsPanel must be BEFORE createSelectedPanel)
+		//order is important here !!: createButtonsPanel must be BEFORE createSelectedPanel.
+		//this is because createSelectedPanel will try to modify selected state of OK button,
+		//so the button must exist
 		JPanel buttonsPanel = createButtonsPanel ();
 		JPanel cardsPanel = createCardsPanel (usedCards);
-		JPanel selectedPanel = createSelectedPanel (playerCards);
-		
-		
+		JPanel selectedPanel = createSelectedPanel (nrOfRequestedCards, alreadySelectedCards);
+
 		JPanel content = new JPanel (new BorderLayout ());
 		content.add (cardsPanel, BorderLayout.NORTH);
 		content.add (selectedPanel, BorderLayout.CENTER);
@@ -143,22 +139,20 @@ public class CardsDialog extends JDialog
 		return panel;
 	}
 	
-	private JPanel createSelectedPanel (Card[] playerCards)
+	private JPanel createSelectedPanel (int nrOfRequestedCards, Card[] alreadySelectedCards)
 	{
 		JPanel panel = new JPanel (new FlowLayout (FlowLayout.CENTER));
-		
-		int nrOfRequestedCards = pokerType == PokerType.TEXAS_HOLDEM ? 2 : 4;
 		
 		panel.add (new JLabel ("Selected Cards:"));
 		
 		selectedLabels = new JLabel[nrOfRequestedCards];
 		selectedStates = new boolean[nrOfRequestedCards];
 		
-		selectedCards = (playerCards == null) ? new Card[nrOfRequestedCards] : playerCards;
+		selectedCards = checkCardsState (alreadySelectedCards) ? alreadySelectedCards : new Card[nrOfRequestedCards];
 		
 		for (int i = 0; i < nrOfRequestedCards; i++)
 		{
-			if (playerCards == null)
+			if (alreadySelectedCards == null)
 			{
 				selectedLabels[i] = new JLabel (
 									new ImageIcon (
@@ -169,7 +163,7 @@ public class CardsDialog extends JDialog
 				selectedLabels[i] = new JLabel (
 									new ImageIcon (
 									getClass ().getResource (
-									"images/cards/" + playerCards[i].toString () + ".gif")));
+									"images/cards/" + alreadySelectedCards[i].toString () + ".gif")));
 				
 				selectedStates[i] = true;
 			}
@@ -179,7 +173,7 @@ public class CardsDialog extends JDialog
 			panel.add (selectedLabels[i]);
 		}
 		
-		if (playerCards != null)
+		if (alreadySelectedCards != null)
 		{
 			okButton.setEnabled (true);
 		}
@@ -205,11 +199,36 @@ public class CardsDialog extends JDialog
 		return panel;
 	}
 	
+	public Card[] getCards ()
+	{
+		return checkCardsState (selectedCards) ? selectedCards : null;
+	}
+	
+	private boolean checkCardsState (Card[] cards)
+	{
+		if (cards == null)
+		{
+			return false;
+		}
+		
+		for (int i = 0; i < cards.length; i++)
+		{
+			if (cards[i] == null)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	private class CancelListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			selectedCards = null;
+			
 			dispose ();
 		}
 	}
@@ -219,7 +238,7 @@ public class CardsDialog extends JDialog
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			
+			dispose ();
 		}
 	}
 	
@@ -271,6 +290,11 @@ public class CardsDialog extends JDialog
 				}
 			}
 			
+			checkCompleteness ();
+		}
+		
+		private void checkCompleteness ()
+		{
 			boolean checkComplete = true;
 			
 			for (int i = 0; i < selectedStates.length; i++)

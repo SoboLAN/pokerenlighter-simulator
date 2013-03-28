@@ -26,7 +26,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.javafling.pokerenlighter.combination.Card;
-import org.javafling.pokerenlighter.combination.Deck;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
@@ -37,11 +36,9 @@ import org.javafling.pokerenlighter.simulation.PokerType;
  */
 public class GUI
 {
-	public static final int SCREEN_CENTER = 5;
-	
 	private static GUI _instance;
 	
-	private String windowTitle = "Poker Enlighter 2.0 Alpha";
+	private String windowTitle = "Poker Enlighter";
 	
 	private PEDictionary dictionary;
 	
@@ -59,7 +56,7 @@ public class GUI
 	
 	private JTable choicesTable, resultsTable;
 	private JComboBox playerIDBox, handTypeBox, variationBox;
-	private JButton selectButton, saveProfileButton, loadProfileButton, startButton, stopButton,
+	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton, 
 					exportButton, viewGraphButton;
 	private JSpinner playersCount;
 	private JCheckBox enableFlop, enableTurn, enableRiver;
@@ -103,7 +100,7 @@ public class GUI
 		customPanel = createCustomPanel ();
 		mainframe.add (customPanel, BorderLayout.CENTER);
 		
-		statusBar = new StatusBar ("Running - Texas Hold'em - 4 Players - 90,000 Rounds - 3 threads");
+		statusBar = new StatusBar ("Ready.");
 		mainframe.add (statusBar, BorderLayout.SOUTH);
 		
 		mainframe.pack ();
@@ -121,12 +118,9 @@ public class GUI
 		mainframe.setLocation (x, y);
 	}
 	
-	public void setLocation (int location)
+	public void setLocationToCenterOfScreen ()
 	{
-		if (location == SCREEN_CENTER)
-		{
-			mainframe.setLocationRelativeTo (null);
-		}
+		mainframe.setLocationRelativeTo (null);
 	}
 	
 	public void setVisible (boolean on)
@@ -234,7 +228,7 @@ public class GUI
 		
 		panel.add (topPanel, BorderLayout.NORTH);
 		
-		JPanel importPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
+		/*JPanel importPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
 		
 		saveProfileButton = new JButton ("Save Profile");
 		importPanel.add (saveProfileButton);
@@ -242,10 +236,10 @@ public class GUI
 		loadProfileButton = new JButton ("Load Profile");
 		importPanel.add (loadProfileButton);
 		
-		panel.add (importPanel, BorderLayout.CENTER);
+		panel.add (importPanel, BorderLayout.CENTER);*/
 
 		choicesPanel = createChoicesPanel ();
-		panel.add (choicesPanel, BorderLayout.SOUTH);
+		panel.add (choicesPanel, BorderLayout.CENTER);
 
 		return panel;
 	}
@@ -411,7 +405,7 @@ public class GUI
 	private ArrayList<Card> getUsedCards (PokerType selectedVariation)
 	{
 		ArrayList<Card> usedCards = new ArrayList<> ();
-				
+
 		for (int i = 0; i < 7; i++)
 		{					
 			Card[] cards = playersInfo[selectedVariation.ordinal ()][i].getCards ();
@@ -480,13 +474,27 @@ public class GUI
 			else if (selectedHandType == HandType.EXACTCARDS)
 			{
 				ArrayList<Card> usedCards = getUsedCards (selectedPokerType);
-				
+
 				Card[] playerCards = playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].getCards ();
 				
-				CardsDialog cd = new CardsDialog (mainframe, selectedPokerType, playerCards, usedCards);
+				int nrOfRequestedCards = selectedPokerType == PokerType.TEXAS_HOLDEM ? 2 : 4;
+				
+				CardsDialog cd = new CardsDialog (mainframe, nrOfRequestedCards, playerCards, usedCards);
 				
 				cd.setLocationRelativeTo (mainframe);
 				cd.setVisible (true);
+				
+				Card[] selectedCards = cd.getCards ();
+				
+				if (selectedCards != null)
+				{
+					for (Card c : selectedCards)
+					{
+						System.out.print (c.toString ());
+					}
+					
+					playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].setCards (selectedCards);
+				}
 			}
 		}
 	}

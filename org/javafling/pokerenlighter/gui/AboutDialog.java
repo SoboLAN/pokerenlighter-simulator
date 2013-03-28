@@ -4,110 +4,134 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import org.javafling.pokerenlighter.main.PokerEnlighter;
 
 /**
  *
  * @author Murzea Radu
  */
-public class AboutDialog
+public class AboutDialog extends JDialog
 {
-	private JFrame parent;
-	
-	private JDialog aboutdialog;
-	
-	AboutDialog (JFrame parent)
+	public AboutDialog (JFrame parent)
 	{
-		this.parent = parent;
+		super (parent, "About", true);
+		
+		setResizable (false);
+		setDefaultCloseOperation (DISPOSE_ON_CLOSE);
+		
+		JPanel content = new JPanel (new BorderLayout ());
+		
+		JPanel titlePanel = createTitlePanel ();
+		content.add (titlePanel, BorderLayout.NORTH);
+		
+		JPanel middlePanel = new JPanel (new BorderLayout ());
+		
+		JPanel infoPanel = createInformationPanel ();
+		JPanel copyrightPanel = createCopyrightPanel ();
+		
+		middlePanel.add (infoPanel, BorderLayout.NORTH);
+		middlePanel.add (copyrightPanel, BorderLayout.CENTER);
+		
+		content.add (middlePanel, BorderLayout.CENTER);
+		
+		JPanel buttonPanel = createButtonPanel ();
+		
+		content.add (buttonPanel, BorderLayout.SOUTH);
+
+		setContentPane (content);
+		pack ();
 	}
 	
-	//creates the about box (a JPanel with an image, some text and an OK button)
-	private JPanel createAboutBox ()
+	private JPanel createTitlePanel ()
 	{
-		JPanel panel = new JPanel ();
-		panel.setLayout (new BorderLayout ());
+		JPanel panel = new JPanel (new FlowLayout (FlowLayout.LEFT));
 		
-		JPanel topPanel = new JPanel (new BorderLayout ());
+		JLabel icon = new JLabel (new ImageIcon (getClass ().getResource ("images/ace_spades_icon.jpg")));
+		panel.add (icon);
 		
-		JPanel namePanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
-		JLabel aboutname = new JLabel ("Poker Enlighter");
-		namePanel.add (aboutname);
-		topPanel.add (namePanel, BorderLayout.NORTH);
-		
-		JPanel imageInfoPanel = new JPanel (new GridLayout (1, 2, 10, 5));
-		
-		JLabel aboutImage = new JLabel (new ImageIcon (getClass (). getResource ("images/info.png")));
-		imageInfoPanel.add (aboutImage);
-		
-		JPanel infoPanel = new JPanel (new GridLayout (3, 1));
+		JLabel title = new JLabel ("Poker Enlighter");
+		title.setFont (new Font ("Verdana", Font.BOLD, 20));
+		panel.add (title);
 
-		JLabel aboutversion = new JLabel ("Version: 2.0 Alpha build 438");
-		infoPanel.add (aboutversion);
-
-		JLabel aboutauthor = new JLabel ("Author: Murzea Radu");
-		infoPanel.add (aboutauthor);
-
-		JLabel aboutdate = new JLabel ("Build Date: 25 March 2013");
-		infoPanel.add (aboutdate);
+		return panel;
+	}
+	
+	private JPanel createInformationPanel ()
+	{
+		JPanel panel = new JPanel (new GridLayout (3, 2));
 		
-		imageInfoPanel.add (infoPanel);
+		panel.add (new JLabel ("Version:"));
 		
-		topPanel.add (imageInfoPanel, BorderLayout.CENTER);
+		JTextField versionField = new JTextField ("2.0 Alpha build " + PokerEnlighter.BUILD_NUMBER);
+		versionField.setEditable (false);
+		panel.add (versionField);
 		
-		panel.add (topPanel, BorderLayout.NORTH);
+		panel.add (new JLabel ("Minimum JVM version:"));
 		
-		JPanel licensePanel = new JPanel (new BorderLayout ());
-
+		JTextField minimumField = new JTextField ("Java " +
+												PokerEnlighter.MAJOR_VERSION +
+												" update " +
+												PokerEnlighter.MINOR_VERSION);
+		minimumField.setEditable (false);
+		panel.add (minimumField);
+		
+		panel.add (new JLabel ("Compiled with: "));
+		
+		JTextField compilerField = new JTextField ("Java 7 update 11");
+		compilerField.setEditable (false);
+		panel.add (compilerField);
+		
+		return panel;
+	}
+	
+	private JPanel createCopyrightPanel ()
+	{
+		JPanel panel = new JPanel (new BorderLayout ());
+		
+		JPanel webPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
+		webPanel.add (new JLabel ("Visit Webpage:"));
+		JLabelLink webpage = new JLabelLink ("http://pokerenlighter.javafling.org/",
+											"http://pokerenlighter.javafling.org/");
+		webPanel.add (webpage);
+		panel.add (webPanel, BorderLayout.NORTH);
+		
 		JTextArea licenseinfo = new JTextArea ();
 		licenseinfo.setEditable (false);
 		licenseinfo.setLineWrap (true);
 		licenseinfo.setWrapStyleWord (true);
 		licenseinfo.setText ("This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.\n\n" +
 							"You should have received a copy of the license along with this program; if not, download it from the official website.");
-		licenseinfo.setPreferredSize (new Dimension (350, 110));
+		licenseinfo.setPreferredSize (new Dimension (320, 110));
 		
-		licensePanel.add (licenseinfo, BorderLayout.CENTER);
-
+		panel.add (licenseinfo, BorderLayout.CENTER);
+		
 		//character that represents the copyright sign.
 		//used here to avoid issues from compilers/obfuscators/etc.
 		//used in the next label (see below)
 		char copyright_char = '\u00A9';
-		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2013 Murzea Radu. All rights reserved.");
-		licensePanel.add (aboutcopyright, BorderLayout.SOUTH);
-		
-		panel.add (licensePanel, BorderLayout.CENTER);
-		
-		JPanel buttonPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
+		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2013 Murzea Radu.");
+		panel.add (aboutcopyright, BorderLayout.SOUTH);
 
-		JButton aboutclose = new JButton ("OK");
-		buttonPanel.add (aboutclose);
-		
-		panel.add (buttonPanel, BorderLayout.SOUTH);
-
-		//when the close button is pressed, the dialog is disposed
-		aboutclose.addActionListener (new ActionListener ()
-		{
-			@Override public void actionPerformed (ActionEvent a)
-			{
-				aboutdialog.dispose ();
-			}
-		});
-
-		//but the name of the program must be bigger
-		aboutname.setFont (new Font ("Verdana", Font.BOLD, 24));
-		
 		return panel;
 	}
 	
-	void display ()
+	private JPanel createButtonPanel()
 	{
-		aboutdialog = new JDialog (parent, "About", true);
-		aboutdialog.setResizable (false);
-		aboutdialog.setDefaultCloseOperation (JDialog.DISPOSE_ON_CLOSE);
+		JPanel panel = new JPanel (new FlowLayout (FlowLayout.CENTER));
 		
-		aboutdialog.setContentPane (createAboutBox ());
-		aboutdialog.pack ();
+		JButton okButton = new JButton ("OK");
 		
-		aboutdialog.setLocationRelativeTo (parent);
-		aboutdialog.setVisible (true);
+		okButton.addActionListener (new ActionListener ()
+		{
+			@Override
+			public void actionPerformed (ActionEvent a)
+			{
+				dispose ();
+			}
+		});
+		
+		panel.add (okButton);
+		
+		return panel;
 	}
 }
