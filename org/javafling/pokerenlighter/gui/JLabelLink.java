@@ -63,7 +63,7 @@ public class JLabelLink extends JLabel
 			{
 				Desktop.getDesktop().browse(new URI(URL));
 			}
-			catch (Exception e) {  }
+			catch (Exception ignored) {}
 		}
 	}
 }

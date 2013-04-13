@@ -115,7 +115,6 @@ public class MenuBar
 			else if (content.startsWith ("NO"))
 			{
 				GUIUtilities.showOKDialog (parent, "You have the latest version", "Update Check");
-
 			}
 		}
 	}

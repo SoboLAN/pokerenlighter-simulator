@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 
 /**
  *
- * @author Murzea Radu
+ * taken from Swing Hacks: Tips and Tools for Killer GUIs
  */
 public class StatusBar extends JPanel
 {

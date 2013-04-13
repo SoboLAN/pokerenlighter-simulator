@@ -22,7 +22,14 @@ public final class PokerEnlighter
 	//specifies minimum minor version. Examples: 12 (JRE 6u12), 23 (JRE 6u23), 2 (JRE 7u2) etc.
 	public static final int MINOR_VERSION = 1;
 	
+	public static final String FULL_VERSION = "2.0 Alpha build 438";
+	
 	public static final int BUILD_NUMBER = 438;
+	
+	public static final String COMPILED_WITH = "Java 7 Update 11";
+	
+	//UNIX timestamp: 1365369999
+	public static final String BUILD_DATE = "07 Apr 2013 21:26:39 AM UTC";
 
 	public static void main(String[] args)
 	{

@@ -20,23 +20,18 @@ public class AboutDialog extends JDialog
 		setDefaultCloseOperation (DISPOSE_ON_CLOSE);
 		
 		JPanel content = new JPanel (new BorderLayout ());
-		
-		JPanel titlePanel = createTitlePanel ();
-		content.add (titlePanel, BorderLayout.NORTH);
+
+		content.add (createTitlePanel (), BorderLayout.NORTH);
 		
 		JPanel middlePanel = new JPanel (new BorderLayout ());
-		
-		JPanel infoPanel = createInformationPanel ();
-		JPanel copyrightPanel = createCopyrightPanel ();
-		
-		middlePanel.add (infoPanel, BorderLayout.NORTH);
-		middlePanel.add (copyrightPanel, BorderLayout.CENTER);
+
+		middlePanel.add (createInformationPanel (), BorderLayout.NORTH);
+		middlePanel.add (createThanksPanel (), BorderLayout.CENTER);
+		middlePanel.add (createCopyrightPanel (), BorderLayout.SOUTH);
 		
 		content.add (middlePanel, BorderLayout.CENTER);
-		
-		JPanel buttonPanel = createButtonPanel ();
-		
-		content.add (buttonPanel, BorderLayout.SOUTH);
+
+		content.add (createButtonPanel (), BorderLayout.SOUTH);
 
 		setContentPane (content);
 		pack ();
@@ -58,11 +53,11 @@ public class AboutDialog extends JDialog
 	
 	private JPanel createInformationPanel ()
 	{
-		JPanel panel = new JPanel (new GridLayout (3, 2));
+		JPanel panel = new JPanel (new GridLayout (4, 2));
 		
 		panel.add (new JLabel ("Version:"));
 		
-		JTextField versionField = new JTextField ("2.0 Alpha build " + PokerEnlighter.BUILD_NUMBER);
+		JTextField versionField = new JTextField (PokerEnlighter.FULL_VERSION);
 		versionField.setEditable (false);
 		panel.add (versionField);
 		
@@ -77,9 +72,39 @@ public class AboutDialog extends JDialog
 		
 		panel.add (new JLabel ("Compiled with: "));
 		
-		JTextField compilerField = new JTextField ("Java 7 update 11");
+		JTextField compilerField = new JTextField (PokerEnlighter.COMPILED_WITH);
 		compilerField.setEditable (false);
 		panel.add (compilerField);
+		
+		panel.add (new JLabel ("Build Date: "));
+		
+		JTextField buildDateField = new JTextField (PokerEnlighter.BUILD_DATE);
+		buildDateField.setEditable (false);
+		panel.add (buildDateField);
+		
+		return panel;
+	}
+	
+	private JPanel createThanksPanel ()
+	{
+		JPanel panel = new JPanel (new BorderLayout ());
+		
+		JTextArea thanksinfo = new JTextArea ();
+		thanksinfo.setEditable (false);
+		thanksinfo.setLineWrap (true);
+		thanksinfo.setWrapStyleWord (true);
+		thanksinfo.setText ("Thanks go to (in no particular order):\n\n" +
+							"- the authors of Swing Hacks: Tips and Tools for Killer GUIs; they published the Swing code for status bars in their book.\n\n" + 
+							"- the authors of Numerical Recipes - The Art of Scientific Computing; they published a more advanced random number generator in the book.\n\n" +
+							"- EaSynth Inc. for providing the EaSynth Look & Feel\n\n" +
+							"- Nilo J. Gonzalez for providing the NimROD Look & Feel\n\n" +
+							"- David Gilbert for developing and publishing JFreeChart.");
+		
+		JScrollPane scrollPane = new JScrollPane (thanksinfo);
+		scrollPane.setVerticalScrollBarPolicy (JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setPreferredSize (new Dimension (340, 110));
+		
+		panel.add (scrollPane, BorderLayout.CENTER);
 		
 		return panel;
 	}
@@ -101,7 +126,7 @@ public class AboutDialog extends JDialog
 		licenseinfo.setWrapStyleWord (true);
 		licenseinfo.setText ("This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.\n\n" +
 							"You should have received a copy of the license along with this program; if not, download it from the official website.");
-		licenseinfo.setPreferredSize (new Dimension (320, 110));
+		licenseinfo.setPreferredSize (new Dimension (340, 110));
 		
 		panel.add (licenseinfo, BorderLayout.CENTER);
 		
