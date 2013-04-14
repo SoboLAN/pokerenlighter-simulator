@@ -9,6 +9,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 /**
@@ -44,14 +45,42 @@ public class GUIUtilities
 		c.setFont (guifont);
 	}
 	
-	public static void showErrorDialog (Window parent, String error, String title)
-	{		
-		JOptionPane.showMessageDialog (parent, error, title, JOptionPane.ERROR_MESSAGE);
+	public static void showErrorDialog (final Window parent, final String error, final String title)
+	{
+		if (SwingUtilities.isEventDispatchThread ())
+		{
+			JOptionPane.showMessageDialog (parent, error, title, JOptionPane.ERROR_MESSAGE);
+		}
+		else
+		{
+			SwingUtilities.invokeLater (new Runnable ()
+			{
+				@Override
+				public void run ()
+				{
+					JOptionPane.showMessageDialog (parent, error, title, JOptionPane.ERROR_MESSAGE);
+				}
+			});
+		}
 	}
 	
-	public static void showOKDialog (Window parent, String message, String title)
+	public static void showOKDialog (final Window parent, final String message, final String title)
 	{
-		JOptionPane.showMessageDialog (parent, message, title, JOptionPane.INFORMATION_MESSAGE);
+		if (SwingUtilities.isEventDispatchThread ())
+		{
+			JOptionPane.showMessageDialog (parent, message, title, JOptionPane.INFORMATION_MESSAGE);
+		}
+		else
+		{
+			SwingUtilities.invokeLater (new Runnable ()
+			{
+				@Override
+				public void run ()
+				{
+					JOptionPane.showMessageDialog (parent, message, title, JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+		}
 	}
 	
 	//returns the window's screen resolution.

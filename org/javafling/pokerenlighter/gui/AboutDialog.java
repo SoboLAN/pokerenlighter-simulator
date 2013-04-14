@@ -23,13 +23,14 @@ public class AboutDialog extends JDialog
 
 		content.add (createTitlePanel (), BorderLayout.NORTH);
 		
-		JPanel middlePanel = new JPanel (new BorderLayout ());
-
-		middlePanel.add (createInformationPanel (), BorderLayout.NORTH);
-		middlePanel.add (createThanksPanel (), BorderLayout.CENTER);
-		middlePanel.add (createCopyrightPanel (), BorderLayout.SOUTH);
+		JTabbedPane tabPane = new JTabbedPane ();
+		tabPane.setTabLayoutPolicy (JTabbedPane.WRAP_TAB_LAYOUT);
 		
-		content.add (middlePanel, BorderLayout.CENTER);
+		tabPane.insertTab ("Information", null, createInformationPanel (), "General Information", 0);
+		tabPane.insertTab ("Thanks to", null, createThanksPanel (), "List of thank you notes", 1);
+		tabPane.insertTab ("Copyright", null, createCopyrightPanel (), "Copyright Information", 2);
+		
+		content.add (tabPane, BorderLayout.CENTER);
 
 		content.add (createButtonPanel (), BorderLayout.SOUTH);
 
@@ -39,14 +40,25 @@ public class AboutDialog extends JDialog
 	
 	private JPanel createTitlePanel ()
 	{
-		JPanel panel = new JPanel (new FlowLayout (FlowLayout.LEFT));
+		JPanel panel = new JPanel (new BorderLayout ());
+		
+		JPanel titlePanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
 		
 		JLabel icon = new JLabel (new ImageIcon (getClass ().getResource ("images/ace_spades_icon.jpg")));
-		panel.add (icon);
+		titlePanel.add (icon);
 		
 		JLabel title = new JLabel ("Poker Enlighter");
 		title.setFont (new Font ("Verdana", Font.BOLD, 20));
-		panel.add (title);
+		titlePanel.add (title);
+		
+		JPanel webPanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
+		webPanel.add (new JLabel ("Visit Website:"));
+		JLabelLink webpage = new JLabelLink ("http://pokerenlighter.javafling.org/",
+											"http://pokerenlighter.javafling.org/");
+		webPanel.add (webpage);
+		
+		panel.add (titlePanel, BorderLayout.CENTER);
+		panel.add (webPanel, BorderLayout.SOUTH);
 
 		return panel;
 	}
@@ -93,8 +105,7 @@ public class AboutDialog extends JDialog
 		thanksinfo.setEditable (false);
 		thanksinfo.setLineWrap (true);
 		thanksinfo.setWrapStyleWord (true);
-		thanksinfo.setText ("Thanks go to (in no particular order):\n\n" +
-							"- the authors of Swing Hacks: Tips and Tools for Killer GUIs; they published the Swing code for status bars in their book.\n\n" + 
+		thanksinfo.setText ("- the authors of Swing Hacks: Tips and Tools for Killer GUIs; they published the Swing code for status bars in their book.\n\n" + 
 							"- the authors of Numerical Recipes - The Art of Scientific Computing; they published a more advanced random number generator in the book.\n\n" +
 							"- EaSynth Inc. for providing the EaSynth Look & Feel\n\n" +
 							"- Nilo J. Gonzalez for providing the NimROD Look & Feel\n\n" +
@@ -103,6 +114,8 @@ public class AboutDialog extends JDialog
 		JScrollPane scrollPane = new JScrollPane (thanksinfo);
 		scrollPane.setVerticalScrollBarPolicy (JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setPreferredSize (new Dimension (340, 110));
+		
+		panel.add (new JLabel ("Thanks go to (in no particular order):"), BorderLayout.NORTH);
 		
 		panel.add (scrollPane, BorderLayout.CENTER);
 		
@@ -113,13 +126,6 @@ public class AboutDialog extends JDialog
 	{
 		JPanel panel = new JPanel (new BorderLayout ());
 		
-		JPanel webPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
-		webPanel.add (new JLabel ("Visit Webpage:"));
-		JLabelLink webpage = new JLabelLink ("http://pokerenlighter.javafling.org/",
-											"http://pokerenlighter.javafling.org/");
-		webPanel.add (webpage);
-		panel.add (webPanel, BorderLayout.NORTH);
-		
 		JTextArea licenseinfo = new JTextArea ();
 		licenseinfo.setEditable (false);
 		licenseinfo.setLineWrap (true);
@@ -129,24 +135,29 @@ public class AboutDialog extends JDialog
 		licenseinfo.setPreferredSize (new Dimension (340, 110));
 		
 		panel.add (licenseinfo, BorderLayout.CENTER);
+	
+		return panel;
+	}
+	
+	private JPanel createButtonPanel()
+	{
+		JPanel panel = new JPanel (new BorderLayout ());
 		
 		//character that represents the copyright sign.
 		//used here to avoid issues from compilers/obfuscators/etc.
 		//used in the next label (see below)
 		char copyright_char = '\u00A9';
 		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2013 Murzea Radu.");
-		panel.add (aboutcopyright, BorderLayout.SOUTH);
-
-		return panel;
-	}
-	
-	private JPanel createButtonPanel()
-	{
-		JPanel panel = new JPanel (new FlowLayout (FlowLayout.CENTER));
 		
-		JButton okButton = new JButton ("OK");
+		panel.add (aboutcopyright, BorderLayout.NORTH);
 		
-		okButton.addActionListener (new ActionListener ()
+		JPanel buttonPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
+		
+		JButton closeButton = new JButton ("Close");
+		
+		buttonPanel.add (closeButton);
+		
+		closeButton.addActionListener (new ActionListener ()
 		{
 			@Override
 			public void actionPerformed (ActionEvent a)
@@ -155,7 +166,7 @@ public class AboutDialog extends JDialog
 			}
 		});
 		
-		panel.add (okButton);
+		panel.add (buttonPanel, BorderLayout.SOUTH);
 		
 		return panel;
 	}

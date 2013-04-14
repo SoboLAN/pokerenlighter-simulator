@@ -67,7 +67,11 @@ public class InternetConnection
 	/** It will perform the actual connection and return the contents.
 	 * <br />
 	 * Note that the content is cached after the first call of this method. Subsequent calls
-	 * will not make another HTTP request; instead, it will return the cached content.
+	 * will not make another HTTP request; instead, it will return the cached content. To bypass
+	 * the caching mechanism, call the clearContent() method.
+	 * <br />
+	 * NOTE: This method assumes that the content retrieved will be encoded as UTF-8, so it will treat it
+	 * as such.
 	 * <br />
 	 * WARNING: Depending on the Internet connection and the length of the content, it may take a while
 	 * for this method to return the content. In most situations, it should not exceed 2000 ms.
@@ -82,16 +86,16 @@ public class InternetConnection
 		{
 			return content;
 		}
-		
+
 		InputStreamReader is;
 		try
 		{
 			connection.connect ();
 			
 			InputStream input = connection.getResponseCode () == 200 ? connection.getInputStream () : connection.getErrorStream ();
-			is = new InputStreamReader (input);
+			is = new InputStreamReader (input, Charset.forName ("UTF-8"));
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			return null;
 		}
@@ -103,10 +107,10 @@ public class InternetConnection
 			String line;
 			while ((line = reader.readLine ()) != null)
 			{
-				sb.append (new String (line.getBytes(), Charset.forName("UTF-8")));
+				sb.append (line);
 			}
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			return null;
 		}
@@ -119,12 +123,17 @@ public class InternetConnection
 		return content;
 	}
 	
-	public void setCookie (HttpCookie cookie)
+	public void clearContent ()
+	{
+		content = null;
+	}
+	
+	public void addCookie (HttpCookie cookie)
 	{
 		cookies.add (cookie);
 	}
 	
-	public void setCookie (String name, String content)
+	public void addCookie (String name, String content)
 	{
 		cookies.add (new HttpCookie (name, content));
 	}

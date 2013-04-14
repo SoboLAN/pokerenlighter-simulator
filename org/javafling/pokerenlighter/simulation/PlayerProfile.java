@@ -6,7 +6,7 @@ import org.javafling.pokerenlighter.combination.Card;
  *
  * @author Murzea Radu
  */
-public class PlayerProfile
+public final class PlayerProfile
 {
 	private HandType handType;
 	
