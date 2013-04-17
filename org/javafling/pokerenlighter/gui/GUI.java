@@ -29,6 +29,7 @@ import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
+import org.javafling.pokerenlighter.simulation.SimulationResult;
 
 /**
  *
@@ -56,8 +57,8 @@ public class GUI
 	
 	private JTable choicesTable, resultsTable;
 	private JComboBox playerIDBox, handTypeBox, variationBox;
-	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton, 
-					exportButton, viewGraphButton;
+	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton, exportButton
+					viewGraphButton;
 	private JSpinner playersCount;
 	private JCheckBox enableFlop, enableTurn, enableRiver;
 	private JLabel flopCard1, flopCard2, flopCard3, turnCard, riverCard;
@@ -391,10 +392,11 @@ public class GUI
 		
 		JPanel buttonsPanel = new JPanel (new FlowLayout (FlowLayout.CENTER, 5, 5));
 		
-		exportButton = new JButton (dictionary.getValue ("button.results.export"));
+//		exportButton = new JButton (dictionary.getValue ("button.results.export"));
 		viewGraphButton = new JButton (dictionary.getValue ("button.results.graph"));
+		viewGraphButton.addActionListener (new ViewGraphListener ());
 		
-		buttonsPanel.add (exportButton);
+	//	buttonsPanel.add (exportButton);
 		buttonsPanel.add (viewGraphButton);
 		
 		panel.add (buttonsPanel, BorderLayout.SOUTH);
@@ -450,6 +452,19 @@ public class GUI
 			case 1: return HandType.RANGE;
 			case 2: return HandType.EXACTCARDS;
 			default: return null;
+		}
+	}
+	
+	private class ViewGraphListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed (ActionEvent e)
+		{
+			ResultChartDialog rcd = new ResultChartDialog (mainframe,
+														"Simulation Results Graph",
+														new SimulationResult ());
+			rcd.setLocationRelativeTo (null);
+			rcd.setVisible (true);
 		}
 	}
 	
