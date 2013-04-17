@@ -53,7 +53,7 @@ public class AboutDialog extends JDialog
 		
 		JPanel webPanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
 		webPanel.add (new JLabel ("Visit Website:"));
-		JLabelLink webpage = new JLabelLink ("http://pokerenlighter.javafling.org/",
+		LinkLabel webpage = new LinkLabel ("http://pokerenlighter.javafling.org/",
 											"http://pokerenlighter.javafling.org/");
 		webPanel.add (webpage);
 		

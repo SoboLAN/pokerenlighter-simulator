@@ -11,7 +11,7 @@ import javax.swing.JLabel;
  *
  * @author Murzea Radu
  */
-public class JLabelLink extends JLabel
+public class LinkLabel extends JLabel
 {
 	private String URL;
 	
@@ -21,7 +21,7 @@ public class JLabelLink extends JLabel
     private static final String HTML = "<html>";
     private static final String HTML_END = "</html>";
 	
-	public JLabelLink (String URL, String text)
+	public LinkLabel (String URL, String text)
 	{
 		super (text);
 		
