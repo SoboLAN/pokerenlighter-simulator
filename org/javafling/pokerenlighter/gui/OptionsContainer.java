@@ -17,7 +17,7 @@ public class OptionsContainer
 	
 	private static final String preferencesFile = "config/config.info";
 	private static final int minRounds = 60000;
-	private static final int maxRounds = 150000;
+	private static final int maxRounds = 200000;
 	
 	private HashMap<String, String> options;
 	

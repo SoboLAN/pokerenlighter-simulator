@@ -1,5 +1,6 @@
 package org.javafling.pokerenlighter.simulation;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.swing.SwingWorker;
+import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.main.SystemUtils;
 
 /**
@@ -27,17 +29,16 @@ import org.javafling.pokerenlighter.main.SystemUtils;
  * <pre>
  * Simulator simulator = new Simulator (PokerType.OMAHA, 100 * 1000);
  * 
- * PlayerProfile player = new PlayerProfile (HandType.EXACTCARDS);
  * Card[] cards = {new Card ('A', 'h'), new Card ('K', 'h'), new Card ('6', 's'), new Card ('3', 'd')};
- * player.setCards (cards);
+ * PlayerProfile player = new PlayerProfile (HandType.EXACTCARDS, null, cards);
  * 
  * simulator.addPlayer (player);
- * simulator.addPlayer (new PlayerProfile (HandType.RANDOM));
- * simulator.addPlayer (new PlayerProfile (HandType.RANDOM));
- * 
- * simulator.start ();
+ * simulator.addPlayer (new PlayerProfile (HandType.RANDOM, null, null));
+ * simulator.addPlayer (new PlayerProfile (HandType.RANDOM, null, null));
  * 
  * simulator.addPropertyChangeListener (this);
+ * 
+ * simulator.start ();
  * 
  * public void propertyChange(PropertyChangeEvent event)
  * {
@@ -54,34 +55,214 @@ import org.javafling.pokerenlighter.main.SystemUtils;
  * 
  * @version 1.0
  */
-public final class Simulator
+public final class Simulator implements PropertyChangeListener
 {
+	//simulation data
 	private PokerType gameType;
 	private ArrayList<PlayerProfile> profiles;
 	private int nrRounds;
+	private Card[] communityCards;
+	
+	//workers
 	private ArrayList<SimulationWorker> workers;
 	
+	//additional stuff needed for correct implementation
 	private ExecutorService executor;
 	private CountDownLatch latch;
-	
 	private PropertyChangeSupport pcs;
+	private long startTime, endTime;
 
 	public Simulator (PokerType type, int rounds)
 	{
+		if (type == null || rounds <= 0)
+		{
+			throw new IllegalArgumentException ("invalid arguments");
+		}
+		
 		gameType = type;
 		nrRounds = rounds;
 		profiles = new ArrayList<> ();
+		communityCards = new Card[5];
 		workers = new ArrayList<> ();
 		pcs = new PropertyChangeSupport (this);
 	}
 
+	/**
+	 * Adds a player to the simulation.
+	 * <br />
+	 * Note: if the profile has a set range of 100 %, it will be substituted with a new profile
+	 * that has random as the hand type.
+	 * 
+	 * @param player the player.
+	 * 
+	 * @throws NullPointerException if player is null
+	 * 
+	 * @throws IllegalArgumentException if at least one of the cards contained within the player's
+	 * profile are already contained within the profiles of other previously added profiles; or if
+	 * at least one of those cards is already set as part of the community cards. This exception will be
+	 * thrown only if the profile has a set hand type of PokerType.EXACTCARDS.
+	 */
 	public void addPlayer (PlayerProfile player)
 	{
-		profiles.add (player);
+		if (player == null)
+		{
+			throw new NullPointerException ("invalid player added");
+		}
+		
+		if (player.getHandType () == HandType.EXACTCARDS)
+		{
+			Card[] newCards = player.getCards ();
+			
+			for (PlayerProfile profile : profiles)
+			{
+				if (profile.getHandType () == HandType.EXACTCARDS)
+				{
+					Card[] existingCards = profile.getCards ();
+
+					for (int i = 0; i < existingCards.length; i++)
+					{
+						if (isCardInArray (existingCards[i], newCards))
+						{
+							throw new IllegalArgumentException ("card already exists");
+						}
+					}
+				}
+			}
+			
+			for (Card communityCard : communityCards)
+			{
+				if (communityCard != null)
+				{
+					if (isCardInArray (communityCard, newCards))
+					{
+						throw new IllegalArgumentException ("card already exists");
+					}
+				}
+			}
+		}
+		
+		//if the player has a range of 100 % set, then it's basically a random hand
+		if (player.getRange ().getRangePercentage () == 100)
+		{
+			profiles.add (new PlayerProfile (HandType.RANDOM, null, null));
+		}
+		else
+		{
+			profiles.add (player);
+		}
+	}
+	
+	public void setFlop (Card[] flopCards)
+	{
+		if (flopCards == null)
+		{
+			throw new NullPointerException ("null card not allowed");
+		}
+		else if (flopCards.length != 3)
+		{
+			throw new IllegalArgumentException ("flop must have 3 cards");
+		}
+		else if (flopCards[0] == null || flopCards[1] == null || flopCards[2] == null)
+		{
+			throw new NullPointerException ("null card not allowed");
+		}
+		
+		for (PlayerProfile profile : profiles)
+		{
+			if (profile.getHandType () != HandType.EXACTCARDS)
+			{
+				continue;
+			}
+			
+			Card[] cards = profile.getCards ();
+			
+			for (int i = 0; i < cards.length; i++)
+			{
+				if (isCardInArray (cards[i], flopCards))
+				{
+					throw new IllegalArgumentException ("cards already exist");
+				}
+			}
+		}
+		
+		if (flopCards[0].equals (communityCards[3]) ||
+			flopCards[0].equals (communityCards[4]) ||
+			flopCards[1].equals (communityCards[3]) ||
+			flopCards[1].equals (communityCards[4]) ||
+			flopCards[2].equals (communityCards[3]) ||
+			flopCards[2].equals (communityCards[4]))
+		{
+			throw new IllegalArgumentException ("cards already exist");
+		}
+		
+		communityCards[0] = flopCards[0];
+		communityCards[1] = flopCards[1];
+		communityCards[2] = flopCards[2];
+	}
+	
+	public void setTurn (Card turnCard)
+	{
+		if (turnCard == null)
+		{
+			throw new NullPointerException ("null card not allowed");
+		}
+		
+		communityCards[3] = turnCard;
+	}
+	
+	public void setRiver (Card riverCard)
+	{
+		if (riverCard == null)
+		{
+			throw new NullPointerException ("null card not allowed");
+		}
+		
+		communityCards[4] = riverCard;
+	}
+	
+	private boolean isCardInArray (Card c, Card[] arr)
+	{
+		for (int i = 0; i < arr.length; i++)
+		{
+			if (arr[i].equals (c))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public void start ()
 	{
+		boolean commSet = true;
+		for (int i = 0; i < 5; i++)
+		{
+			if (communityCards[i] == null)
+			{
+				commSet = false;
+				break;
+			}
+		}
+		
+		if (commSet)
+		{
+			boolean correctPlayerTypes = false;
+			for (PlayerProfile profile : profiles)
+			{
+				if (profile.getHandType () != HandType.EXACTCARDS)
+				{
+					correctPlayerTypes = true;
+					break;
+				}
+			}
+			
+			if (! correctPlayerTypes)
+			{
+				throw new IllegalStateException ("incorrect player profile types");
+			}
+		}
+		
 		int nrOfWorkers = SystemUtils.getNrOfLogicalCPUs ();
 		latch = new CountDownLatch (nrOfWorkers);
 		int roundsPerWorker = getNrOfRoundsPerWorker (nrOfWorkers);
@@ -90,12 +271,20 @@ public final class Simulator
 	
 		for (int i = 0; i < nrOfWorkers; i++)
 		{
-			SimulationWorker worker = new SimulationWorker (i, gameType, profiles, roundsPerWorker, latch);
+			SimulationWorker worker = new SimulationWorker (i,
+															gameType,
+															profiles,
+															communityCards,
+															roundsPerWorker,
+															latch);
+			worker.addPropertyChangeListener (this);
 			executor.execute (worker);
 			workers.add (worker);
 		}
 		
 		new Supervisor ().execute ();
+		
+		startTime = System.currentTimeMillis ();
 	}
 	
 	private int getNrOfRoundsPerWorker (int workers)
@@ -111,6 +300,13 @@ public final class Simulator
 	public void stop ()
 	{
 		executor.shutdownNow ();
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt)
+	{		
+		//will be called when a SimulationWorker reports progress
+		//WARNING: will be called on the EDT
 	}
 	
 	private class Supervisor extends SwingWorker<Void, Void>
@@ -129,6 +325,8 @@ public final class Simulator
 			//will be called when all workers are done
 			
 			stop ();
+			
+			endTime = System.currentTimeMillis ();
 		}
 	}
 	

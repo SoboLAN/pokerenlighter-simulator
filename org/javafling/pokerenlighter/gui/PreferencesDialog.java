@@ -141,7 +141,7 @@ public class PreferencesDialog
 		
 		panel.add (roundsText);
 		
-		roundsSlider = new JSlider (JSlider.HORIZONTAL, 60, 150, options.getRounds () / 1000);
+		roundsSlider = new JSlider (JSlider.HORIZONTAL, 60, 200, options.getRounds () / 1000);
 		
 		roundsSlider.setMinorTickSpacing (5);
 		roundsSlider.setMajorTickSpacing (20);

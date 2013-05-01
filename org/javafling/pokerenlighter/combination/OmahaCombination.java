@@ -66,7 +66,7 @@ public final class OmahaCombination
 
 		//next, all 60 possible combinations are created. a more elegant iteration
 		//over them is very possible, but that would reduce speed. And in Omaha simulations,
-		//speed is something extremely precious. (the simulations usually take hours).
+		//speed is something extremely precious.
 
 		//5, 6, 7 combination
 		combs[0] = new Combination (newCards[0], newCards[1], newCards[4], newCards[5], newCards[6]);
@@ -557,9 +557,9 @@ public final class OmahaCombination
 				(ranks[2] > 8 && ranks[2] != 14) ||
 				(ranks[3] > 8 && ranks[3] != 14) ||
 				(ranks[4] > 8 && ranks[4] != 14))
-				{
-					continue;
-				}
+			{
+				continue;
+			}
 
 			//if all the checks are passed, I add the combination as a valid candidate
 			for (j = 0; j < 5; ++j)
@@ -567,7 +567,7 @@ public final class OmahaCombination
 				rezs[rezssize][j] = ranks[j];
 			}
 
-			++rezssize;
+			rezssize++;
 		}
 
 		String stt = "0";
@@ -652,11 +652,11 @@ public final class OmahaCombination
 	{
 		for (int i = 0; i < 5; ++i)
 		{
-			if (hand1[i] > hand2[i])
+			if (hand2[i] < hand1[i])
 			{
 				return 2;
 			}
-			else if (hand2[i] > hand1[i])
+			else if (hand1[i] < hand1[i])
 			{
 				return 1;
 			}

@@ -1,5 +1,7 @@
 package org.javafling.pokerenlighter.simulation;
 
+import org.javafling.pokerenlighter.combination.Card;
+
 /**
  *
  * @author Murzea Radu
@@ -204,6 +206,48 @@ public final class Range
 		}
 		
 		percentage = newPercentage;
+	}
+	
+	//tells if the hand made up of c1 and c2 is selected in the range
+	public boolean containsHand (Card c1, Card c2)
+	{
+		int rbig, rsmall;
+
+		if (c2.getRank () > c1.getRank ())
+		{
+			rbig = c2.getRank ();
+			rsmall = c1.getRank ();
+		}
+		else
+		{
+			rbig = c1.getRank ();
+			rsmall = c2.getRank ();
+		}
+
+		int row, column;
+
+		//pocket pair, always on the main diagonal
+		if (rbig == rsmall)
+		{
+			row = column = 14 - rbig;
+		}
+		else
+		{
+			//above the main diagonal
+			if (c1.isSuited (c2))
+			{
+				row = 14 - rbig;
+				column = 14 - rsmall;
+			}
+			//below the main diagonal
+			else
+			{
+				row = 14 - rsmall;
+				column = 14 - rbig;
+			}
+		}
+
+		return rangeSelections[row][column];
 	}
 }
 
