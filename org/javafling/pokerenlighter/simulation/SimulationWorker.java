@@ -1,10 +1,7 @@
 package org.javafling.pokerenlighter.simulation;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
@@ -55,7 +52,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 	public int getID ()
 	{
 		return ID;
-	}
+	}	
 	
 	/**
 	 * Tells the Simulation engine how often to report progress. The progress will be reported by
@@ -141,21 +138,24 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 			boolean okRanges = true;
 			do
 			{
+				boolean okRangesInside = true;
 				for (int i = 0; i < profiles.size (); i++)
 				{
 					if (profiles.get (i).getHandType () == HandType.RANGE &&
 						! profiles.get (i).getRange ().containsHand (deck.getCard (i), deck.getCard (i + nrPlayers)))
 					{
-						okRanges = false;
+						okRangesInside = false;
 						break;
 					}
 				}
 				
-				if (! okRanges)
+				if (! okRangesInside)
 				{
 					//minimum shuffle should be enough
 					deck.shuffle (5);
 				}
+				
+				okRanges = okRangesInside;
 			} while (! okRanges);
 			
 			//determine what each player has
@@ -211,12 +211,17 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 				wins[winningPlayers[0]]++;
 			}
 			
-			for (int i = 0; i < loses.length; i++)
+			for (int i = 0; i < nrPlayers; i++)
 			{
 				if (! contains (winningPlayers, i))
 				{
 					loses[i]++;
 				}
+			}
+			
+			if (((current_round) * 100 / rounds) % updateInterval == 0)
+			{
+				setProgress ((current_round) * 100 / rounds);
 			}
 		}
 	}
@@ -235,16 +240,15 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 		return false;
 	}
 	
-	/** Handles the situation where 2 (or more) players have the same rank in a hand (for
-	 * example: 3 players have three of a kind).
-	 *
-	 * @param hands array of strings containing the combinations to compare. The first character
-	 * should be the rank of the combination.
-	 *
-	 * @return array of integers representing the IDs of the winning hands. For example: if the
-	 * parameter contains 6 hands and it is determined that the first and last hand are winners,
-	 * then the returning array will contain 0 and 5 (in this order) (0-based index).
-	 */
+	// Handles the situation where 2 (or more) players have the same rank in a hand (for
+	// example: 3 players have three of a kind).
+	//
+	// The parameter hands array of strings containing the combinations to compare. The first character
+	// should be the rank of the combination.
+	//
+	// Returns array of integers representing the IDs of the winning hands. For example: if the
+	// parameter contains 6 hands and it is determined that the first and last hand are winners,
+	// then the returning array will contain 0 and 5 (in this order) (0-based index).
 	private int[] getWinners (String[] hands)
 	{
 		int j, k, compare_result, nr_winners = nrPlayers;
@@ -292,13 +296,12 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 		return winners;
 	}
 	
-	/** Compares two combinations.
-	*
-	* @param hand1 The first combination.
-	* @param hand2 The second combination.
-	*
-	* @return 1 if the combination hand1 is better, 2 if hand2 is better, 0 if they are equal.
-	*/
+	// Compares two combinations.
+	//
+	// parameter hand1 = The first combination.
+	// parameter hand2  = The second combination.
+	//
+	// returns 1 if the combination hand1 is better, 2 if hand2 is better, 0 if they are equal.
 	private int compare_hands (String hand1, String hand2)
 	{
 		int r1 = (int) (hand1.charAt (0)) - 48,

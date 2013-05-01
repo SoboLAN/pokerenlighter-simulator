@@ -86,6 +86,30 @@ public final class Simulator implements PropertyChangeListener
 		workers = new ArrayList<> ();
 		pcs = new PropertyChangeSupport (this);
 	}
+	
+	public static void main (String[] args)
+	{
+		PlayerProfile p1 = new PlayerProfile (HandType.RANDOM, null, null);
+		
+		Card[] cards2 = {new Card ('Q', 's'), new Card ('K', 's')};
+		PlayerProfile p2 = new PlayerProfile (HandType.EXACTCARDS, null, cards2);
+
+		PlayerProfile p3 = new PlayerProfile (HandType.RANGE, new Range (21), null);
+		
+		Simulator sim = new Simulator (PokerType.TEXAS_HOLDEM, 90000);
+		sim.addPlayer (p1);
+		sim.addPlayer (p2);
+		sim.addPlayer (p3);
+		
+		Card[] flop = new Card[3];
+		flop[0] = new Card ('K', 'h');
+		flop[1] = new Card ('J', 'd');
+		flop[2] = new Card ('4', 'd');
+		
+		sim.setFlop (flop);
+
+		sim.start ();		
+	}
 
 	/**
 	 * Adds a player to the simulation.
@@ -142,7 +166,8 @@ public final class Simulator implements PropertyChangeListener
 		}
 		
 		//if the player has a range of 100 % set, then it's basically a random hand
-		if (player.getRange ().getRangePercentage () == 100)
+		if (player.getHandType () == HandType.RANGE &&
+			player.getRange ().getRangePercentage () == 100)
 		{
 			profiles.add (new PlayerProfile (HandType.RANDOM, null, null));
 		}
@@ -277,6 +302,7 @@ public final class Simulator implements PropertyChangeListener
 															communityCards,
 															roundsPerWorker,
 															latch);
+			worker.setUpdateInterval (getUpdateInterval (nrOfWorkers));
 			worker.addPropertyChangeListener (this);
 			executor.execute (worker);
 			workers.add (worker);
@@ -297,6 +323,18 @@ public final class Simulator implements PropertyChangeListener
 		return nrRounds / workers;
 	}
 	
+	private int getUpdateInterval (int workers)
+	{
+		switch (workers)
+		{
+			case 1:
+			case 2: return 10;
+			case 3:
+			case 4: return 20;
+			default: return 25;
+		}
+	}
+	
 	public void stop ()
 	{
 		executor.shutdownNow ();
@@ -304,9 +342,17 @@ public final class Simulator implements PropertyChangeListener
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt)
-	{		
+	{
 		//will be called when a SimulationWorker reports progress
 		//WARNING: will be called on the EDT
+		
+		if (evt.getPropertyName ().equals ("progress"))
+		{
+			SimulationWorker worker = (SimulationWorker) evt.getSource ();
+		
+			System.out.println ("simulator " + worker.getID () + " reported " + evt.getPropertyName ()
+				+ " " + evt.getNewValue ());
+		}
 	}
 	
 	private class Supervisor extends SwingWorker<Void, Void>
@@ -327,6 +373,42 @@ public final class Simulator implements PropertyChangeListener
 			stop ();
 			
 			endTime = System.currentTimeMillis ();
+			
+			System.out.println ("Duration: " + (endTime - startTime) + " ms");
+			
+			int nrPlayers = profiles.size ();
+			
+			double[] wins = new double[nrPlayers];
+			double[] loses = new double[nrPlayers];
+			double[] ties = new double[nrPlayers];
+			
+			for (int j = 0; j < nrPlayers; j++)
+			{
+				wins[j] = loses[j] = ties[j] = 0;
+			}
+			
+			//sum up all the percentages
+			for (int i = 0; i < workers.size (); i++)
+			{
+				SimulationResult result = workers.get (i).getResult ();
+				
+				for (int j = 0; j < nrPlayers; j++)
+				{
+					wins[j] += result.getWinPercentage (j);
+					loses[j] += result.getLosePercentage (j);
+					ties[j] += result.getTiePercentage (j);
+				}
+			}
+			
+			//average is needed, so... divide
+			for (int j = 0; j < nrPlayers; j++)
+			{
+				wins[j] /= workers.size ();
+				loses[j] /= workers.size ();
+				ties[j] /= workers.size ();
+				
+				System.out.println ("Player 1: wins: " + wins[j] + ", loses: " + loses[j] + ", ties: " + ties[j]);
+			}
 		}
 	}
 	

@@ -36,11 +36,11 @@ public class SimulationResult
 	
 	public double getLosePercentage (int player)
 	{
-		return wins[player];
+		return loses[player];
 	}
 	
 	public double getTiePercentage (int player)
 	{
-		return wins[player];
+		return ties[player];
 	}
 }
