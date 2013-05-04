@@ -86,19 +86,7 @@ public class GUIUtilities
 	//returns the window's screen resolution.
 	public static Dimension getResolution ()
 	{
-		//get the Toolkit of this instance
-		Toolkit tk = Toolkit.getDefaultToolkit ();
-		
-		//get the screen size as Dimension object
-		Dimension resolution = tk.getScreenSize ();
-
-		/*int[] rez = new int[2];
-
-		//extract integers from that Dimension object
-		rez[0] = new Double (resolution.getWidth ()).intValue ();
-		rez[1] = new Double (resolution.getHeight ()).intValue ();*/
-
-		return resolution;
+		return Toolkit.getDefaultToolkit ().getScreenSize ();
 	}
 	
 	public static void setBorder (JComponent component, String text, int titleJustification)

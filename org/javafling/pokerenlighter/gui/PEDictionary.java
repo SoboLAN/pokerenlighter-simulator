@@ -1,7 +1,6 @@
 package org.javafling.pokerenlighter.gui;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -30,6 +29,8 @@ public class PEDictionary
 	{
 		"menubar.file",
 		"menubar.file.exit",
+		"menubar.file.checkupdate",
+		"menubar.file.prefs",
 		"menubar.help",
 		"menubar.help.about",
 		"title.general",
@@ -37,6 +38,7 @@ public class PEDictionary
 		"title.communitycards",
 		"title.controls",
 		"title.results",
+		"title.prefs",
 		"title.prefs.general",
 		"title.prefs.simulation",
 		"title.prefs.graph",
@@ -69,19 +71,30 @@ public class PEDictionary
 		"button.handoptions.choosecards",
 		"button.controls.start",
 		"button.controls.stop",
-		"button.results.export",
 		"button.results.graph",
 		"button.prefs.ok",
 		"button.prefs.cancel",
 		"button.prefs.apply",
 		"table.handoptions.player",
-		"table.handoptions.handtype",
 		"table.handoptions.selection",
+		"table.handoptions.handtype",
+		"table.handoptions.handtype.range",
+		"table.handoptions.handtype.exactcards",
+		"table.handoptions.handtype.random",
 		"table.results.player",
 		"table.results.handtype",
+		"table.handoptions.handtype.range",
+		"table.handoptions.handtype.exactcards",
+		"table.handoptions.handtype.random",
 		"table.results.wins",
 		"table.results.loses",
-		"table.results.ties"
+		"table.results.ties",
+		"statusbar.ready",
+		"statusbar.running",
+		"statusbar.onethread",
+		"statusbar.multiplethreads",
+		"statusbar.rounds",
+		"statusbar.done"
 	};
 	
 	public static PEDictionary forLanguage (Language language) throws IOException

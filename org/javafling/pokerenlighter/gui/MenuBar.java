@@ -25,14 +25,18 @@ public class MenuBar
 	
 	private JMenuItem exitAction, aboutAction, prefsAction, updateAction;
 	
-	public MenuBar (JFrame parent)
+	private PEDictionary dictionary;
+	
+	public MenuBar (JFrame parent, PEDictionary dictionary)
 	{
 		this.parent = parent;
 		
+		this.dictionary = dictionary;
+		
 		menuBar = new JMenuBar ();
 
-		fileMenu = new JMenu ("File");
-		helpMenu = new JMenu ("Help");
+		fileMenu = new JMenu (dictionary.getValue ("menubar.file"));
+		helpMenu = new JMenu (dictionary.getValue ("menubar.help"));
 		
 		fileMenu.setMnemonic (KeyEvent.VK_F);
 		helpMenu.setMnemonic (KeyEvent.VK_H);
@@ -40,10 +44,10 @@ public class MenuBar
 		menuBar.add (fileMenu);
 		menuBar.add (helpMenu);
 
-		exitAction = new JMenuItem ("Exit");
-		prefsAction = new JMenuItem ("Preferences");
-		aboutAction = new JMenuItem ("About");
-		updateAction = new JMenuItem ("Check for Update");
+		exitAction = new JMenuItem (dictionary.getValue ("menubar.file.exit"));
+		prefsAction = new JMenuItem (dictionary.getValue ("menubar.file.prefs"));
+		aboutAction = new JMenuItem (dictionary.getValue ("menubar.help.about"));
+		updateAction = new JMenuItem (dictionary.getValue ("menubar.file.checkupdate"));
 
 		fileMenu.add (prefsAction);
 		fileMenu.add (updateAction);
@@ -77,7 +81,7 @@ public class MenuBar
 		@Override
 		public void actionPerformed (ActionEvent e)
 		{
-			new PreferencesDialog (parent).display ();
+			new PreferencesDialog (parent, dictionary).display ();
 		}
 	}
 	

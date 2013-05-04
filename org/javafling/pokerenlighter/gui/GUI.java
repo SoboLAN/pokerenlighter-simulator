@@ -31,7 +31,7 @@ import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 import org.javafling.pokerenlighter.simulation.SimulationResult;
 
-/**
+/** Main GUI (Graphical User Interface) class.
  *
  * @author Murzea Radu
  */
@@ -86,7 +86,7 @@ public class GUI
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				playersInfo[j][i] = new PlayerProfile (HandType.RANDOM);
+				playersInfo[j][i] = new PlayerProfile (HandType.RANDOM, null, null);
 			}
 		}
 
@@ -94,14 +94,14 @@ public class GUI
 		mainframe.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 		mainframe.setIconImage (Toolkit.getDefaultToolkit ().getImage (getClass ().getResource ("images/ace_spades_icon.jpg")));
 		
-		MenuBar menuBar = new MenuBar (mainframe);
+		MenuBar menuBar = new MenuBar (mainframe, dictionary);
 		mainframe.setJMenuBar (menuBar.getMenuBar ());
 		mainframe.setLayout (new BorderLayout ());
 		
 		customPanel = createCustomPanel ();
 		mainframe.add (customPanel, BorderLayout.CENTER);
 		
-		statusBar = new StatusBar ("Ready.");
+		statusBar = new StatusBar (dictionary.getValue ("statusbar.ready"));
 		mainframe.add (statusBar, BorderLayout.SOUTH);
 		
 		mainframe.pack ();
@@ -170,12 +170,12 @@ public class GUI
 		
 		Object[][] rows = new String[][]
 		{
-			{"1", "Range", "16.6 %"},
-			{"2", "Range", "12.3 %"},
-			{"3", "Exact Cards", "KcKd"},
-			{"4", "Random", ""},
-			{"5", "Random", ""},
-			{"6", "Exact Cards", "As4h"},
+			{"1", dictionary.getValue ("table.handoptions.handtype.range"), "16.6 %"},
+			{"2", dictionary.getValue ("table.handoptions.handtype.range"), "12.3 %"},
+			{"3", dictionary.getValue ("table.handoptions.handtype.exactcards"), "KcKd"},
+			{"4", dictionary.getValue ("table.handoptions.handtype.random"), ""},
+			{"5", dictionary.getValue ("table.handoptions.handtype.random"), ""},
+			{"6", dictionary.getValue ("table.handoptions.handtype.exactcards"), "As4h"},
 			{"", "", "", "", ""}
 		};
 		
@@ -462,7 +462,7 @@ public class GUI
 		{
 			ResultChartDialog rcd = new ResultChartDialog (mainframe,
 														"Simulation Results Graph",
-														new SimulationResult ());
+														new SimulationResult (null, null, null));
 			rcd.setLocationRelativeTo (null);
 			rcd.setVisible (true);
 		}
@@ -508,7 +508,8 @@ public class GUI
 						System.out.print (c.toString ());
 					}
 					
-					playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].setCards (selectedCards);
+					//TO DO: FIX THIS !
+				//	playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].setCards (selectedCards);
 				}
 			}
 		}

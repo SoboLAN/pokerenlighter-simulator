@@ -23,7 +23,7 @@ public class OptionsContainer
 	
 	//available values
 	private String[] availableLanguages = {"English", "Romanian"};
-	private String[] availableLNFs = {"Nimbus", "System", "Motif", "EaSynth", "NimROD"};
+	private String[] availableLNFs = {"Nimbus", "System", "Motif", "EaSynth", "NimROD", "SeaGlass"};
 	
 	//default values
 	private String defLanguage = availableLanguages[0];

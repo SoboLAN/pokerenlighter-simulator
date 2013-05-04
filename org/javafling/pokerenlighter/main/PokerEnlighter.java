@@ -2,6 +2,7 @@ package org.javafling.pokerenlighter.main;
 
 import com.easynth.lookandfeel.EaSynthLookAndFeel;
 import com.nilo.plaf.nimrod.NimRODLookAndFeel;
+import com.seaglasslookandfeel.SeaGlassLookAndFeel;
 import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -29,7 +30,7 @@ public final class PokerEnlighter implements Runnable
 	public static final String COMPILED_WITH = "Java 7 Update 11";
 	
 	//UNIX timestamp: 1365890940
-	public static final String BUILD_DATE = "13 Apr 2013 22:09 AM UTC";
+	public static final String BUILD_DATE = "03 May 2013 05:13 PM UTC";
 	
 	private static final String errorTitle = "Program error";
 	private static final String errorContent = "The program encountered an error at startup: ";
@@ -108,6 +109,7 @@ public final class PokerEnlighter implements Runnable
 			case "Motif": UIManager.setLookAndFeel (new MotifLookAndFeel ()); break;
 			case "NimROD": UIManager.setLookAndFeel (new NimRODLookAndFeel ()); break;
 			case "EaSynth": UIManager.setLookAndFeel (new EaSynthLookAndFeel ()); break;
+			case "SeaGlass": UIManager.setLookAndFeel (new SeaGlassLookAndFeel ()); break;
 			default: throw new RuntimeException ("invalid look-and-feel");
 		}
 				

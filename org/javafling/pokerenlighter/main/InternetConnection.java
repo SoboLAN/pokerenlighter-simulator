@@ -4,16 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 
-/**
+/** Provides basic functionality for retrieving content from a URL (typically HTML).
  *
  * @author Murzea Radu
+ * 
+ * @version 1.0
  */
 public class InternetConnection
 {
@@ -22,20 +22,14 @@ public class InternetConnection
 	private HttpURLConnection connection;
 	private String content;
 	
-	private ArrayList<HttpCookie> cookies;
-
 	public InternetConnection (URL url)
 	{
-		cookies = new ArrayList<> ();
-		
 		this.url = url;
 		createConnection ();
 	}
 	
 	public InternetConnection (URL url, Proxy proxy)
 	{
-		cookies = new ArrayList<> ();
-		
 		this.url = url;
 		this.proxy = proxy;
 		createConnection ();
@@ -67,8 +61,9 @@ public class InternetConnection
 	/** It will perform the actual connection and return the contents.
 	 * <br />
 	 * Note that the content is cached after the first call of this method. Subsequent calls
-	 * will not make another HTTP request; instead, it will return the cached content. To bypass
-	 * the caching mechanism, call the clearContent() method.
+	 * will not make another HTTP request; instead, it will return the cached content. In order to force
+	 * this method to make another connection, you must clear the cache. You can do this by
+	 * calling the clearContent() method.
 	 * <br />
 	 * NOTE: This method assumes that the content retrieved will be encoded as UTF-8, so it will treat it
 	 * as such.
@@ -126,20 +121,5 @@ public class InternetConnection
 	public void clearContent ()
 	{
 		content = null;
-	}
-	
-	public void addCookie (HttpCookie cookie)
-	{
-		cookies.add (cookie);
-	}
-	
-	public void addCookie (String name, String content)
-	{
-		cookies.add (new HttpCookie (name, content));
-	}
-	
-	public void removeCookie (HttpCookie cookie)
-	{
-		cookies.remove (cookie);
 	}
 }
