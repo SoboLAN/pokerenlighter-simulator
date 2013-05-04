@@ -4,11 +4,11 @@ package org.javafling.pokerenlighter.simulation;
  *
  * @author Murzea Radu
  */
-public class SimulationResult
+public class SimulationWorkerResult
 {
 	private double[] wins, ties, loses;
 	
-	public SimulationResult (double[] wins, double[] ties, double[] loses)
+	public SimulationWorkerResult (double[] wins, double[] ties, double[] loses)
 	{
 		if (wins == null || ties == null || loses == null)
 		{

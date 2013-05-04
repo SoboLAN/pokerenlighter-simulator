@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import org.javafling.pokerenlighter.simulation.SimulationResult;
+import org.javafling.pokerenlighter.simulation.SimulationWorkerResult;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -31,9 +31,9 @@ import org.jfree.data.category.DefaultCategoryDataset;
  */
 public final class ResultChartDialog extends JDialog implements ActionListener
 {
-	private SimulationResult result;
+	private SimulationWorkerResult result;
 	
-	public ResultChartDialog (JFrame parent, String title, SimulationResult result)
+	public ResultChartDialog (JFrame parent, String title, SimulationWorkerResult result)
 	{
 		super (parent, title, true);
 		

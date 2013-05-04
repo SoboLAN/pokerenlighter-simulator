@@ -29,7 +29,7 @@ import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
-import org.javafling.pokerenlighter.simulation.SimulationResult;
+import org.javafling.pokerenlighter.simulation.SimulationWorkerResult;
 
 /** Main GUI (Graphical User Interface) class.
  *
@@ -462,7 +462,7 @@ public class GUI
 		{
 			ResultChartDialog rcd = new ResultChartDialog (mainframe,
 														"Simulation Results Graph",
-														new SimulationResult (null, null, null));
+														new SimulationWorkerResult (null, null, null));
 			rcd.setLocationRelativeTo (null);
 			rcd.setVisible (true);
 		}

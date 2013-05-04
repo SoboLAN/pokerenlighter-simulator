@@ -71,6 +71,7 @@ public final class Simulator implements PropertyChangeListener
 	private CountDownLatch latch;
 	private PropertyChangeSupport pcs;
 	private long startTime, endTime;
+	private int updateInterval, totalProgress;
 
 	public Simulator (PokerType type, int rounds)
 	{
@@ -85,26 +86,60 @@ public final class Simulator implements PropertyChangeListener
 		communityCards = new Card[5];
 		workers = new ArrayList<> ();
 		pcs = new PropertyChangeSupport (this);
+		updateInterval = 100;
+		startTime = endTime = totalProgress = 0;
+	}
+	
+	/**
+	 * Tells the Simulator how often to report progress. The progress will be reported by
+	 * firing a property change event on all listening PropertyChangeListeners.
+	 * <br />
+	 * Note: Calling this method AFTER the Simulator started execution will have no effect. If
+	 * this method is not called at all, then the progress will be reported only once, when the
+	 * SimulationWorker is finished (equivalent with calling <code>setUpdateInterval(100)</code>).
+	 * 
+	 * @param updateInterval the update interval. Value must be a strictly pozitive integer divisible by 100.
+	 * 
+	 * @throws IllegalArgumentException if the parameter is an invalid value.
+	 */
+	public void setUpdateInterval (int percentage)
+	{
+		if (percentage <= 0 || 100 % percentage != 0)
+		{
+			throw new IllegalArgumentException ("invalid update interval value");
+		}
+		
+		if (startTime == 0)
+		{
+			updateInterval = percentage;
+		}
 	}
 	
 	public static void main (String[] args)
 	{
-		PlayerProfile p1 = new PlayerProfile (HandType.RANDOM, null, null);
+		/*PlayerProfile p1 = new PlayerProfile (HandType.RANDOM, null, null);
 		
 		Card[] cards2 = {new Card ('Q', 's'), new Card ('K', 's')};
-		PlayerProfile p2 = new PlayerProfile (HandType.EXACTCARDS, null, cards2);
-
-		PlayerProfile p3 = new PlayerProfile (HandType.RANGE, new Range (21), null);
+		PlayerProfile p2 = new PlayerProfile (HandType.EXACTCARDS, null, cards2);*/
 		
-		Simulator sim = new Simulator (PokerType.TEXAS_HOLDEM, 90000);
+		Card[] cards1 = {new Card ('J', 'd'), new Card ('J', 'h'), new Card ('3', 'c'), new Card ('7', 'c')};
+		PlayerProfile p1 = new PlayerProfile (HandType.EXACTCARDS, null, cards1);
+		
+		Card[] cards2 = {new Card ('5', 's'), new Card ('5', 'h'), new Card ('A', 's'), new Card ('T', 's')};
+		PlayerProfile p2 = new PlayerProfile (HandType.EXACTCARDS, null, cards2);
+		
+		PlayerProfile p3 = new PlayerProfile (HandType.RANDOM, null, null);
+
+		Simulator sim = new Simulator (PokerType.OMAHA, 105000);
+		sim.setUpdateInterval (10);
 		sim.addPlayer (p1);
 		sim.addPlayer (p2);
 		sim.addPlayer (p3);
 		
 		Card[] flop = new Card[3];
-		flop[0] = new Card ('K', 'h');
-		flop[1] = new Card ('J', 'd');
-		flop[2] = new Card ('4', 'd');
+		flop[0] = new Card ('A', 'd');
+		flop[1] = new Card ('3', 'd');
+		flop[2] = new Card ('9', 's');
 		
 		sim.setFlop (flop);
 
@@ -346,12 +381,25 @@ public final class Simulator implements PropertyChangeListener
 		//will be called when a SimulationWorker reports progress
 		//WARNING: will be called on the EDT
 		
-		if (evt.getPropertyName ().equals ("progress"))
+		if (! evt.getPropertyName ().equals ("progress"))
 		{
-			SimulationWorker worker = (SimulationWorker) evt.getSource ();
+			return;
+		}
 		
-			System.out.println ("simulator " + worker.getID () + " reported " + evt.getPropertyName ()
-				+ " " + evt.getNewValue ());
+		int combinedProgress = 0;
+		for (int i = 0; i < workers.size (); i++)
+		{
+			combinedProgress += workers.get (i).getProgress ();
+		}
+		combinedProgress /= workers.size ();
+		
+		if (combinedProgress - totalProgress > updateInterval)
+		{
+			//pcs.firePropertyChange ("progress", totalProgress, combinedProgress);
+			
+			totalProgress = combinedProgress;
+			
+			System.out.println ("Progress: " + totalProgress);
 		}
 	}
 	
@@ -390,7 +438,7 @@ public final class Simulator implements PropertyChangeListener
 			//sum up all the percentages
 			for (int i = 0; i < workers.size (); i++)
 			{
-				SimulationResult result = workers.get (i).getResult ();
+				SimulationWorkerResult result = workers.get (i).getResult ();
 				
 				for (int j = 0; j < nrPlayers; j++)
 				{
@@ -407,7 +455,7 @@ public final class Simulator implements PropertyChangeListener
 				loses[j] /= workers.size ();
 				ties[j] /= workers.size ();
 				
-				System.out.println ("Player 1: wins: " + wins[j] + ", loses: " + loses[j] + ", ties: " + ties[j]);
+				System.out.println ("Player " + j + ": wins: " + wins[j] + ", loses: " + loses[j] + ", ties: " + ties[j]);
 			}
 		}
 	}
