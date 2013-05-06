@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -125,8 +126,70 @@ public class GUI implements PropertyChangeListener
 		mainframe.add (statusBar, BorderLayout.SOUTH);
 		
 		setChoicesTableContent ();
+		adjustAvailablePlayerIDs ();
+		
+		stopButton.setEnabled (false);
+		viewGraphButton.setEnabled (false);
 		
 		mainframe.pack ();
+	}
+	
+	private void setGUIElementsRunning ()
+	{
+		handTypeBox.setEnabled (false);
+		variationBox.setEnabled (false);
+		playerIDBox.setEnabled (false);
+		viewGraphButton.setEnabled (false);
+		startButton.setEnabled (false);
+		stopButton.setEnabled (true);
+		playersCount.setEnabled (false);
+		enableFlop.setEnabled (false);
+		enableTurn.setEnabled (false);
+		enableRiver.setEnabled (false);
+		
+		StringBuilder sb = new StringBuilder ();
+		sb.append (dictionary.getValue ("statusbar.running"));
+		sb.append (" - ");
+		sb.append (getCurrentPlayerCount ());
+		sb.append (" Players");
+		sb.append (" - ");
+		sb.append (OptionsContainer.getOptionsContainer ().getRounds ());
+		sb.append (" Rounds");
+		sb.append (" - ");
+		sb.append (simulator.getNrOfThreads ());
+		sb.append (" Threads");
+		
+		statusBar.setText (sb.toString ());
+	}
+	
+	private void setGUIElementsDone ()
+	{
+		handTypeBox.setEnabled (true);
+		variationBox.setEnabled (true);
+		playerIDBox.setEnabled (true);
+		startButton.setEnabled (true);
+		stopButton.setEnabled (false);
+		playersCount.setEnabled (true);
+		enableFlop.setEnabled (true);
+		enableTurn.setEnabled (true);
+		enableRiver.setEnabled (true);
+
+		if (simulator.getResult () != null)
+		{
+			long duration = simulator.getResult ().getDuration ();
+			double durationSeconds = duration / 1000.0;
+			DecimalFormat df = new DecimalFormat ();
+			df.setMaximumFractionDigits (1);
+
+			statusBar.setText (dictionary.getValue ("statusbar.done") + " (" + df.format (durationSeconds) + " s)");
+			
+			viewGraphButton.setEnabled (true);
+		}
+		else
+		{
+			statusBar.setText ("Stopped");
+			viewGraphButton.setEnabled (false);
+		}
 	}
 	
 	public void setLocation (int x, int y)
@@ -180,20 +243,181 @@ public class GUI implements PropertyChangeListener
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			if (! checkValidity ())
+			{
+				GUIUtilities.showErrorDialog (mainframe, "Error", "Invalid Community Cards");
+				return;
+			}
 			
+			simulator = new Simulator (getSelectedVariation (), OptionsContainer.getOptionsContainer ().getRounds ());
+			simulator.addPropertyChangeListener (_instance);
+			simulator.setUpdateInterval (10);
+			
+			for (int i = 0; i < getCurrentPlayerCount (); i++)
+			{
+				if (getSelectedVariation () == PokerType.TEXAS_HOLDEM)
+				{
+					simulator.addPlayer (holdemProfiles[i]);
+				}
+				else if (getSelectedVariation () == PokerType.OMAHA)
+				{
+					simulator.addPlayer (omahaProfiles[i]);
+				}
+				else if (getSelectedVariation () == PokerType.OMAHA_HILO)
+				{
+					simulator.addPlayer (omahaHiLoProfiles[i]);
+				}
+			}
+			
+			setCommunityCards ();
+			
+			simulator.start ();
+			
+			setGUIElementsRunning ();
 		}
 		
-		private void disableGUIElements ()
+		private boolean checkValidity ()
 		{
-			handTypeBox.setEnabled (false);
-			variationBox.setEnabled (false);
-			playerIDBox.setEnabled (false);
-			viewGraphButton.setEnabled (false);
-			stopButton.setEnabled (false);
-			playersCount.setEnabled (false);
-			enableFlop.setEnabled (false);
-			enableTurn.setEnabled (false);
-			enableRiver.setEnabled (false);
+			if (getSelectedVariation () == PokerType.TEXAS_HOLDEM)
+			{
+				if (enableTurn.isSelected ())
+				{
+					if (holdemCommunityCards[3] == null ||
+						! enableFlop.isSelected () ||
+						holdemCommunityCards[0] == null)
+					{
+						return false;
+					}
+				}
+				if (enableRiver.isSelected ())
+				{
+					if (holdemCommunityCards[4] == null ||
+						! enableTurn.isSelected () ||
+						holdemCommunityCards[3] == null)
+					{
+						return false;
+					}
+				}
+			}
+			else if (getSelectedVariation () == PokerType.OMAHA)
+			{
+				if (enableTurn.isSelected ())
+				{
+					if (omahaCommunityCards[3] == null ||
+						! enableFlop.isSelected () ||
+						omahaCommunityCards[0] == null)
+					{
+						return false;
+					}
+				}
+				if (enableRiver.isSelected ())
+				{
+					if (omahaCommunityCards[4] == null ||
+						! enableTurn.isSelected () ||
+						omahaCommunityCards[3] == null)
+					{
+						return false;
+					}
+				}
+			}
+			else if (getSelectedVariation () == PokerType.OMAHA_HILO)
+			{
+				if (enableTurn.isSelected ())
+				{
+					if (omahaHiLoCommunityCards[3] == null ||
+						! enableFlop.isSelected () ||
+						omahaHiLoCommunityCards[0] == null)
+					{
+						return false;
+					}
+				}
+				if (enableRiver.isSelected ())
+				{
+					if (omahaHiLoCommunityCards[4] == null ||
+						! enableTurn.isSelected () ||
+						omahaHiLoCommunityCards[3] == null)
+					{
+						return false;
+					}
+				}
+			}
+			
+			return true;
+		}
+		
+		private void setCommunityCards ()
+		{
+			if (getSelectedVariation () == PokerType.TEXAS_HOLDEM)
+			{
+				if (enableFlop.isSelected () && holdemCommunityCards[0] != null)
+				{
+					Card[] flop = new Card[3];
+					flop[0] = holdemCommunityCards[0];
+					flop[1] = holdemCommunityCards[1];
+					flop[2] = holdemCommunityCards[2];
+					
+					simulator.setFlop (flop);
+				}
+				if (enableTurn.isSelected () && holdemCommunityCards[3] != null)
+				{
+					simulator.setTurn (holdemCommunityCards[3]);
+				}
+				if (enableRiver.isSelected () && holdemCommunityCards[4] != null)
+				{
+					simulator.setRiver (holdemCommunityCards[4]);
+				}
+			}
+			else if (getSelectedVariation () == PokerType.OMAHA)
+			{
+				if (enableFlop.isSelected () && omahaCommunityCards[0] != null)
+				{
+					Card[] flop = new Card[3];
+					flop[0] = omahaCommunityCards[0];
+					flop[1] = omahaCommunityCards[1];
+					flop[2] = omahaCommunityCards[2];
+					
+					simulator.setFlop (flop);
+				}
+				if (enableTurn.isSelected () && omahaCommunityCards[3] != null)
+				{
+					simulator.setTurn (omahaCommunityCards[3]);
+				}
+				if (enableRiver.isSelected () && omahaCommunityCards[4] != null)
+				{
+					simulator.setRiver (omahaCommunityCards[4]);
+				}
+			}
+			else if (getSelectedVariation () == PokerType.OMAHA_HILO)
+			{
+				if (enableFlop.isSelected () && omahaHiLoCommunityCards[0] != null)
+				{
+					Card[] flop = new Card[3];
+					flop[0] = omahaHiLoCommunityCards[0];
+					flop[1] = omahaHiLoCommunityCards[1];
+					flop[2] = omahaHiLoCommunityCards[2];
+					
+					simulator.setFlop (flop);
+				}
+				if (enableTurn.isSelected () && omahaHiLoCommunityCards[3] != null)
+				{
+					simulator.setTurn (omahaHiLoCommunityCards[3]);
+				}
+				if (enableRiver.isSelected () && omahaHiLoCommunityCards[4] != null)
+				{
+					simulator.setRiver (omahaHiLoCommunityCards[4]);
+				}
+			}
+		}
+	}
+	
+	private class StopSimulationListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			simulator.stop ();
+			
+			setGUIElementsDone ();
 		}
 	}
 	
@@ -258,6 +482,11 @@ public class GUI implements PropertyChangeListener
 		@Override
 		public void mousePressed (MouseEvent e)
 		{
+			if (! enableFlop.isEnabled ())
+			{
+				return;
+			}
+			
 			if ((street == Street.FLOP && ! enableFlop.isSelected ()) ||
 				(street == Street.TURN && ! enableTurn.isSelected ()) ||
 				(street == Street.RIVER && ! enableRiver.isSelected ()))
@@ -461,6 +690,32 @@ public class GUI implements PropertyChangeListener
 			model.setValueAt (" ", i, 2);
 		}
 	}
+	
+	private void setResultsTableContent ()
+	{
+		SimulationFinalResult result = simulator.getResult ();
+		
+		int nrPlayersToFill = result.getNrOfPlayers ();
+
+		TableModel model = resultsTable.getModel ();
+		
+		for (int i = 0; i < nrPlayersToFill; i++)
+		{
+			model.setValueAt (Integer.toString (i + 1), i, 0);
+
+			model.setValueAt (result.getFormattedWinPercentage (i), i, 1);
+			model.setValueAt (result.getFormattedLosePercentage (i), i, 2);
+			model.setValueAt (result.getFormattedTiePercentage (i), i, 3);
+		}
+		
+		for (int i = nrPlayersToFill; i < MAX_PLAYERS; i++)
+		{
+			model.setValueAt (" ", i, 0);
+			model.setValueAt (" ", i, 1);
+			model.setValueAt (" ", i, 2);
+			model.setValueAt (" ", i, 3);
+		}
+	}
 
 	private JPanel createPlayersPanel ()
 	{
@@ -472,7 +727,12 @@ public class GUI implements PropertyChangeListener
 		
 		topPanel.add (new JLabel (dictionary.getValue ("label.handoptions.player")));
 		
-		playerIDBox = new JComboBox (new Integer[]{1, 2, 3, 4, 5, 6, 7});
+		Integer[] IDs = new Integer[MAX_PLAYERS];
+		for (int i = 0; i < IDs.length; i++)
+		{
+			IDs[i] = i + 1;
+		}
+		playerIDBox = new JComboBox (IDs);
 		playerIDBox.setEditable (false);
 		topPanel.add (playerIDBox);
 		
@@ -528,6 +788,7 @@ public class GUI implements PropertyChangeListener
 		JPanel variationPanel = new JPanel (new FlowLayout (FlowLayout.RIGHT));
 		
 		variationBox = new JComboBox (new String[]{"Texas Hold'em", "Omaha", "Omaha Hi/Lo"});
+		variationBox.addItemListener (new PokerTypeListener ());
 		variationBox.setEditable (false);
 		variationPanel.add (new JLabel (dictionary.getValue ("label.general.pokertype")));
 		variationPanel.add (variationBox);
@@ -546,24 +807,16 @@ public class GUI implements PropertyChangeListener
 			return;
 		}
 
-		int newValue = simulator.getProgress ();
-		
+		int newValue = (Integer) evt.getNewValue ();
+	
 		progressBar.setValue (newValue);
 		
 		//simulator is done, so re-enable stuff
 		if (newValue == 100)
 		{
-			SimulationFinalResult simulationResult = simulator.getResult ();
+			setGUIElementsDone ();
 			
-			handTypeBox.setEnabled (true);
-			variationBox.setEnabled (true);
-			playerIDBox.setEnabled (true);
-			viewGraphButton.setEnabled (true);
-			stopButton.setEnabled (true);
-			playersCount.setEnabled (true);
-			enableFlop.setEnabled (true);
-			enableTurn.setEnabled (true);
-			enableRiver.setEnabled (true);
+			setResultsTableContent ();
 		}
 	}
 	
@@ -574,7 +827,17 @@ public class GUI implements PropertyChangeListener
 		{
 			setChoicesTableContent ();
 			
-			createPlayerIDBox ();
+			adjustAvailablePlayerIDs ();
+		}
+	}
+	
+	private void adjustAvailablePlayerIDs ()
+	{
+		playerIDBox.removeAllItems ();
+		
+		for (int i = 1; i <= getCurrentPlayerCount (); i++)
+		{
+			playerIDBox.addItem (new Integer (i));
 		}
 	}
 	
@@ -592,12 +855,6 @@ public class GUI implements PropertyChangeListener
 			return c.intValue ();
 		}
 	}
-	
-	private void createPlayerIDBox ()
-	{
-		
-	}
-	
 
 	private JPanel createCommunityPanel ()
 	{
@@ -646,8 +903,10 @@ public class GUI implements PropertyChangeListener
 		GUIUtilities.setBorder (panel, dictionary.getValue ("title.controls"), TitledBorder.LEFT);
 				
 		startButton = new JButton (dictionary.getValue ("button.controls.start"));
+		startButton.addActionListener (new StartSimulationListener ());
 		
 		stopButton = new JButton (dictionary.getValue ("button.controls.stop"));
+		stopButton.addActionListener (new StopSimulationListener ());
 
 		progressBar = new JProgressBar (0, 100);
 		progressBar.setPreferredSize (new Dimension (220, 20));		
@@ -668,43 +927,24 @@ public class GUI implements PropertyChangeListener
 		
 		GUIUtilities.setBorder (panel, dictionary.getValue ("title.results"), TitledBorder.CENTER);
 		
-		String[] titles = {dictionary.getValue ("table.handoptions.player"),
-							dictionary.getValue ("table.handoptions.handtype"),
+		String[] titles = {dictionary.getValue ("table.results.player"),
 							dictionary.getValue ("table.results.wins"),
 							dictionary.getValue ("table.results.loses"),
 							dictionary.getValue ("table.results.ties")
 		};
 		
-		Object[][] rows = new String[][]
+		Object[][] rows = new String[MAX_PLAYERS][4];
+		
+		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			{"1", "Range", "23.9 %", "74.2 %", "1.7 %"},
-			{"2", "Range", "23.9 %", "74.2 %", "1.7 %"},
-			{"3", "Exact Cards", "43.1 %", "36.1 %", "1.2 %"},
-			{"4", "Random", "18.3 %", "81.5 %", "0.8 %"},
-			{"5", "Random", "18.3 %", "81.5 %", "0.8 %"},
-			{"6", "Exact Cards", "7.3 %", "91.8 %", "2.3 %"},
-			{"", "", "", "", ""}
-		};
+			rows[i][0] = " ";
+		}
 		
-		resultsTable = new JTable (rows, titles);
+		DefaultTableModel model = new DefaultTableModel (rows, titles);
 		
-//		DefaultTableModel tableModel = new DefaultTableModel ()
-//		{
-//			@Override
-//			public boolean isCellEditable (int row, int column)
-//			{
-//				return false;
-//			}
-//		};
-//		DefaultTableColumnModel columnModel = new DefaultTableColumnModel ()
-//		{
-//			@Override
-//			public void moveColumn (int columnIndex, int newIndex) {}
-//		};
-//		
-//		resultsTable.setColumnModel (columnModel);
-//		resultsTable.setModel (tableModel);
-		
+		resultsTable = new JTable (model);
+	
+		choicesTable.getTableHeader ().setReorderingAllowed (false);
 		resultsTable.getColumnModel ().setColumnSelectionAllowed (false);
 		
 		for (int i = 0; i < 4; i++)
@@ -927,8 +1167,6 @@ public class GUI implements PropertyChangeListener
 					setChoicesTableContent ();
 				}
 			}
-			
-			
 		}
 	}
 	
@@ -972,6 +1210,15 @@ public class GUI implements PropertyChangeListener
 
 				setChoicesTableContent ();
 			}
+		}
+	}
+	
+	private class PokerTypeListener implements ItemListener
+	{
+		@Override
+		public void itemStateChanged(ItemEvent e)
+		{
+			setChoicesTableContent ();
 		}
 	}
 }

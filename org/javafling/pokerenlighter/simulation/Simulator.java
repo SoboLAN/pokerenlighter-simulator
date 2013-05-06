@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.main.SystemUtils;
@@ -73,6 +74,7 @@ public final class Simulator implements PropertyChangeListener
 	private PropertyChangeSupport pcs;
 	private long startTime, endTime;
 	private int updateInterval, totalProgress;
+	private int nrOfWorkers;
 	
 	private SimulationFinalResult simulationResult;
 
@@ -91,6 +93,7 @@ public final class Simulator implements PropertyChangeListener
 		pcs = new PropertyChangeSupport (this);
 		updateInterval = 100;
 		startTime = endTime = totalProgress = 0;
+		nrOfWorkers = SystemUtils.getNrOfLogicalCPUs ();
 	}
 	
 	/**
@@ -304,8 +307,7 @@ public final class Simulator implements PropertyChangeListener
 				throw new IllegalStateException ("incorrect player profile types");
 			}
 		}
-		
-		int nrOfWorkers = SystemUtils.getNrOfLogicalCPUs ();
+
 		latch = new CountDownLatch (nrOfWorkers);
 		int roundsPerWorker = getNrOfRoundsPerWorker (nrOfWorkers);
 		
@@ -355,6 +357,16 @@ public final class Simulator implements PropertyChangeListener
 	public void stop ()
 	{
 		executor.shutdownNow ();
+		
+		for (SimulationWorker worker : workers)
+		{
+			worker.cancel (true);
+		}
+	}
+	
+	public int getNrOfThreads ()
+	{
+		return nrOfWorkers;
 	}
 
 	@Override
@@ -369,11 +381,11 @@ public final class Simulator implements PropertyChangeListener
 		}
 		
 		int combinedProgress = 0;
-		for (int i = 0; i < workers.size (); i++)
+		for (int i = 0; i < nrOfWorkers; i++)
 		{
 			combinedProgress += workers.get (i).getProgress ();
 		}
-		combinedProgress /= workers.size ();
+		combinedProgress /= nrOfWorkers;
 		
 		//the property change fire for 100 % is made in the Supervisor
 		//this is to ensure that the result will be available when the fire is triggered
@@ -400,8 +412,13 @@ public final class Simulator implements PropertyChangeListener
 		{
 			//will be called when all workers are done
 			
-			stop ();
-			
+			executor.shutdownNow ();
+	
+			if (workers.get (0).isCancelled ())
+			{
+				return;
+			}
+
 			endTime = System.currentTimeMillis ();
 
 			int nrPlayers = profiles.size ();
@@ -416,7 +433,7 @@ public final class Simulator implements PropertyChangeListener
 			}
 			
 			//sum up all the percentages
-			for (int i = 0; i < workers.size (); i++)
+			for (int i = 0; i < nrOfWorkers; i++)
 			{
 				SimulationWorkerResult result = workers.get (i).getResult ();
 				
@@ -431,16 +448,25 @@ public final class Simulator implements PropertyChangeListener
 			//average is needed, so... divide
 			for (int j = 0; j < nrPlayers; j++)
 			{
-				wins[j] /= workers.size ();
-				loses[j] /= workers.size ();
-				ties[j] /= workers.size ();
+				wins[j] /= nrOfWorkers;
+				loses[j] /= nrOfWorkers;
+				ties[j] /= nrOfWorkers;
 			}
-			
+
 			long duration = endTime - startTime;
 			
 			simulationResult = new SimulationFinalResult (gameType, profiles, wins, ties, loses, nrRounds, duration);
 			
 			//tell the listeners that the simulation is done
+			SwingUtilities.invokeLater (new LastPropertyCall ());
+		}
+	}
+	
+	private class LastPropertyCall implements Runnable
+	{
+		@Override
+		public void run ()
+		{
 			pcs.firePropertyChange ("progress", totalProgress, 100);
 			totalProgress = 100;
 		}
