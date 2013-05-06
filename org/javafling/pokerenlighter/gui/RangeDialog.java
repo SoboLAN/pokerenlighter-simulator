@@ -31,11 +31,13 @@ public class RangeDialog extends JDialog
 	
 	private Range range;
 	
-	public RangeDialog (JFrame parent)
+	private boolean cancelled;
+	
+	public RangeDialog (JFrame parent, Range range)
 	{
 		super (parent, "Range Dialog", true);
 		
-		range = new Range (15);
+		this.range = (range == null) ? new Range (15) : range;
 
 		setResizable (false);
 		setDefaultCloseOperation (JDialog.DISPOSE_ON_CLOSE);
@@ -49,7 +51,19 @@ public class RangeDialog extends JDialog
 		
 		setContentPane (content);
 		
+		cancelled = false;
+		
 		pack ();
+	}
+	
+	public Range getRange ()
+	{
+		return range;
+	}
+	
+	public boolean isCancelled ()
+	{
+		return cancelled;
 	}
 	
 	private JPanel createRangePanel ()
@@ -127,6 +141,7 @@ public class RangeDialog extends JDialog
 		JButton cancelButton = new JButton ("Cancel");
 		
 		cancelButton.addActionListener (new CancelButtonListener ());
+		okButton.addActionListener (new OKListener ());
 		
 		panel.add (okButton);
 		panel.add (cancelButton);
@@ -176,11 +191,22 @@ public class RangeDialog extends JDialog
 		}
 	}
 	
+	private class OKListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			dispose ();
+		}
+	}
+	
 	private class CancelButtonListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			cancelled = true;
+			
 			dispose ();
 		}
 	}

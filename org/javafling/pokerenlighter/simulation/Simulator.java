@@ -28,6 +28,7 @@ import org.javafling.pokerenlighter.main.SystemUtils;
  * <br />
  * <pre>
  * Simulator simulator = new Simulator (PokerType.OMAHA, 100 * 1000);
+ * simulator.setUpdateInterval (10);
  * 
  * Card[] cards = {new Card ('A', 'h'), new Card ('K', 'h'), new Card ('6', 's'), new Card ('3', 'd')};
  * PlayerProfile player = new PlayerProfile (HandType.EXACTCARDS, null, cards);
@@ -72,6 +73,8 @@ public final class Simulator implements PropertyChangeListener
 	private PropertyChangeSupport pcs;
 	private long startTime, endTime;
 	private int updateInterval, totalProgress;
+	
+	private SimulationFinalResult simulationResult;
 
 	public Simulator (PokerType type, int rounds)
 	{
@@ -115,35 +118,14 @@ public final class Simulator implements PropertyChangeListener
 		}
 	}
 	
-	public static void main (String[] args)
+	public int getProgress ()
 	{
-		/*PlayerProfile p1 = new PlayerProfile (HandType.RANDOM, null, null);
-		
-		Card[] cards2 = {new Card ('Q', 's'), new Card ('K', 's')};
-		PlayerProfile p2 = new PlayerProfile (HandType.EXACTCARDS, null, cards2);*/
-		
-		Card[] cards1 = {new Card ('J', 'd'), new Card ('J', 'h'), new Card ('3', 'c'), new Card ('7', 'c')};
-		PlayerProfile p1 = new PlayerProfile (HandType.EXACTCARDS, null, cards1);
-		
-		Card[] cards2 = {new Card ('5', 's'), new Card ('5', 'h'), new Card ('A', 's'), new Card ('T', 's')};
-		PlayerProfile p2 = new PlayerProfile (HandType.EXACTCARDS, null, cards2);
-		
-		PlayerProfile p3 = new PlayerProfile (HandType.RANDOM, null, null);
-
-		Simulator sim = new Simulator (PokerType.OMAHA, 105000);
-		sim.setUpdateInterval (10);
-		sim.addPlayer (p1);
-		sim.addPlayer (p2);
-		sim.addPlayer (p3);
-		
-		Card[] flop = new Card[3];
-		flop[0] = new Card ('A', 'd');
-		flop[1] = new Card ('3', 'd');
-		flop[2] = new Card ('9', 's');
-		
-		sim.setFlop (flop);
-
-		sim.start ();		
+		return totalProgress;
+	}
+	
+	public SimulationFinalResult getResult ()
+	{
+		return simulationResult;
 	}
 
 	/**
@@ -393,13 +375,13 @@ public final class Simulator implements PropertyChangeListener
 		}
 		combinedProgress /= workers.size ();
 		
-		if (combinedProgress - totalProgress > updateInterval)
+		//the property change fire for 100 % is made in the Supervisor
+		//this is to ensure that the result will be available when the fire is triggered
+		if (combinedProgress - totalProgress > updateInterval && combinedProgress != 100)
 		{
-			//pcs.firePropertyChange ("progress", totalProgress, combinedProgress);
+			pcs.firePropertyChange ("progress", totalProgress, combinedProgress);
 			
 			totalProgress = combinedProgress;
-			
-			System.out.println ("Progress: " + totalProgress);
 		}
 	}
 	
@@ -421,9 +403,7 @@ public final class Simulator implements PropertyChangeListener
 			stop ();
 			
 			endTime = System.currentTimeMillis ();
-			
-			System.out.println ("Duration: " + (endTime - startTime) + " ms");
-			
+
 			int nrPlayers = profiles.size ();
 			
 			double[] wins = new double[nrPlayers];
@@ -454,9 +434,15 @@ public final class Simulator implements PropertyChangeListener
 				wins[j] /= workers.size ();
 				loses[j] /= workers.size ();
 				ties[j] /= workers.size ();
-				
-				System.out.println ("Player " + j + ": wins: " + wins[j] + ", loses: " + loses[j] + ", ties: " + ties[j]);
 			}
+			
+			long duration = endTime - startTime;
+			
+			simulationResult = new SimulationFinalResult (gameType, profiles, wins, ties, loses, nrRounds, duration);
+			
+			//tell the listeners that the simulation is done
+			pcs.firePropertyChange ("progress", totalProgress, 100);
+			totalProgress = 100;
 		}
 	}
 	

@@ -29,8 +29,8 @@ public final class PokerEnlighter implements Runnable
 	
 	public static final String COMPILED_WITH = "Java 7 Update 11";
 	
-	//UNIX timestamp: 1365890940
-	public static final String BUILD_DATE = "03 May 2013 05:13 PM UTC";
+	//UNIX timestamp: 1367835705
+	public static final String BUILD_DATE = "06 May 2013 10:21 AM UTC";
 	
 	private static final String errorTitle = "Program error";
 	private static final String errorContent = "The program encountered an error at startup: ";

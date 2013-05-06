@@ -107,8 +107,9 @@ public class AboutDialog extends JDialog
 		thanksinfo.setWrapStyleWord (true);
 		thanksinfo.setText ("- the authors of Swing Hacks: Tips and Tools for Killer GUIs; they published the Swing code for status bars in their book.\n\n" + 
 							"- the authors of Numerical Recipes - The Art of Scientific Computing; they published a more advanced random number generator in the book.\n\n" +
-							"- EaSynth Inc. for providing the EaSynth Look & Feel\n\n" +
-							"- Nilo J. Gonzalez for providing the NimROD Look & Feel\n\n" +
+							"- EaSynth Inc. for publishing the EaSynth Look & Feel\n\n" +
+							"- Nilo J. Gonzalez for publishing the NimROD Look & Feel\n\n" +
+							"- Kenneth Orr and Kathryn Huxtable for publishing the Sea Glass Look & Feel\n\n" +
 							"- David Gilbert for developing and publishing JFreeChart.");
 		
 		JScrollPane scrollPane = new JScrollPane (thanksinfo);

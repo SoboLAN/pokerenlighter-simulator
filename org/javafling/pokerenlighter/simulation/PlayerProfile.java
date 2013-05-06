@@ -41,7 +41,7 @@ public final class PlayerProfile
 	 * of the cards is null. Also, if range is null in the case handType is HandType.RANGE.
 	 * 
 	 * @throws IllegalArgumentException if handType is HandType.EXACTCARDS and the length of the cards array
-	 * is not 2 or 4.
+	 * is not 2 or 4. Also, if cards contains duplicate cards.
 	 */
 	public PlayerProfile (HandType handType, Range range, Card[] cards)
 	{
@@ -60,18 +60,15 @@ public final class PlayerProfile
 			}
 			else
 			{
-				for (int i = 0; i < cards.length; i++)
+				if (! testForNull (cards))
 				{
-					if (cards[i] == null)
-					{
-						throw new NullPointerException ();
-					}
+					throw new NullPointerException ();
 				}
-			}
-
-			if (cards.length != 2 && cards.length != 4)
-			{
-				throw new IllegalArgumentException ();
+				
+				if ((cards.length != 2 && cards.length != 4) || ! testDuplicates (cards))
+				{
+					throw new IllegalArgumentException ();
+				}
 			}
 			
 			this.cards = cards;
@@ -85,6 +82,35 @@ public final class PlayerProfile
 			
 			this.range = range;
 		}
+	}
+	
+	private boolean testForNull (Card[] cards)
+	{
+		for (int i = 0; i < cards.length; i++)
+		{
+			if (cards[i] == null)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean testDuplicates (Card[] cards)
+	{
+		for (int i = 0; i < cards.length - 1; i++)
+		{
+			for (int j = i + 1; j < cards.length; j++)
+			{
+				if (cards[i].equals (cards[j]))
+				{
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	public HandType getHandType ()

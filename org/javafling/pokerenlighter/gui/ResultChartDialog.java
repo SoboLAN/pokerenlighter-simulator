@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import org.javafling.pokerenlighter.simulation.SimulationWorkerResult;
+import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -31,9 +31,9 @@ import org.jfree.data.category.DefaultCategoryDataset;
  */
 public final class ResultChartDialog extends JDialog implements ActionListener
 {
-	private SimulationWorkerResult result;
+	private SimulationFinalResult result;
 	
-	public ResultChartDialog (JFrame parent, String title, SimulationWorkerResult result)
+	public ResultChartDialog (JFrame parent, String title, SimulationFinalResult result)
 	{
 		super (parent, title, true);
 		
@@ -45,7 +45,7 @@ public final class ResultChartDialog extends JDialog implements ActionListener
 		ChartPanel chartPanel = buildChart (title);
 		add (chartPanel, BorderLayout.CENTER);
 		
-		JButton btn = new JButton ("OK");
+		JButton btn = new JButton ("Close");
 		btn.addActionListener (this);
 		JPanel btnPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
 		btnPanel.add (btn);
@@ -137,26 +137,23 @@ public final class ResultChartDialog extends JDialog implements ActionListener
 	{
         DefaultCategoryDataset categoryDataSet = new DefaultCategoryDataset();
 		
-		categoryDataSet.addValue (27.9, "Wins", "Player 1");
-		categoryDataSet.addValue (27.9, "Wins", "Player 2");
-		categoryDataSet.addValue (43.1, "Wins", "Player 3");
-		categoryDataSet.addValue (21.3, "Wins", "Player 4");
-		categoryDataSet.addValue (21.3, "Wins", "Player 5");
-		categoryDataSet.addValue (9.3, "Wins", "Player 6");
+		DecimalFormat formatter = new DecimalFormat ();
+		formatter.setMaximumFractionDigits (1);
 		
-		categoryDataSet.addValue (74.2, "Loses", "Player 1");
-		categoryDataSet.addValue (74.2, "Loses", "Player 2");
-		categoryDataSet.addValue (36.1, "Loses", "Player 3");
-		categoryDataSet.addValue (81.5, "Loses", "Player 4");
-		categoryDataSet.addValue (81.5, "Loses", "Player 5");
-		categoryDataSet.addValue (91.8, "Loses", "Player 6");
-		
-		categoryDataSet.addValue (4.7, "Ties", "Player 1");
-		categoryDataSet.addValue (4.7, "Ties", "Player 2");
-		categoryDataSet.addValue (2.2, "Ties", "Player 3");
-		categoryDataSet.addValue (1.8, "Ties", "Player 4");
-		categoryDataSet.addValue (1.8, "Ties", "Player 5");
-		categoryDataSet.addValue (5.3, "Ties", "Player 6");
+		for (int i = 0; i < result.getNrOfPlayers (); i++)
+		{
+			categoryDataSet.addValue (Double.parseDouble (formatter.format (result.getWinPercentage (i))),
+									"Wins",
+									"Player " + Integer.toString (i + 1));
+			
+			categoryDataSet.addValue (Double.parseDouble (formatter.format (result.getLosePercentage (i))),
+									"Loses",
+									"Player " + Integer.toString (i + 1));
+			
+			categoryDataSet.addValue (Double.parseDouble (formatter.format (result.getTiePercentage (i))),
+									"Ties",
+									"Player " + Integer.toString (i + 1));
+		}
 		
 		return categoryDataSet;        
     }

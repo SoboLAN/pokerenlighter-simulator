@@ -9,6 +9,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -23,21 +27,30 @@ import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
+import org.javafling.pokerenlighter.simulation.Range;
+import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.javafling.pokerenlighter.simulation.SimulationWorkerResult;
+import org.javafling.pokerenlighter.simulation.Simulator;
 
 /** Main GUI (Graphical User Interface) class.
  *
  * @author Murzea Radu
  */
-public class GUI
+public class GUI implements PropertyChangeListener
 {
 	private static GUI _instance;
+	
+	private static final int MAX_PLAYERS = 7;
 	
 	private String windowTitle = "Poker Enlighter";
 	
@@ -64,7 +77,10 @@ public class GUI
 	private JLabel flopCard1, flopCard2, flopCard3, turnCard, riverCard;
 	private JProgressBar progressBar;
 	
-	private PlayerProfile[][] playersInfo;
+	private PlayerProfile[] holdemProfiles, omahaProfiles, omahaHiLoProfiles;
+	private Card[] holdemCommunityCards, omahaCommunityCards, omahaHiLoCommunityCards;
+	
+	private Simulator simulator;
 	
 	public static GUI getGUI (PEDictionary lang)
 	{
@@ -80,15 +96,19 @@ public class GUI
 	{
 		dictionary = language;
 		
-		playersInfo = new PlayerProfile[3][7];
-		
-		for (int i = 0; i < 7; i++)
+		holdemProfiles = new PlayerProfile[MAX_PLAYERS];
+		omahaProfiles = new PlayerProfile[MAX_PLAYERS];
+		omahaHiLoProfiles = new PlayerProfile[MAX_PLAYERS];
+		for (int i = 0; i < MAX_PLAYERS; i++)
 		{
-			for (int j = 0; j < 3; j++)
-			{
-				playersInfo[j][i] = new PlayerProfile (HandType.RANDOM, null, null);
-			}
+			holdemProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
+			omahaProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
+			omahaHiLoProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
 		}
+		
+		holdemCommunityCards = new Card[5];
+		omahaCommunityCards = new Card[5];
+		omahaHiLoCommunityCards = new Card[5];
 
 		mainframe = new JFrame (windowTitle);
 		mainframe.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
@@ -104,16 +124,11 @@ public class GUI
 		statusBar = new StatusBar (dictionary.getValue ("statusbar.ready"));
 		mainframe.add (statusBar, BorderLayout.SOUTH);
 		
+		setChoicesTableContent ();
+		
 		mainframe.pack ();
 	}
 	
-	/** Sets the location of the Window on the screen relative to
-	* the top-left corner.
-	*
-	* @param x the number of pixels to move to the right
-	*
-	* @param y the number of pixels to move to the bottom
-	*/
 	public void setLocation (int x, int y)
 	{
 		mainframe.setLocation (x, y);
@@ -156,8 +171,196 @@ public class GUI
 		
 		resultsPanel = createResultsPanel ();
 		panel.add (resultsPanel, BorderLayout.SOUTH);
-	
+		
 		return panel;
+	}
+	
+	private class StartSimulationListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			
+		}
+		
+		private void disableGUIElements ()
+		{
+			handTypeBox.setEnabled (false);
+			variationBox.setEnabled (false);
+			playerIDBox.setEnabled (false);
+			viewGraphButton.setEnabled (false);
+			stopButton.setEnabled (false);
+			playersCount.setEnabled (false);
+			enableFlop.setEnabled (false);
+			enableTurn.setEnabled (false);
+			enableRiver.setEnabled (false);
+		}
+	}
+	
+	private class CommunityCardsListener extends MouseAdapter
+	{
+		private Street street;
+		
+		public CommunityCardsListener (Street street)
+		{
+			this.street = street;
+		}
+		
+		private Card[] getSelectedCommunityCards (PokerType selectedPokerType)
+		{
+			Card[] selectedCommunityCards = null;
+
+			int nrCards = (street == Street.FLOP) ? 3 : 1;
+			int position = (street == Street.FLOP ) ? 0 : (street == Street.TURN ? 3 : 4);
+			if (selectedPokerType == PokerType.TEXAS_HOLDEM)
+			{
+				for (int i = position; i < position + nrCards; i++)
+				{
+					if (holdemCommunityCards[i] == null)
+					{
+						return null;
+					}
+				}
+
+				selectedCommunityCards = new Card[nrCards];
+				System.arraycopy (holdemCommunityCards, position, selectedCommunityCards, 0, nrCards);
+			}
+			else if (selectedPokerType == PokerType.OMAHA)
+			{
+				for (int i = position; i < position + nrCards; i++)
+				{
+					if (omahaCommunityCards[i] == null)
+					{
+						return null;
+					}
+				}
+				
+				selectedCommunityCards = new Card[nrCards];
+				System.arraycopy (omahaCommunityCards, position, selectedCommunityCards, 0, nrCards);
+			}
+			else if (selectedPokerType == PokerType.OMAHA_HILO)
+			{
+				for (int i = position; i < position + nrCards; i++)
+				{
+					if (omahaHiLoCommunityCards[i] == null)
+					{
+						return null;
+					}
+				}
+				
+				selectedCommunityCards = new Card[nrCards];
+				System.arraycopy (omahaHiLoCommunityCards, position, selectedCommunityCards, 0, nrCards);
+			}
+			
+			return selectedCommunityCards;
+		}
+		
+		@Override
+		public void mousePressed (MouseEvent e)
+		{
+			if ((street == Street.FLOP && ! enableFlop.isSelected ()) ||
+				(street == Street.TURN && ! enableTurn.isSelected ()) ||
+				(street == Street.RIVER && ! enableRiver.isSelected ()))
+			{
+				return;
+			}
+
+			PokerType selectedPokerType = getSelectedVariation ();
+			
+			ArrayList<Card> usedCards = getUsedCards (selectedPokerType);
+			
+			Card[] selectedCommunityCards = getSelectedCommunityCards (selectedPokerType);
+			
+			int nrCards = (street == Street.FLOP) ? 3 : 1;
+
+			CardsDialog cd = new CardsDialog (mainframe, nrCards, selectedCommunityCards, usedCards);
+			cd.setLocationRelativeTo (mainframe);
+			cd.setVisible (true);
+				
+			Card[] newCards = cd.getCards ();
+				
+			if (newCards == null)
+			{
+				return;
+			}
+			
+			updateCommunityCards (selectedPokerType, newCards);
+		}
+		
+		private void updateCommunityCards (PokerType selectedPokerType, Card[] newCards)
+		{
+			if (selectedPokerType == PokerType.TEXAS_HOLDEM)
+			{
+				if (street == Street.FLOP)
+				{
+					holdemCommunityCards[0] = newCards[0];
+					holdemCommunityCards[1] = newCards[1];
+					holdemCommunityCards[2] = newCards[2];
+				}
+				else if (street == Street.TURN)
+				{
+					holdemCommunityCards[3] = newCards[0];
+				}
+				else if (street == Street.RIVER)
+				{
+					holdemCommunityCards[4] = newCards[0];
+				}
+			}
+			else if (selectedPokerType == PokerType.OMAHA)
+			{
+				if (street == Street.FLOP)
+				{
+					omahaCommunityCards[0] = newCards[0];
+					omahaCommunityCards[1] = newCards[1];
+					omahaCommunityCards[2] = newCards[2];
+				}
+				else if (street == Street.TURN)
+				{
+					omahaCommunityCards[3] = newCards[0];
+				}
+				else if (street == Street.RIVER)
+				{
+					omahaCommunityCards[4] = newCards[0];
+				}
+			}
+			else if (selectedPokerType == PokerType.OMAHA_HILO)
+			{
+				if (street == Street.FLOP)
+				{
+					omahaHiLoCommunityCards[0] = newCards[0];
+					omahaHiLoCommunityCards[1] = newCards[1];
+					omahaHiLoCommunityCards[2] = newCards[2];
+				}
+				else if (street == Street.TURN)
+				{
+					omahaHiLoCommunityCards[3] = newCards[0];
+				}
+				else if (street == Street.RIVER)
+				{
+					omahaHiLoCommunityCards[4] = newCards[0];
+				}
+			}
+			
+			if (street == Street.FLOP)
+			{
+				flopCard1.setIcon (new ImageIcon (getClass ().getResource (
+										"images/cards/" + newCards[0].toString () + ".gif")));
+				flopCard2.setIcon (new ImageIcon (getClass ().getResource (
+										"images/cards/" + newCards[1].toString () + ".gif")));
+				flopCard3.setIcon (new ImageIcon (getClass ().getResource (
+										"images/cards/" + newCards[2].toString () + ".gif")));
+			}
+			else if (street == Street.TURN)
+			{
+				turnCard.setIcon (new ImageIcon (getClass ().getResource (
+										"images/cards/" + newCards[0].toString () + ".gif")));
+			}
+			else if (street == Street.RIVER)
+			{
+				riverCard.setIcon (new ImageIcon (getClass ().getResource (
+										"images/cards/" + newCards[0].toString () + ".gif")));
+			}
+		}
 	}
 	
 	private JPanel createChoicesPanel ()
@@ -168,20 +371,22 @@ public class GUI
 							dictionary.getValue ("table.handoptions.handtype"),
 							dictionary.getValue ("table.handoptions.selection")};
 		
-		Object[][] rows = new String[][]
+		Object[][] rows = new String[MAX_PLAYERS][3];
+		for (int i = 0; i < getCurrentPlayerCount (); i++)
 		{
-			{"1", dictionary.getValue ("table.handoptions.handtype.range"), "16.6 %"},
-			{"2", dictionary.getValue ("table.handoptions.handtype.range"), "12.3 %"},
-			{"3", dictionary.getValue ("table.handoptions.handtype.exactcards"), "KcKd"},
-			{"4", dictionary.getValue ("table.handoptions.handtype.random"), ""},
-			{"5", dictionary.getValue ("table.handoptions.handtype.random"), ""},
-			{"6", dictionary.getValue ("table.handoptions.handtype.exactcards"), "As4h"},
-			{"", "", "", "", ""}
-		};
-		
-		choicesTable = new JTable (rows, titles);
+			rows[i][0] = Integer.toString (i + 1);
+		}
+		for (int i = getCurrentPlayerCount (); i < MAX_PLAYERS; i++)
+		{
+			rows[i][0] = " ";
+		}
+
+		DefaultTableModel model = new DefaultTableModel (rows, titles);
+
+		choicesTable = new JTable (model);
 		
 		choicesTable.getColumnModel ().setColumnSelectionAllowed (false);
+		choicesTable.getTableHeader ().setReorderingAllowed (false);
 		
 		for (int i = 0; i < 3; i++)
 		{
@@ -199,6 +404,63 @@ public class GUI
 		
 		return panel;
 	}
+	
+	private void setChoicesTableContent ()
+	{
+		PokerType gameType = getSelectedVariation ();
+		
+		int nrPlayersToFill = getCurrentPlayerCount ();
+		
+		TableModel model = choicesTable.getModel ();
+		
+		for (int i = 0; i < nrPlayersToFill; i++)
+		{
+			model.setValueAt (Integer.toString (i + 1), i, 0);
+			
+			PlayerProfile profile = null;
+			if (gameType == PokerType.TEXAS_HOLDEM)
+			{
+				profile = holdemProfiles[i];
+			}
+			else if (gameType == PokerType.OMAHA)
+			{
+				profile = omahaProfiles[i];
+			}
+			else if (gameType == PokerType.OMAHA_HILO)
+			{
+				profile = omahaHiLoProfiles[i];
+			}
+			
+			if (profile.getHandType () == HandType.RANDOM)
+			{
+				model.setValueAt (dictionary.getValue ("table.handoptions.handtype.random"), i, 1);
+				model.setValueAt (" ", i, 2);
+			}
+			else if (profile.getHandType () == HandType.RANGE)
+			{
+				model.setValueAt (dictionary.getValue ("table.handoptions.handtype.range"), i, 1);
+				model.setValueAt (Integer.toString (profile.getRange ().getRangePercentage ()), i, 2);
+			}
+			else if (profile.getHandType () == HandType.EXACTCARDS)
+			{
+				model.setValueAt (dictionary.getValue ("table.handoptions.handtype.exactcards"), i, 1);
+				StringBuilder sb = new StringBuilder ();
+				Card[] c = profile.getCards ();
+				for (Card card : c)
+				{
+					sb.append (card.toString ());
+				}
+				model.setValueAt (sb.toString (), i, 2);
+			}
+		}
+		
+		for (int i = nrPlayersToFill; i < MAX_PLAYERS; i++)
+		{
+			model.setValueAt (" ", i, 0);
+			model.setValueAt (" ", i, 1);
+			model.setValueAt (" ", i, 2);
+		}
+	}
 
 	private JPanel createPlayersPanel ()
 	{
@@ -211,6 +473,7 @@ public class GUI
 		topPanel.add (new JLabel (dictionary.getValue ("label.handoptions.player")));
 		
 		playerIDBox = new JComboBox (new Integer[]{1, 2, 3, 4, 5, 6, 7});
+		playerIDBox.setEditable (false);
 		topPanel.add (playerIDBox);
 		
 		topPanel.add (new JLabel (dictionary.getValue ("label.handoptions.handtype")));
@@ -220,6 +483,7 @@ public class GUI
 								dictionary.getValue ("combobox.handoptions.exactcards")};
 
 		handTypeBox = new JComboBox (handBoxOptions);
+		handTypeBox.setEditable (false);
 		handTypeBox.addItemListener (new HandTypeItemListener ());
 		topPanel.add (handTypeBox);
 		
@@ -254,8 +518,9 @@ public class GUI
 		
 		JPanel nrPlayersPanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
 	
-		SpinnerNumberModel playersModel = new SpinnerNumberModel (2, 2, 7, 1);		
+		SpinnerNumberModel playersModel = new SpinnerNumberModel (2, 2, MAX_PLAYERS, 1);		
 		playersCount = new JSpinner (playersModel);
+		playersCount.addChangeListener (new PlayerCountSpinnerListener ());
 
 		nrPlayersPanel.add (new JLabel (dictionary.getValue ("label.general.nrplayers")));
 		nrPlayersPanel.add (playersCount);
@@ -263,7 +528,7 @@ public class GUI
 		JPanel variationPanel = new JPanel (new FlowLayout (FlowLayout.RIGHT));
 		
 		variationBox = new JComboBox (new String[]{"Texas Hold'em", "Omaha", "Omaha Hi/Lo"});
-		variationBox.addItemListener (new PokerTypeListener ());
+		variationBox.setEditable (false);
 		variationPanel.add (new JLabel (dictionary.getValue ("label.general.pokertype")));
 		variationPanel.add (variationBox);
 		
@@ -271,6 +536,66 @@ public class GUI
 		panel.add (variationPanel);
 		
 		return panel;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		if (! evt.getPropertyName ().equals ("progress"))
+		{
+			return;
+		}
+
+		int newValue = simulator.getProgress ();
+		
+		progressBar.setValue (newValue);
+		
+		//simulator is done, so re-enable stuff
+		if (newValue == 100)
+		{
+			SimulationFinalResult simulationResult = simulator.getResult ();
+			
+			handTypeBox.setEnabled (true);
+			variationBox.setEnabled (true);
+			playerIDBox.setEnabled (true);
+			viewGraphButton.setEnabled (true);
+			stopButton.setEnabled (true);
+			playersCount.setEnabled (true);
+			enableFlop.setEnabled (true);
+			enableTurn.setEnabled (true);
+			enableRiver.setEnabled (true);
+		}
+	}
+	
+	private class PlayerCountSpinnerListener implements ChangeListener
+	{
+		@Override
+		public void stateChanged(ChangeEvent e)
+		{
+			setChoicesTableContent ();
+			
+			createPlayerIDBox ();
+		}
+	}
+	
+	private int getCurrentPlayerCount ()
+	{
+		//playersCount might not yet be created (depends on the order of creation of panels)
+		if (playersCount == null)
+		{
+			return 2;
+		}
+		else
+		{
+			Integer c = (Integer) playersCount.getValue ();
+		
+			return c.intValue ();
+		}
+	}
+	
+	private void createPlayerIDBox ()
+	{
+		
 	}
 	
 
@@ -304,6 +629,12 @@ public class GUI
 		
 		panel.add (enableRiver);
 		panel.add (riverCard);
+		
+		flopCard1.addMouseListener (new CommunityCardsListener (Street.FLOP));
+		flopCard2.addMouseListener (new CommunityCardsListener (Street.FLOP));
+		flopCard3.addMouseListener (new CommunityCardsListener (Street.FLOP));
+		turnCard.addMouseListener (new CommunityCardsListener (Street.TURN));
+		riverCard.addMouseListener (new CommunityCardsListener (Street.RIVER));
 		
 		return panel;
 	}
@@ -408,24 +739,78 @@ public class GUI
 	{
 		ArrayList<Card> usedCards = new ArrayList<> ();
 
-		for (int i = 0; i < 7; i++)
-		{					
-			Card[] cards = playersInfo[selectedVariation.ordinal ()][i].getCards ();
-					
-			if (cards == null)
+		Card[] cards;
+		if (selectedVariation == PokerType.TEXAS_HOLDEM)
+		{
+			for (int i = 0; i < MAX_PLAYERS; i++)
 			{
-				continue;
-			}
-				
-			for (int j = 0; j < cards.length; j++)
-			{
-				if (cards[j] != null)
+				if (holdemProfiles[i].getHandType () != HandType.EXACTCARDS)
 				{
-					usedCards.add (cards[j]);
+					continue;
+				}
+				
+				cards = holdemProfiles[i].getCards ();
+				usedCards.add (cards[0]);
+				usedCards.add (cards[1]);
+			}
+			
+			for (int i = 0; i < 5; i++)
+			{
+				if (holdemCommunityCards[i] != null)
+				{
+					usedCards.add (holdemCommunityCards[i]);
 				}
 			}
 		}
+		else if (selectedVariation == PokerType.OMAHA)
+		{
+			for (int i = 0; i < MAX_PLAYERS; i++)
+			{
+				if (omahaProfiles[i].getHandType () != HandType.EXACTCARDS)
+				{
+					continue;
+				}
 				
+				cards = omahaProfiles[i].getCards ();
+				usedCards.add (cards[0]);
+				usedCards.add (cards[1]);
+				usedCards.add (cards[2]);
+				usedCards.add (cards[3]);
+			}
+			
+			for (int i = 0; i < 5; i++)
+			{
+				if (omahaCommunityCards[i] != null)
+				{
+					usedCards.add (omahaCommunityCards[i]);
+				}
+			}
+		}
+		else if (selectedVariation == PokerType.OMAHA_HILO)
+		{
+			for (int i = 0; i < MAX_PLAYERS; i++)
+			{
+				if (omahaHiLoProfiles[i].getHandType () != HandType.EXACTCARDS)
+				{
+					continue;
+				}
+				
+				cards = omahaHiLoProfiles[i].getCards ();
+				usedCards.add (cards[0]);
+				usedCards.add (cards[1]);
+				usedCards.add (cards[2]);
+				usedCards.add (cards[3]);
+			}
+			
+			for (int i = 0; i < 5; i++)
+			{
+				if (omahaHiLoCommunityCards[i] != null)
+				{
+					usedCards.add (omahaHiLoCommunityCards[i]);
+				}
+			}
+		}
+						
 		return usedCards;
 	}
 	
@@ -462,8 +847,8 @@ public class GUI
 		{
 			ResultChartDialog rcd = new ResultChartDialog (mainframe,
 														"Simulation Results Graph",
-														new SimulationWorkerResult (null, null, null));
-			rcd.setLocationRelativeTo (null);
+														simulator.getResult ());
+			rcd.setLocationRelativeTo (mainframe);
 			rcd.setVisible (true);
 		}
 	}
@@ -475,27 +860,48 @@ public class GUI
 		{
 			PokerType selectedPokerType = getSelectedVariation ();
 			HandType selectedHandType = getSelectedHandType ();
+			int selectedPlayer = playerIDBox.getSelectedIndex ();
 			
 			if (selectedHandType == HandType.RANGE)
 			{
 				if (selectedPokerType == PokerType.TEXAS_HOLDEM)
 				{
-					RangeDialog rd = new RangeDialog (mainframe);
+					RangeDialog rd = new RangeDialog (mainframe, holdemProfiles[selectedPlayer].getRange ());
 			
 					rd.setLocationRelativeTo (mainframe);
 					rd.setVisible (true);
+					
+					Range newRange = rd.getRange ();
+					
+					if (! rd.isCancelled ())
+					{
+						holdemProfiles[selectedPlayer] = new PlayerProfile (HandType.RANGE, newRange, null);
+						
+						setChoicesTableContent ();
+					}			
 				}
 			}
 			else if (selectedHandType == HandType.EXACTCARDS)
 			{
 				ArrayList<Card> usedCards = getUsedCards (selectedPokerType);
 
-				Card[] playerCards = playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].getCards ();
+				Card[] playerCards = null;
+				if (selectedPokerType == PokerType.TEXAS_HOLDEM)
+				{
+					playerCards = holdemProfiles[selectedPlayer].getCards ();
+				}
+				else if (selectedPokerType == PokerType.OMAHA)
+				{
+					playerCards = omahaProfiles[selectedPlayer].getCards ();
+				}
+				else if (selectedPokerType == PokerType.OMAHA_HILO)
+				{
+					playerCards = omahaHiLoProfiles[selectedPlayer].getCards ();
+				}
 				
 				int nrOfRequestedCards = selectedPokerType == PokerType.TEXAS_HOLDEM ? 2 : 4;
 				
 				CardsDialog cd = new CardsDialog (mainframe, nrOfRequestedCards, playerCards, usedCards);
-				
 				cd.setLocationRelativeTo (mainframe);
 				cd.setVisible (true);
 				
@@ -503,15 +909,26 @@ public class GUI
 				
 				if (selectedCards != null)
 				{
-					for (Card c : selectedCards)
+					PlayerProfile newProfile = new PlayerProfile (HandType.EXACTCARDS, null, selectedCards);
+					
+					if (selectedPokerType == PokerType.TEXAS_HOLDEM)
 					{
-						System.out.print (c.toString ());
+						holdemProfiles[selectedPlayer] = newProfile;
+					}
+					else if (selectedPokerType == PokerType.OMAHA)
+					{
+						omahaProfiles[selectedPlayer] = newProfile;
+					}
+					else if (selectedPokerType == PokerType.OMAHA_HILO)
+					{
+						omahaHiLoProfiles[selectedPlayer] = newProfile;
 					}
 					
-					//TO DO: FIX THIS !
-				//	playersInfo[selectedPokerType.ordinal ()][playerIDBox.getSelectedIndex ()].setCards (selectedCards);
+					setChoicesTableContent ();
 				}
 			}
+			
+			
 		}
 	}
 	
@@ -526,7 +943,6 @@ public class GUI
 			}
 			
 			HandType selectedHandType = getSelectedHandType ();
-	
 			if (selectedHandType == HandType.RANGE)
 			{
 				selectButton.setText (dictionary.getValue ("button.handoptions.chooserange"));
@@ -535,15 +951,27 @@ public class GUI
 			{
 				selectButton.setText (dictionary.getValue ("button.handoptions.choosecards"));
 			}
+			else if (selectedHandType == HandType.RANDOM)
+			{
+				PokerType gameType = getSelectedVariation ();
+				
+				int player = playerIDBox.getSelectedIndex ();
+				
+				if (gameType == PokerType.TEXAS_HOLDEM)
+				{
+					holdemProfiles[player] = new PlayerProfile (HandType.RANDOM, null, null);
+				}
+				else if (gameType == PokerType.OMAHA)
+				{
+					omahaProfiles[player] = new PlayerProfile (HandType.RANDOM, null, null);
+				}
+				else if (gameType == PokerType.OMAHA_HILO)
+				{
+					omahaHiLoProfiles[player] = new PlayerProfile (HandType.RANDOM, null, null);
+				}
+
+				setChoicesTableContent ();
+			}
 		}
-	}
-	
-	private class PokerTypeListener implements ItemListener
-	{
-		@Override
-		public void itemStateChanged(ItemEvent e)
-		{
-			
-		}	
 	}
 }
