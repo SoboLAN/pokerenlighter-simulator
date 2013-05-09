@@ -1,7 +1,6 @@
 package org.javafling.pokerenlighter.simulation;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
@@ -129,7 +128,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 		Card[] currentHand = new Card[7];
 		
 		//main simulation loop
-		for (int current_round = 1; current_round <= rounds; current_round++)
+		for (int current_round = 1; current_round <= rounds && ! Thread.currentThread ().isInterrupted (); current_round++)
 		{
 			deck.shuffle (10);
 			
@@ -470,7 +469,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 		Card[] currentHand = new Card[9];
 
 		//main simulation loop
-		for (int current_round = 1; current_round <= rounds; current_round++)
+		for (int current_round = 1; current_round <= rounds && ! Thread.currentThread ().isInterrupted (); current_round++)
 		{
 			deck.shuffle (10);
 									
@@ -576,7 +575,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 		boolean[] tmpTies = new boolean[nrPlayers];
 
 		//main simulation loop
-		for (int current_round = 1; current_round <= rounds; current_round++)
+		for (int current_round = 1; current_round <= rounds && ! Thread.currentThread ().isInterrupted (); current_round++)
 		{
 			deck.shuffle (10);
 									
@@ -717,18 +716,22 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 	{
 		//build result here
 		
-		double[] winP = new double[nrPlayers];
-		double[] losesP = new double[nrPlayers];
-		double[] tiesP = new double [nrPlayers];
-		
-		for (int i = 0; i < nrPlayers; i++)
+		if (getProgress () == 100)
 		{
-			winP[i] = (100.0 * wins[i]) / rounds;
-			losesP[i] = (100.0 * loses[i]) / rounds;
-			tiesP[i] = (100.0 * ties[i]) / rounds;
+			double[] winP = new double[nrPlayers];
+			double[] losesP = new double[nrPlayers];
+			double[] tiesP = new double [nrPlayers];
+
+			for (int i = 0; i < nrPlayers; i++)
+			{
+				winP[i] = (100.0 * wins[i]) / rounds;
+				losesP[i] = (100.0 * loses[i]) / rounds;
+				tiesP[i] = (100.0 * ties[i]) / rounds;
+			}
+
+			simResult = new SimulationWorkerResult (winP, tiesP, losesP);
+
 		}
-		
-		simResult = new SimulationWorkerResult (winP, tiesP, losesP);
 		
 		latch.countDown();
 	}

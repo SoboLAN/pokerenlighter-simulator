@@ -40,7 +40,6 @@ import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 import org.javafling.pokerenlighter.simulation.Range;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
-import org.javafling.pokerenlighter.simulation.SimulationWorkerResult;
 import org.javafling.pokerenlighter.simulation.Simulator;
 
 /** Main GUI (Graphical User Interface) class.
@@ -162,7 +161,7 @@ public class GUI implements PropertyChangeListener
 		statusBar.setText (sb.toString ());
 	}
 	
-	private void setGUIElementsDone ()
+	private void setGUIElementsDone (boolean stopped)
 	{
 		handTypeBox.setEnabled (true);
 		variationBox.setEnabled (true);
@@ -174,14 +173,15 @@ public class GUI implements PropertyChangeListener
 		enableTurn.setEnabled (true);
 		enableRiver.setEnabled (true);
 
-		if (simulator.getResult () != null)
+		if (! stopped)
 		{
 			long duration = simulator.getResult ().getDuration ();
 			double durationSeconds = duration / 1000.0;
 			DecimalFormat df = new DecimalFormat ();
-			df.setMaximumFractionDigits (1);
+			df.setMaximumFractionDigits (2);
+			df.setMinimumFractionDigits (2);
 
-			statusBar.setText (dictionary.getValue ("statusbar.done") + " (" + df.format (durationSeconds) + " s)");
+			statusBar.setText (dictionary.getValue ("statusbar.done") + " (" + df.format (durationSeconds) + " seconds)");
 			
 			viewGraphButton.setEnabled (true);
 		}
@@ -416,8 +416,6 @@ public class GUI implements PropertyChangeListener
 		public void actionPerformed(ActionEvent e)
 		{
 			simulator.stop ();
-			
-			setGUIElementsDone ();
 		}
 	}
 	
@@ -802,21 +800,27 @@ public class GUI implements PropertyChangeListener
 	@Override
 	public void propertyChange(PropertyChangeEvent evt)
 	{
-		if (! evt.getPropertyName ().equals ("progress"))
+		switch (evt.getPropertyName ())
 		{
-			return;
-		}
+			case "progress":
+				int newValue = (Integer) evt.getNewValue ();
+				progressBar.setValue (newValue);
 
-		int newValue = (Integer) evt.getNewValue ();
-	
-		progressBar.setValue (newValue);
-		
-		//simulator is done, so re-enable stuff
-		if (newValue == 100)
-		{
-			setGUIElementsDone ();
-			
-			setResultsTableContent ();
+				//simulator is done, so re-enable stuff
+				if (newValue == 100)
+				{
+					setGUIElementsDone (false);
+
+					setResultsTableContent ();
+				}
+				break;
+			case "state":
+				String state = (String) evt.getNewValue ();
+				if (state.equals ("cancelled"))
+				{
+					setGUIElementsDone (true);
+				}
+				break;
 		}
 	}
 	

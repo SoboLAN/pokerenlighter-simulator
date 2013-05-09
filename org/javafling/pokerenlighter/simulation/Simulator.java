@@ -357,11 +357,6 @@ public final class Simulator implements PropertyChangeListener
 	public void stop ()
 	{
 		executor.shutdownNow ();
-		
-		for (SimulationWorker worker : workers)
-		{
-			worker.cancel (true);
-		}
 	}
 	
 	public int getNrOfThreads ()
@@ -392,9 +387,22 @@ public final class Simulator implements PropertyChangeListener
 		if (combinedProgress - totalProgress > updateInterval && combinedProgress != 100)
 		{
 			pcs.firePropertyChange ("progress", totalProgress, combinedProgress);
-			
+
 			totalProgress = combinedProgress;
 		}
+	}
+	
+	public boolean isSimulationDone ()
+	{
+		for (SimulationWorker worker : workers)
+		{
+			if (worker.getProgress () != 100)
+			{
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	private class Supervisor extends SwingWorker<Void, Void>
@@ -403,7 +411,7 @@ public final class Simulator implements PropertyChangeListener
 		protected Void doInBackground () throws Exception
 		{
 			latch.await ();
-			
+
 			return null;
 		}
 		
@@ -411,11 +419,14 @@ public final class Simulator implements PropertyChangeListener
 		protected void done ()
 		{
 			//will be called when all workers are done
-			
-			executor.shutdownNow ();
-	
-			if (workers.get (0).isCancelled ())
+			if (! executor.isShutdown ())
 			{
+				executor.shutdownNow ();
+			}
+
+			if (! isSimulationDone ())
+			{
+				pcs.firePropertyChange ("state", null, "cancelled");
 				return;
 			}
 

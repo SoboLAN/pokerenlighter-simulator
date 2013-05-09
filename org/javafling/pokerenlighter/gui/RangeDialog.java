@@ -1,6 +1,5 @@
 package org.javafling.pokerenlighter.gui;
 
-import org.javafling.pokerenlighter.simulation.Range;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -18,6 +17,7 @@ import javax.swing.JSlider;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.javafling.pokerenlighter.simulation.Range;
 
 /**
  *
