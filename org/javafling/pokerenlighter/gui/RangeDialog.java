@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -25,10 +26,12 @@ import org.javafling.pokerenlighter.simulation.Range;
  */
 public class RangeDialog extends JDialog
 {
+	private static final int DEFAULT_PERCENTAGE = 15;
+	
 	private JLabel[][] cardButtons;
 	
 	private JSlider slider;
-	
+
 	private Range range;
 	
 	private boolean cancelled;
@@ -37,7 +40,7 @@ public class RangeDialog extends JDialog
 	{
 		super (parent, "Range Dialog", true);
 		
-		this.range = (range == null) ? new Range (15) : range;
+		this.range = (range == null) ? new Range (DEFAULT_PERCENTAGE) : range;
 
 		setResizable (false);
 		setDefaultCloseOperation (JDialog.DISPOSE_ON_CLOSE);
@@ -91,8 +94,8 @@ public class RangeDialog extends JDialog
 		}
 		
 		panel.add (cardTypesPanel, BorderLayout.CENTER);
-		
-		slider = new JSlider (JSlider.HORIZONTAL, 0, 100, 15);
+
+		slider = new JSlider (JSlider.HORIZONTAL, 0, 100, range.getPercentage ());
 		
 		slider.setMinorTickSpacing (5);
 		slider.setMajorTickSpacing (20);
@@ -185,7 +188,7 @@ public class RangeDialog extends JDialog
 			if (! slider.getValueIsAdjusting ())
 			{
 				range.setNewPercentage (slider.getValue ());
-				
+
 				drawButtons ();
 			}
 		}

@@ -178,7 +178,7 @@ public final class Range
 		return rangeSelections[row][column];
 	}
 	
-	public int getRangePercentage ()
+	public int getPercentage ()
 	{
 		return percentage;
 	}

@@ -94,9 +94,16 @@ public class PreferencesDialog
 		JPanel panel = new JPanel (new FlowLayout (FlowLayout.LEFT));
 		
 		panel.add (new JLabel (dictionary.getValue ("label.prefs.general.language")));
+		
+		String[] availableLanguages = {dictionary.getValue ("combobox.prefs.english"),
+										dictionary.getValue ("combobox.prefs.romanian")};
+		
+		String selectedLanguage = options.getLanguage ().equals ("English") ?
+								dictionary.getValue ("combobox.prefs.english") :
+								dictionary.getValue ("combobox.prefs.romanian");
 
-		languageBox = new JComboBox (options.getAvailableLanguages ());
-		languageBox.setSelectedItem (options.getLanguage ());
+		languageBox = new JComboBox (availableLanguages);
+		languageBox.setSelectedItem (selectedLanguage);
 		languageBox.addItemListener (new GeneralChangeListener ());
 		
 		panel.add (languageBox);
@@ -326,7 +333,7 @@ public class PreferencesDialog
 		JPanel percentagePanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
 
 		displayLabelCheckBox = new JCheckBox ();
-		displayLabelCheckBox.setSelected (true);
+		displayLabelCheckBox.setSelected (options.getShowGraphLabels ());
 		displayLabelCheckBox.addItemListener (new GeneralChangeListener ());
 		
 		percentagePanel.add (displayLabelCheckBox);

@@ -23,13 +23,13 @@ public final class PokerEnlighter implements Runnable
 	//specifies minimum minor version. Examples: 12 (JRE 6u12), 23 (JRE 6u23), 2 (JRE 7u2) etc.
 	public static final int MINOR_VERSION = 1;
 	
-	public static final String FULL_VERSION = "2.0 Alpha build 438";
+	public static final String FULL_VERSION = "2.0 build 456";
 	
-	public static final int BUILD_NUMBER = 438;
+	public static final int BUILD_NUMBER = 456;
 	
 	public static final String COMPILED_WITH = "Java 7 Update 11";
 
-	public static final String BUILD_DATE = "06 May 2013 15:36 AM UTC";
+	public static final String BUILD_DATE = "11 May 2013 12:19 PM UTC";
 	
 	private static final String errorTitle = "Program error";
 	private static final String errorContent = "The program encountered an error at startup: ";

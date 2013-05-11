@@ -77,7 +77,7 @@ public class AboutDialog extends JDialog
 		
 		JTextField minimumField = new JTextField ("Java " +
 												PokerEnlighter.MAJOR_VERSION +
-												" update " +
+												" Update " +
 												PokerEnlighter.MINOR_VERSION);
 		minimumField.setEditable (false);
 		panel.add (minimumField);

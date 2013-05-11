@@ -11,6 +11,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import org.javafling.pokerenlighter.combination.Card;
+import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -80,14 +82,14 @@ public final class ResultChartDialog extends JDialog implements ActionListener
         ChartPanel chartPanel = new ChartPanel(chart);
 		
         //set size
-		//for 6 players: 7 x 30 pixels space zone and 6 x 85 pixels bar zone
+		//for 6 players: 7 x 30 pixels space zone and 6 x 130 pixels bar zone
 		//so formula will be:
-		//width = 85 x nr_players + 30 x (nr_players + 1)
+		//width = 130 x nr_players + 30 x (nr_players + 1)
 		//additionally, 60 pixels should be added for accomodating metadata on the side
 		//
-		//final formula: 115 x nr_players + 90
+		//final formula: 160 x nr_players + 90
 		
-		int width = 115 * result.getNrOfPlayers () + 90;
+		int width = 160 * result.getNrOfPlayers () + 90;
 	
         chartPanel.setPreferredSize(new Dimension(width, 450));
 		
@@ -142,17 +144,42 @@ public final class ResultChartDialog extends JDialog implements ActionListener
 		
 		for (int i = 0; i < result.getNrOfPlayers (); i++)
 		{
+			StringBuilder playerLabel = new StringBuilder ("Player " + Integer.toString (i + 1));
+			playerLabel.append (" (");
+			
+			HandType handType = result.getPlayer (i).getHandType ();
+			if (handType == HandType.EXACTCARDS)
+			{
+				Card[] playerCards = result.getPlayer (i).getCards ();
+				
+				for (Card playerCard : playerCards)
+				{
+					playerLabel.append (playerCard.toString ());
+				}
+			}
+			else if (handType == HandType.RANDOM)
+			{
+				playerLabel.append ("Random");
+			}
+			else if (handType == HandType.RANGE)
+			{
+				playerLabel.append (Integer.toString (result.getPlayer (i).getRange ().getPercentage ()));
+				playerLabel.append ("% Range");
+			}
+			
+			playerLabel.append (")");
+			
 			categoryDataSet.addValue (Double.parseDouble (formatter.format (result.getWinPercentage (i))),
 									"Wins",
-									"Player " + Integer.toString (i + 1));
-			
+									playerLabel.toString ());
+
 			categoryDataSet.addValue (Double.parseDouble (formatter.format (result.getLosePercentage (i))),
 									"Loses",
-									"Player " + Integer.toString (i + 1));
+									playerLabel.toString ());
 			
 			categoryDataSet.addValue (Double.parseDouble (formatter.format (result.getTiePercentage (i))),
 									"Ties",
-									"Player " + Integer.toString (i + 1));
+									playerLabel.toString ());
 		}
 		
 		return categoryDataSet;        

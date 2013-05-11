@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.main.InternetConnection;
 import org.javafling.pokerenlighter.main.InternetConnectionFactory;
 import org.javafling.pokerenlighter.main.PokerEnlighter;
@@ -100,6 +101,15 @@ public class MenuBar
 		@Override
 		public void actionPerformed (ActionEvent e)
 		{
+			new UpdateChecker ().execute ();
+		}
+	}
+	
+	private class UpdateChecker extends SwingWorker<Void, Void>
+	{
+		@Override
+		public Void doInBackground ()
+		{
 			String url = "http://pokerenlighter.javafling.org/update.check.php?build=" + PokerEnlighter.BUILD_NUMBER;
 			
 			InternetConnection conn = InternetConnectionFactory.createDirectConnection (url);
@@ -120,6 +130,8 @@ public class MenuBar
 			{
 				GUIUtilities.showOKDialog (parent, "You have the latest version", "Update Check");
 			}
+			
+			return null;
 		}
 	}
 }
