@@ -15,28 +15,59 @@ import org.javafling.pokerenlighter.gui.Language;
 import org.javafling.pokerenlighter.gui.OptionsContainer;
 import org.javafling.pokerenlighter.gui.PEDictionary;
 
+/**
+ * Main entry point of Poker Enlighter. Contains all relevant information about the program.
+ * 
+ * @author Radu Murzea
+ * 
+ * @version 1.0
+ */
 public final class PokerEnlighter implements Runnable
 {
-	//specifies minimum major version. Examples: 5 (JRE 5), 6 (JRE 6), 7 (JRE 7) etc.
+	/**
+	 * Specifies the minimum major version needed to run this program.
+	 */
 	public static final int MAJOR_VERSION = 7;
 	
-	//specifies minimum minor version. Examples: 12 (JRE 6u12), 23 (JRE 6u23), 2 (JRE 7u2) etc.
+	/**
+	 * Specifies the minimum minor version needed to run this program.
+	 */
 	public static final int MINOR_VERSION = 1;
 	
+	/**
+	 * Represents the full version string of this current release.
+	 */
 	public static final String FULL_VERSION = "2.0 build 456";
 	
+	/**
+	 * The build number of this release.
+	 */
 	public static final int BUILD_NUMBER = 456;
 	
+	/**
+	 * Version string of the JDK version used to compile this release.
+	 */
 	public static final String COMPILED_WITH = "Java 7 Update 11";
 
+	/**
+	 * String containing the compile date of this release.
+	 */
 	public static final String BUILD_DATE = "11 May 2013 12:19 PM UTC";
 	
+	//if an error occurs in this class, these Strings will be used in the error dialog that appears
 	private static final String errorTitle = "Program error";
 	private static final String errorContent = "The program encountered an error at startup: ";
 
+	//references the options and the dictionary
 	private static OptionsContainer options;
 	private static PEDictionary dictionary;
 	
+	/**
+	 * The main method. It will check the minimum version required to run this release, it will retrieve
+	 * all options, it will set the chosen Look & Feel and will display the GUI.
+	 * 
+	 * @param args command-line arguments. Any values provided here will be ignored.
+	 */
 	public static void main(String[] args)
 	{
 		//check if the minimum version is ok
@@ -60,6 +91,7 @@ public final class PokerEnlighter implements Runnable
 		
 		options = OptionsContainer.getOptionsContainer ();
 		
+		//get the language
 		try
 		{
 			Language language = null;
@@ -79,12 +111,19 @@ public final class PokerEnlighter implements Runnable
 			return;
 		}
 		
+		//show the GUi on the EDT
 		SwingUtilities.invokeLater (new PokerEnlighter ());
 	}
 	
+	/**
+	 * Will be called by the main method.
+	 * 
+	 * @since 1.0
+	 */
 	@Override
 	public void run ()
 	{
+		//set the look & feel
 		try
 		{
 			setLNF ();
@@ -93,12 +132,14 @@ public final class PokerEnlighter implements Runnable
 		{
 			GUIUtilities.showErrorDialog (null, errorContent + ex.getMessage (), errorTitle);
 		}
-				
+
+		//create and show the GUI
 		GUI g = GUI.getGUI (dictionary);
 		g.setLocationToCenterOfScreen ();
 		g.setVisible (true);
 	}
 	
+	//sets the look & feel that is mentioned in the options
 	private void setLNF () throws Exception
 	{
 		switch (options.getLookAndFeel ())

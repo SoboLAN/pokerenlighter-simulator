@@ -1,13 +1,14 @@
 package org.javafling.pokerenlighter.combination;
 
-/** Represents the combination of cards a player can have in Omaha.
+/**
+ * Represents the combination of cards a player can have in Omaha.
  * That combination is made of the 4 cards the player is holding and the
  * 5 community cards.
  * <br /><br />
  * This class is not thread-safe.
  * 
- * @author Murzea Radu
- * 
+ * @author Radu Murzea
+ 
  * @version 1.2
  */
 public final class OmahaCombination
@@ -25,7 +26,8 @@ public final class OmahaCombination
 	
 	private String result_lo;
 
-	/** Constructs the combination.
+	/**
+	 * Constructs the combination.
 	 *
 	 * @param newCards The <code>Card</code>s that make this combination. The size must
 	 * equal 9 (the first 4 <code>Card</code>s are what the player is holding, the next 5
@@ -35,9 +37,9 @@ public final class OmahaCombination
 	 * <strong>WARNING:</strong> The constructor accepts duplicate cards. To avoid unexpected
 	 * behaviour, don't provide such input.
 	 *
-	 * @exception IllegalArgumentException if the size of the parameter is different than 9.
+	 * @throws IllegalArgumentException if the size of the parameter is different than 9.
 	 * 
-	 * @exception NullPointerException if the parameter is null or if it contains null values.
+	 * @throws NullPointerException if the parameter is null or if it contains null values.
 	 */
 	public OmahaCombination (Card[] newCards)
 	{
@@ -149,15 +151,16 @@ public final class OmahaCombination
 		combs[59] = new Combination (newCards[2], newCards[3], newCards[6], newCards[7], newCards[8]);
 	}
 	
-	/** Sets new Cards for this OmahaCombination object.
+	/**
+	 * Sets new Cards for this OmahaCombination object.
 	 * <br />
 	 * <strong>WARNING</strong>: Just like the constructor, this method accepts duplicate cards.
 	 *
 	 * @param newCards the cards. This array must contain 9 Card objects.
 	 *
-	 * @exception IllegalArgumentException if the size of the argument is different than 9.
+	 * @throws IllegalArgumentException if the size of the argument is different than 9.
 	 * 
-	 * @exception NullPointerException if the parameter is null or if it contains null values.
+	 * @throws NullPointerException if the parameter is null or if it contains null values.
 	 */
 	public void setCards (Card[] newCards)
 	{
@@ -184,7 +187,7 @@ public final class OmahaCombination
 
 		//next, all 60 possible combinations are created. a more elegant iteration
 		//over them is very possible, but that would reduce speed. And in Omaha simulations,
-		//speed is something extremely precious. (the simulations usually take hours).
+		//speed is something extremely precious.
 
 		//5, 6, 7 combination
 		combs[0].setCards (newCards[0], newCards[1], newCards[4], newCards[5], newCards[6]);
@@ -269,7 +272,8 @@ public final class OmahaCombination
 		result_hi = result_lo = null;
 	}
 
-	/** Returns the card with ID x.
+	/**
+	 * Returns the card with ID x.
 	 *
 	 * @param x The ID of the the card. Accepted values are between 0 and 8 inclusively.
 	 *
@@ -281,7 +285,8 @@ public final class OmahaCombination
 		return (x < 0 || x > 8) ? null : cards[x];
 	}
 
-	/** Determines what is the best combination of cards for this particular player.
+	/**
+	 * Determines what is the best combination of cards for this particular player.
 	 * In Omaha, you can only use 2 cards from your hand and 3 cards from the community cards
 	 * to make a standard 5-card combination. The best is determined here.
 	 *
@@ -512,7 +517,8 @@ public final class OmahaCombination
 		return null;
 	}
 
-	/** Checks if there is a Lo hand in this <code>OmahaCombination</code>. This is obviously
+	/**
+	 * Checks if there is a Lo hand in this <code>OmahaCombination</code>. This is obviously
 	 * useful only for Omaha Hi/Lo.
 	 *
 	 * @return A string representation of the Lo Combination. This would be a string of 5 characters, each
@@ -683,7 +689,8 @@ public final class OmahaCombination
 		return 0;
 	}
 
-	/** Checks if this object equals with the parameter oc.
+	/**
+	 * Checks if this object equals with the parameter oc.
 	 *
 	 * @param oc The object to be compared.
 	 *
@@ -819,7 +826,8 @@ public final class OmahaCombination
 		return true;
 	}
 
-	/** Returns the hash code value for this <code>OmahaCombination</code>.
+	/**
+	 * Returns the hash code value for this <code>OmahaCombination</code>.
 	 *
 	 * @return a hash code value for this <code>OmahaCombination</code>.
 	 */
@@ -837,7 +845,8 @@ public final class OmahaCombination
 		return rez;
 	}
 
-	/** Returns a string representation of this object.
+	/**
+	 * Returns a string representation of this object.
 	 *
 	 * @return A <code>String</code> of 18 characters (2 for each <code>Card</code>) representing all the
 	 * cards that this object consists of. The cards will be in the same order as they were provided to the

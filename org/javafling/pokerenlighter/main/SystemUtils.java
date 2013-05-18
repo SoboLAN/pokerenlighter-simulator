@@ -1,35 +1,46 @@
 package org.javafling.pokerenlighter.main;
 
 /**
- *
- * @author Murzea Radu
+ * Provides utility methods for the program.
+ * 
+ * @author Radu Murzea
+ * 
+ * @version 1.0
  */
 public class SystemUtils
 {
+	/**
+	 * Will return the number of logical CPUs available to the machine.
+	 * 
+	 * @return the number of logical CPUs available.
+	 * 
+	 * @since 1.0
+	 */
 	public static int getNrOfLogicalCPUs ()
 	{
 		return Runtime.getRuntime ().availableProcessors ();
 	}
-	
-	//checks if the version of the currently running JVM is bigger than
-	//the minimum version required to run this program.
-	//returns true if it's ok, false otherwise
+
+	/**
+	 * Checks if the version of the JVM fits with the required version.
+	 * 
+	 * @param majorVersion the minimum required JVM version: 5 (JRE 5), 6 (JRE 6) etc.
+	 * @param minorVersion the minimum required JVM version: 4 (JRE 7u4), 21 (JRE 6u21) etc.
+	 * 
+	 * @return true if the JVM version is ok, false otherwise.
+	 * 
+	 * @since 1.0
+	 */
 	public static boolean checkVersion (int majorVersion, int minorVersion)
 	{
-		//get the JVM version
 		String version = System.getProperty ("java.version");
 
-		//extract the major version from it
+		//extract the major version
 		int sys_major_version = Integer.parseInt (String.valueOf (version.charAt (2)));
 		
-		//if the major version is too low, it's not good
-		//this is close to impossible since the JVM wouldn't even be able to load such a class.
-		//though, it's best to be thourough
-		if (sys_major_version < majorVersion)
-		{
-			return false;
-		}
-		else if (sys_major_version > majorVersion)
+		//the JVM won't even be able to load the class if the major version is older
+		//so no check is necessary
+		if (sys_major_version > majorVersion)
 		{
 			return true;
 		}

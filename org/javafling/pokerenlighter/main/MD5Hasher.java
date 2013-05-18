@@ -6,16 +6,28 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- *
- * @author Murzea Radu
+ * Provides functionality for hashing Strings using the MD5 hashing algorithm.
+ * 
+ * @author Radu Murzea
+ * 
+ * @version 1.0
  */
 public class MD5Hasher
 {
+	private static String emptyString = "";
+	/**
+	 * Computes the MD5 hash of the specified String. This method assumes that the content is encoded
+	 * as UTF-8.
+	 * 
+	 * @param content the String to be hashed. Can be any length (including 0).
+	 * 
+	 * @return the MD5 hash. If the content was null or if there was a problem, an empty String is returned.
+	 */
 	public static String hash (String content)
 	{
 		if (content == null)
 		{
-			return null;
+			return emptyString;
 		}
 	
 		MessageDigest md = null;
@@ -26,7 +38,7 @@ public class MD5Hasher
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			return null;
+			return emptyString;
 		}
 
 		md.reset ();
@@ -37,7 +49,7 @@ public class MD5Hasher
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			return null;
+			return emptyString;
 		}
 		
 		byte[] digest = md.digest ();

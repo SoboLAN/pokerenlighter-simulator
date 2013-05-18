@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 
 /** Provides basic functionality for retrieving content from a URL (typically HTML).
  *
- * @author Murzea Radu
+ * @author Radu Murzea
  * 
  * @version 1.0
  */
@@ -20,42 +20,62 @@ public class InternetConnection
 	private URL url;
 	private Proxy proxy;
 	private HttpURLConnection connection;
+	
+	//container for caching the content
 	private String content;
 	
-	public InternetConnection (URL url)
+	/**
+	 * Creates an InternetConnection object. The URL must be a valid one.
+	 * @param url the URL from which to retrieve the content.
+	 * @throws NullPointerException if the parameter url is null.
+	 * @throws IOException if there is a problem making the connection
+	 */
+	public InternetConnection (URL url) throws IOException
 	{
+		if (url == null)
+		{
+			throw new NullPointerException ("url can not be null");
+		}
+		
 		this.url = url;
 		createConnection ();
 	}
 	
-	public InternetConnection (URL url, Proxy proxy)
+	/**
+	 * Creates and InternetConnection object which uses a proxy to retrieve the content.
+	 * @param url the URL from which to retrieve the content.
+	 * @param proxy the proxy through which to route the connection.
+	 * @throws NullPointerException if any of the parameters are null.
+	 * @throws IOException if there is a problem making the connection
+	 */
+	public InternetConnection (URL url, Proxy proxy) throws IOException
 	{
+		if (url == null || proxy == null)
+		{
+			throw new NullPointerException ();
+		}
+
 		this.url = url;
 		this.proxy = proxy;
 		createConnection ();
 	}
 	
-	private void createConnection ()
+	//creates the actual connection.
+	private void createConnection () throws IOException
 	{
-		connection = null;
-		try
+		if (proxy == null)
 		{
-			if (proxy == null)
-			{
-				connection = (HttpURLConnection) url.openConnection ();
-			}
-			else
-			{
-				connection = (HttpURLConnection) url.openConnection (proxy);
-			}
-			connection.setRequestMethod ("GET");
-			connection.setRequestProperty ("User Agent", "Mozilla/4.0 (compatible; JVM)");
-			connection.setRequestProperty ("Pragma", "no-cache");
+			connection = (HttpURLConnection) url.openConnection ();
 		}
-		catch (IOException ex)
+		else
 		{
-			ex.printStackTrace ();
+			connection = (HttpURLConnection) url.openConnection (proxy);
 		}
+			
+		//some HTTP headers are necessary
+		connection.setRequestMethod ("GET");
+		connection.setRequestProperty ("User Agent", "Mozilla/4.0 (compatible; JVM)");
+		connection.setRequestProperty ("Pragma", "no-cache");
 	}
 	
 	/** It will perform the actual connection and return the contents.
@@ -74,6 +94,8 @@ public class InternetConnection
 	 * 
 	 * @return the content found at the URL of this connection. If there is a problem while retrieving
 	 * the content, null is returned.
+	 * 
+	 * @since 1.0
 	 */
 	public String getContent ()
 	{
@@ -118,6 +140,11 @@ public class InternetConnection
 		return content;
 	}
 	
+	/**
+	 * Cleares the cached content from this object. Calling getContent () after calling this method
+	 * will trigger another HTTP Request.
+	 * @since 1.0
+	 */
 	public void clearContent ()
 	{
 		content = null;

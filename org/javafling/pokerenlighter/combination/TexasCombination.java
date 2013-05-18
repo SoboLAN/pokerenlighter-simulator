@@ -1,10 +1,11 @@
 package org.javafling.pokerenlighter.combination;
 
-/** Represents the card-combination in Texas Hold'em (2 cards from player + 5 community cards).
+/**
+ * Represents the card-combination in Texas Hold'em (2 cards from player + 5 community cards).
  * <br /><br />
  * This class is not thread-safe.
  * 
- * @author Murzea Radu
+ * @autho Radu Murzea
  * 
  * @version 1.2
  */
@@ -16,16 +17,17 @@ public final class TexasCombination
 	//result of "getCombination" is cached here
 	private String result;
 
-    /** Constructs a TexasCombination object.
+    /**
+	 * Constructs a TexasCombination object.
 	 * <br />
 	 * <strong>WARNING:</strong> The constructor accepts duplicate cards. To avoid unexpected
 	 * behaviour, don't provide such input.
 	 *
 	 * @param c the cards. This array must contain 7 Card objects.
 	 *
-	 * @exception IllegalArgumentException if the size of the argument is different than 7.
+	 * @throws IllegalArgumentException if the size of the argument is different than 7.
 	 * 
-	 * @exception NullPointerException if the parameter is null or if it contains null values.
+	 * @throws NullPointerException if the parameter is null or if it contains null values.
 	 */
 	public TexasCombination (Card[] c)
 	{
@@ -61,15 +63,16 @@ public final class TexasCombination
 		}
 	}
 	
-	/** Sets new Cards for this TexasCombination object.
+	/**
+	 * Sets new Cards for this TexasCombination object.
 	 * <br />
 	 * <strong>WARNING</strong>: Just like the constructor, this method accepts duplicate cards.
 	 *
 	 * @param c the cards. This array must contain 7 Card objects.
 	 *
-	 * @exception IllegalArgumentException if the size of the argument is different than 7.
+	 * @throws IllegalArgumentException if the size of the argument is different than 7.
 	 * 
-	 * @exception NullPointerException if the parameter is null or if it contains null values.
+	 * @throws NullPointerException if the parameter is null or if it contains null values.
 	 */
 	public void setCards (Card[] c)
 	{
@@ -118,7 +121,8 @@ public final class TexasCombination
 		result = null;
 	}
 	
-	/** Returns the card with ID index.
+	/**
+	 * Returns the card with ID index.
 	 *
 	 * @param index The ID of the the card. Accepted values are between 0 and 6 inclusively.
 	 *
@@ -129,7 +133,8 @@ public final class TexasCombination
 		return (index < 0 || index >= 7) ? null : cards[index];
 	}
 
-	/** Returns the highest 5-card combination of the 7 cards.
+	/**
+	 * Returns the highest 5-card combination of the 7 cards.
 	 *
 	 * @return The highest combination. The first character of the string is the rank of the combination,
 	 * followed by the cards that compose it.
@@ -246,7 +251,8 @@ public final class TexasCombination
 		return result;
 	}
 
-	/** Determines the high card combination of this combination.
+	/**
+	 * Determines the high card combination of this combination.
 	 *
 	 * @return String of the form 'abcde' (a = highest card, b = 2nd highest,
 	 * c = 3rd highest, d = 4th highest, e = 5th highest).
@@ -266,7 +272,8 @@ public final class TexasCombination
 		return stt;
 	}
     
-	/** Determines if this combination contains a pair or not.
+	/**
+	 * Determines if this combination contains a pair or not.
 	 *
 	 * @return String of the form 'abcd' (a = highest pair, b = kicker1,
 	 * c = kicker2, d = kicker3), '0' if the player doesn't have any pairs.
@@ -336,7 +343,8 @@ public final class TexasCombination
 		return stt;
 	}
 
-	/** Determines if this combination contains 2 pair or not.
+	/**
+	 * Determines if this combination contains 2 pair or not.
 	 *
 	 * @return String of the form 'xyz' (x = highest pair, y = second highest pair, z = kicker),
 	 * '0' if the combination doesn't have 2 pairs.
@@ -445,7 +453,8 @@ public final class TexasCombination
 		return stt;
 	}
     
-	/** Determines if this combination contains 3 of a kind.
+	/**
+	 * Determines if this combination contains 3 of a kind.
 	 *
 	 * @return String of the form 'xyz' (x = triple card, y = kicker1, z = kicker2),
 	 * '0' if the combination has no three of a kind.
@@ -498,7 +507,8 @@ public final class TexasCombination
 		return stt;
 	}
 
-	/** Determines if this combination contains a straight.
+	/**
+	 * Determines if this combination contains a straight.
 	 *
 	 * @return String with highest card of the straight or '0' if the combination has no straight.
 	 */
@@ -577,7 +587,8 @@ public final class TexasCombination
 		return stt;
 	}
 
-	/** Determines if this combination contains a flush.
+	/**
+	 * Determines if this combination contains a flush.
 	 *
 	 * @return String that contains the 5 cards that form the flush
 	 * (in descendent order), '0' if the combination has no flush.
@@ -660,7 +671,8 @@ public final class TexasCombination
 		return stt;
 	}
 
-	/** Determines if this combination contains a full house.
+	/**
+	 * Determines if this combination contains a full house.
 	 *
 	 * @return String of the form 'xy' (x = the triple card and y = the pair),
 	 * '0' if the combination has no full house.
@@ -772,7 +784,8 @@ public final class TexasCombination
 		return stt;
 	}
     
-    /** Determines if this combination contains a quad (4 of a kind).
+    /**
+	 * Determines if this combination contains a quad (4 of a kind).
 	 *
 	 * @return String of the form 'xy' (x = card that forms the quad, y = kicker),
 	 * '0' if the combination doesn't have a quad.
@@ -813,7 +826,8 @@ public final class TexasCombination
 		return stt;
 	}
     
-	/** Determines if this combination contains a straight flush.
+	/**
+	 * Determines if this combination contains a straight flush.
 	 *
 	 * @return The highest card of the straight flush in the form of a string,
 	 * '0' if the combination has no straight flush.
@@ -912,7 +926,8 @@ public final class TexasCombination
 		return stt;
 	}
 
-	/** Determines if the combination contains a royal flush.
+	/**
+	 * Determines if the combination contains a royal flush.
 	 *
 	 * @return true if this combination contains a royal flush, false otherwise.
 	 */
@@ -921,7 +936,8 @@ public final class TexasCombination
 		return (getStraightFlush ().equals ("A"));
 	}
 
-	/** Compares this object with another <code>TexasCombination</code> object.
+	/**
+	 * Compares this object with another <code>TexasCombination</code> object.
 	 *
 	 * @param c The object to be compared.
 	 *
@@ -958,9 +974,10 @@ public final class TexasCombination
 		return true;
 	}
 
-	/** Returns a hash code for this TexasCombination.
+	/**
+	 * Returns a hash code for this TexasCombination.
 	 *
-	 * @return a hash code for this TexasCombination. Value will be between 29 and 115 inclusively.
+	 * @return a hash code for this TexasCombination.
 	 */
 	@Override
 	public int hashCode ()
@@ -975,7 +992,8 @@ public final class TexasCombination
 		return rez;
 	}
 
-	/** Returns a string representation of this TexasCombination.
+	/**
+	 * Returns a string representation of this TexasCombination.
 	 *
 	 * @return a string representation of this TexasCombination. Length will be exactly 14 characters, the cards
 	 * are in descending order of their rank.

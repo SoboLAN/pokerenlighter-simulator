@@ -1,12 +1,13 @@
 package org.javafling.pokerenlighter.combination;
 
-/** One of the most important classes in the program.
-* It describes a (poker) card, by its 2 elements: the actual card and its color.
-* 
-* @version 1.1
-* 
-* @author Murzea Radu
-*/
+/**
+ * One of the most important classes in the program.
+ * It describes a (poker) card, by its 2 elements: the actual card and its color.
+ * 
+ * @version 1.1
+ * 
+ * @author Radu Murzea
+ */
 public class Card
 {
 	// Can be 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
@@ -21,7 +22,7 @@ public class Card
      * @param  x   Card value. Can be only '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K' or 'A'.
      * @param  y   Card color. Can be only 'c', 'd', 'h' or 's'.
      *
-     * @exception  IllegalArgumentException  If x or y have unacceptable values.
+     * @throws  IllegalArgumentException  If x or y have unacceptable values.
      */
 	public Card (char x, char y)
 	{
@@ -50,7 +51,7 @@ public class Card
      * @param  x   Card rank. Can be only 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 or 14.
      * @param  y   Card color. Can be only 'c', 'd', 'h' or 's'.
      *
-     * @exception  IllegalArgumentException  If x or y have unacceptable values.
+     * @throws  IllegalArgumentException  If x or y have unacceptable values.
      */
 	public Card (int x, char y)
 	{
@@ -87,7 +88,8 @@ public class Card
 		return (a.getColor () == this.color);
 	}
 
-	/** Returns the card rank (same one used to construct the card).
+	/**
+	 * Returns the card rank (same one used to construct the card).
 	 *
 	 * @return	The card rank of the current object.
 	 */
@@ -96,7 +98,8 @@ public class Card
 		return this.card;
 	}
 	
-	/** Returns the card color (same one used to construct the card).
+	/**
+	 * Returns the card color (same one used to construct the card).
 	 *
 	 * @return	The card color of the current object.
 	 */
@@ -105,7 +108,8 @@ public class Card
 		return this.color;
 	}
 	
-	/** Returns the card as a char ('3', 7', 'A', 'K', etc.).
+	/**
+	 * Returns the card as a char ('3', 7', 'A', 'K', etc.).
 	 *
 	 * @return	The card value.
 	 */
@@ -114,7 +118,8 @@ public class Card
 		return getCharCard (this.card);
 	}
 
-	/** Returns the card as an integer (3, 7, 14, 13, etc.).
+	/**
+	 * Returns the card as an integer (3, 7, 14, 13, etc.).
 	 *
 	 * @param c	Character representation of a card.
 	 *
@@ -141,7 +146,8 @@ public class Card
 		}
 	}
 
-	/** Returns the card as a char ('3', 7', 'A', 'K', etc.).
+	/**
+	 * Returns the card as a char ('3', 7', 'A', 'K', etc.).
 	 *
 	 * @param x The card rank. Accepted values are between 2 and 14 inclusively.
 	 *
@@ -168,7 +174,8 @@ public class Card
 		}
 	}
 
-	/** Compares 2 cards. Two cards are equal if they have the same rank and the same color.
+	/**
+	 * Compares 2 cards. Two cards are equal if they have the same rank and the same color.
 	 *
 	 * @param c The card to compare.
 	 * 
@@ -181,8 +188,7 @@ public class Card
 		{
 			return false;
 		}
-		
-		if (c == this)
+		else if (c == this)
 		{
 			return true;
 		}
@@ -203,7 +209,8 @@ public class Card
 		return (param.getRank () == this.card && param.getColor () == this.color);
 	}
 
-	/** Returns the hash code value for this <code>Card</code>.
+	/**
+	 * Returns the hash code value for this <code>Card</code>.
 	 *
 	 * @return a hash code value for this <code>Card</code>. The value will be between 2 and 56 inclusively.
 	 */
@@ -225,7 +232,8 @@ public class Card
 		return rez;
 	}
 
-	/** Returns the string representation of this card.
+	/**
+	 * Returns the string representation of this card.
 	 *
 	 * @return The string representation of this card.
 	 */

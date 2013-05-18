@@ -3,14 +3,14 @@ package org.javafling.pokerenlighter.combination;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 
-/** Representation of a standard deck of 52 (French) cards. There are 13 cards of each color (4 colors).
- * 
+/**
+ * Representation of a standard deck of 52 (French) cards. There are 13 cards of each color (4 colors).
  * <br /><br />
  * This class is not thread-safe.
  * 
- * @version 1.2
+ * @author Radu Murzea
  * 
- * @author Murzea Radu
+ * @version 1.2
 */
 public class Deck
 {
@@ -23,7 +23,8 @@ public class Deck
 	//size of the deck (needed since adding and removal of cards from the deck is permitted)
 	private int size;
 	
-	/** Constructs a deck of cards with the 52 unique cards.
+	/**
+	 * Constructs a deck of cards with the 52 unique cards.
 	 * The initial order is: 2c, 3c, 4c, ... Kc, Ac, 2d, 3d, 4d, ... Kd, Ad, 2h, 3h, 4h, ... Kh, Ah,
 	 * 2s, 3s, 4s, ... Ks, As.
 	 * <br />
@@ -47,12 +48,13 @@ public class Deck
 		rand = new HighQualityRandomGenerator ();
 	}
 
-	/** Shuffles the <code>Deck</code>.
+	/**
+	 * Shuffles the <code>Deck</code>.
 	 *
 	 * @param intensity Specifies how much the <code>Deck</code> should be shuffled. Accepted values
 	 * are between 5 and 30, 5 being least intense and 30 being most intense.
 	 *
-	 * @exception IllegalArgumentException If the intensity parameter is not between 5 and 30.
+	 * @throws IllegalArgumentException if the intensity parameter is not between 5 and 30.
 	 */
 	public final void shuffle (int intensity)
 	{
@@ -75,7 +77,8 @@ public class Deck
 		}
 	}
 	
-	/** Removes from the <code>Deck</code> the <code>Card</code> given by its parameter.
+	/**
+	 * Removes from the <code>Deck</code> the <code>Card</code> given by its parameter.
 	 * If the <code>Card</code> is not in the <code>Deck</code> or the deck has a size
 	 * less than 5, nothing happens.
 	 *
@@ -91,7 +94,8 @@ public class Deck
 		//check size of deck. The value is not randomly picked.
 		//in Omaha (Hi/Lo), when there are 10 players playing (absolute maximum), there will be
 		//10 * 4 = 40 cards for the players + 3 * 1 = 3 burn cards + 5 * 1 = 5 community cards in play.
-		//52 - (40 + 3 + 5) = 52 - 48 = 4 remaining cards. So there is no reason to have deck size smaller than 4.
+		//52 - (40 + 3 + 5) = 52 - 48 = 4 remaining cards. So there is no reason to have
+		//deck size smaller than 4.
 		if (size <= 4)
 		{
 			return;
@@ -124,7 +128,8 @@ public class Deck
 		}
 	}
 	
-	/** Adds a <code>Card</code> to the <code>Deck</code>. If the <code>Deck</code> is full or
+	/**
+	 * Adds a <code>Card</code> to the <code>Deck</code>. If the <code>Deck</code> is full or
 	 * the <code>Card</code> already exists in the <code>Deck</code>, nothing happens.
 	 *
 	 * @param c The <code>Card</code> to be added. 
@@ -157,7 +162,8 @@ public class Deck
 		cards[size++] = c;
 	}
 
-	/** Checks if the <code>Deck</code> is full (has all 52 cards).
+	/**
+	 * Checks if the <code>Deck</code> is full (has all 52 cards).
 	 *
 	 * @return <code>true</code> if the <code>Deck</code> has 52 cards, <code>false</code> otherwise.
 	 */
@@ -166,7 +172,8 @@ public class Deck
 		return (size == 52);
 	}
 
-	/** Returns the number of <code>Card</code>s in the <code>Deck</code>.
+	/**
+	 * Returns the number of <code>Card</code>s in the <code>Deck</code>.
 	 *
 	 * @return The number of <code>Card</code>s.
 	 */
@@ -175,7 +182,8 @@ public class Deck
 		return size;
 	}
 
-	/** Returns a reference to the x-th <code>Card</code> of the <code>Deck</code>.
+	/**
+	 * Returns a reference to the x-th <code>Card</code> of the <code>Deck</code>.
 	 *
 	 * @param x The id of the <code>Card</code> to retrieve. The accepted
 	 * values for x are in the range [0; size_of_deck - 1].
@@ -187,7 +195,8 @@ public class Deck
 		return ((x < 0 || x >= size) ? null : cards[x]);
 	}
 
-	/** Searches for a <code>Card</code> inside the deck.
+	/**
+	 * Searches for a <code>Card</code> inside the deck.
 	 *
 	 * @param c The <code>Card</code> to search for.
 	 *
@@ -207,7 +216,8 @@ public class Deck
 		return -1;
 	}
 
-	/** Indicates whether some other <code>Deck</code> is equal to this one. Two decks are equal if
+	/**
+	 * Indicates whether some other <code>Deck</code> is equal to this one. Two decks are equal if
 	 * they contain exactly the same cards (order of the cards is not relevant).
 	 *
 	 * @param dc The <code>Deck</code> with which to compare.
@@ -221,8 +231,7 @@ public class Deck
 		{
 			return false;
 		}
-		
-		if (dc == this)
+		else if (dc == this)
 		{
 			return true;
 		}
@@ -297,7 +306,8 @@ public class Deck
 		return true;
 	}
 
-	/** Returns a string representation of this <code>Deck</code>.
+	/**
+	 * Returns a string representation of this <code>Deck</code>.
 	 *
 	 * @return a string representation of this <code>Deck</code>, i.e. all the cards in the <code>Deck</code>.
 	 * If the shuffle method was called, the cards will be in the shuffled order.
@@ -331,9 +341,8 @@ public class Deck
  * you need millions and millions of random numbers.
  * 
  * A better solution would be Java's SecureRandom class. Unfortunately, in this case, better randomness
- * would be payed with some speed penalty.
- * 
- * However, the SecureRandom class is used to seed this generator.
+ * would be payed with some speed penalty. On the plus side, the SecureRandom class is used to
+ * seed this generator.
  */
 final class HighQualityRandomGenerator
 {
@@ -374,7 +383,7 @@ final class HighQualityRandomGenerator
 		return ret;
 	}
 
-	protected int nextInt (int bits)
+	public int nextInt (int bits)
 	{
 		return (int) (nextLong() >>> (64 - bits));
 	}
