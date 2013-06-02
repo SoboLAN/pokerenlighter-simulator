@@ -7,7 +7,7 @@ import java.util.Properties;
 
 /**
  *
- * @author Murzea Radu
+ * @author Radu Murzea
  * 
  * @version 1.0
  */
@@ -23,12 +23,19 @@ public class OptionsContainer
 	
 	//available values
 	private String[] availableLanguages = {"English", "Romanian"};
-	private String[] availableLNFs = {"Nimbus", "System", "Motif", "EaSynth", "NimROD", "SeaGlass"};
+	private String[] availableLNFs = {
+	"Nimbus", "System", "Motif", "EaSynth", "NimROD", "SeaGlass", "Substance-Business",
+	"Substance-BusinessBlack", "Substance-BusinessBlue", "Substance-Challenger", "Substance-Creme",
+	"Substance-CremeCoffee", "Substance-Dust", "Substance-DustCoffee", "Substance-Emerald",
+	"Substance-Magma", "Substance-MistAqua", "Substance-MistSilver", "Substance-Moderate", "Substance-Nebula",
+	"Substance-NebulaBrick", "Substance-OfficeBlue", "Substance-OfficeSilver", "Substance-Raven",
+	"Substance-RavenGraphite", "Substance-Sahara", "Substance-Twilight"
+	};
 	
 	//default values
 	private String defLanguage = availableLanguages[0];
 	private String defLNF = availableLNFs[0];
-	private int defRounds = 90000;
+	private int defRounds = 105000;
 	private boolean defShowLabels = true;
 	private int[][] defColors = 
 	{

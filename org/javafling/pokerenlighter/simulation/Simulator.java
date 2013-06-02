@@ -546,7 +546,8 @@ public final class Simulator implements PropertyChangeListener
 
 			long duration = endTime - startTime;
 			
-			simulationResult = new SimulationFinalResult (gameType, profiles, wins, ties, loses, nrRounds, duration);
+			simulationResult = new SimulationFinalResult (gameType, profiles, wins, ties, loses,
+															nrRounds, nrOfWorkers, duration);
 			
 			//tell the listeners that the simulation is done
 			SwingUtilities.invokeLater (new LastPropertyCall ());

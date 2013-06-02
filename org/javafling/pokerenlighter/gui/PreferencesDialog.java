@@ -65,7 +65,7 @@ public class PreferencesDialog
 		
 		JPanel mainPanel = new JPanel (new BorderLayout ());
 		
-		JPanel northPanel = new JPanel (new GridLayout (1, 2));
+		JPanel northPanel = new JPanel (new GridLayout (2, 1));
 		
 		GUIUtilities.setBorder (northPanel, dictionary.getValue ("title.prefs.general"), TitledBorder.LEFT);
 		
@@ -115,7 +115,7 @@ public class PreferencesDialog
 	
 	private JPanel createlnfPanel ()
 	{
-		JPanel panel = new JPanel (new FlowLayout (FlowLayout.RIGHT));
+		JPanel panel = new JPanel (new FlowLayout (FlowLayout.LEFT));
 		
 		panel.add (new JLabel (dictionary.getValue ("label.prefs.general.lookandfeel")));
 

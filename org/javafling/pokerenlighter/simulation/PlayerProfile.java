@@ -3,8 +3,9 @@ package org.javafling.pokerenlighter.simulation;
 import org.javafling.pokerenlighter.combination.Card;
 
 /**
- *
- * @author Murzea Radu
+ * Contains all the information about a player necessary for the simulator to do his job.
+ * 
+ * @author Radu Murzea
  * 
  * @version 1.0
  */
@@ -17,10 +18,13 @@ public final class PlayerProfile
 	
 	/**
 	 * Creates a new player profile. Depending on the type of hand, some null values are allowed for
-	 * the parameters. More specifically, you can do this:
+	 * the parameters. More specifically, if you say that the player has a Range-type hand, then you
+	 * can provide a <code>null</code> value for the cards. You can apply the same principle to the other
+	 * hand types. Here are some examples of what you CAN do:
 	 * <pre>
 	 * new PlayerProfile (HandType.EXACTCARDS, null, myCards);
 	 * new PlayerProfile (HandType.RANGE, myRange, null);
+	 * new PlayerProfile (HandType.RANDOM, null, null);
 	 * </pre>
 	 * but you can't do this:
 	 * <pre>
@@ -37,11 +41,15 @@ public final class PlayerProfile
 	 * @param cards the cards for this profile. If the hand type is NOT HandType.EXACTCARDS, then this value
 	 * may be null or not. Either way, it will be discarded.
 	 * 
-	 * @throws NullPointerException if handType is null. Also, if handType is HandType.EXACTCARDS and any
-	 * of the cards is null. Also, if range is null in the case handType is HandType.RANGE.
+	 * @throws NullPointerException
+	 * <ul>
+	 * <li>if handType is null.</li>
+	 * <li>if handType is HandType.EXACTCARDS and any of the cards is null.</li>
+	 * <li>if handType is HandType.RANGE and range is null.</li>
+	 * </ul>
 	 * 
-	 * @throws IllegalArgumentException if handType is HandType.EXACTCARDS and the length of the cards array
-	 * is not 2 or 4. Also, if cards contains duplicate cards.
+	 * @throws IllegalArgumentException if the length of the cards array is not 2 or 4 or if cards
+	 * contains duplicate cards. These conditions will be checked only if handType is HandType.EXACTCARDS.
 	 */
 	public PlayerProfile (HandType handType, Range range, Card[] cards)
 	{

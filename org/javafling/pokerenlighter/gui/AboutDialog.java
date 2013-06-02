@@ -101,16 +101,20 @@ public class AboutDialog extends JDialog
 	{
 		JPanel panel = new JPanel (new BorderLayout ());
 		
+		StringBuilder thanksString = new StringBuilder ();
+		thanksString.append ("- the authors of Swing Hacks: Tips and Tools for Killer GUIs; they published the Swing code for status bars in their book.\n\n");
+		thanksString.append ("- the authors of Numerical Recipes - The Art of Scientific Computing; they published a more advanced random number generator in the book.\n\n");
+		thanksString.append ("- EaSynth Inc. for publishing the EaSynth Look & Feel\n\n");
+		thanksString.append ("- Nilo J. Gonzalez for publishing the NimROD Look & Feel\n\n");
+		thanksString.append ("- Kenneth Orr and Kathryn Huxtable for publishing the Sea Glass Look & Feel\n\n");
+		thanksString.append ("- Kirill Grouchnikov for publishing the Substance Look & Feel\n\n");
+		thanksString.append ("- David Gilbert for developing and publishing JFreeChart.");
+		
 		JTextArea thanksinfo = new JTextArea ();
 		thanksinfo.setEditable (false);
 		thanksinfo.setLineWrap (true);
 		thanksinfo.setWrapStyleWord (true);
-		thanksinfo.setText ("- the authors of Swing Hacks: Tips and Tools for Killer GUIs; they published the Swing code for status bars in their book.\n\n" + 
-							"- the authors of Numerical Recipes - The Art of Scientific Computing; they published a more advanced random number generator in the book.\n\n" +
-							"- EaSynth Inc. for publishing the EaSynth Look & Feel\n\n" +
-							"- Nilo J. Gonzalez for publishing the NimROD Look & Feel\n\n" +
-							"- Kenneth Orr and Kathryn Huxtable for publishing the Sea Glass Look & Feel\n\n" +
-							"- David Gilbert for developing and publishing JFreeChart.");
+		thanksinfo.setText (thanksString.toString ());
 		
 		JScrollPane scrollPane = new JScrollPane (thanksinfo);
 		scrollPane.setVerticalScrollBarPolicy (JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -146,9 +150,8 @@ public class AboutDialog extends JDialog
 		
 		//character that represents the copyright sign.
 		//used here to avoid issues from compilers/obfuscators/etc.
-		//used in the next label (see below)
 		char copyright_char = '\u00A9';
-		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2013 Murzea Radu.");
+		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2013 Radu Murzea.");
 		
 		panel.add (aboutcopyright, BorderLayout.NORTH);
 		

@@ -1,8 +1,11 @@
 package org.javafling.pokerenlighter.simulation;
 
 /**
- *
- * @author SoboLAN
+ * Represents all the different types of poker suppported by Poker Enlighter.
+ * 
+ * @author Radu Murzea
+ * 
+ * @version 1.0
  */
 public enum PokerType
 {

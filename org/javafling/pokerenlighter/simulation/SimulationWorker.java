@@ -578,7 +578,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 		for (int current_round = 1; current_round <= rounds && ! Thread.currentThread ().isInterrupted (); current_round++)
 		{
 			deck.shuffle (10);
-									
+
 			//determine what each player has
 			for (int i = 0; i < nrPlayers; i++)
 			{

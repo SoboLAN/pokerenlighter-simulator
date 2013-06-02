@@ -14,12 +14,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,6 +44,7 @@ import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 import org.javafling.pokerenlighter.simulation.Range;
+import org.javafling.pokerenlighter.simulation.SimulationExport;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.javafling.pokerenlighter.simulation.Simulator;
 
@@ -72,8 +77,8 @@ public class GUI implements PropertyChangeListener
 	
 	private JTable choicesTable, resultsTable;
 	private JComboBox playerIDBox, handTypeBox, variationBox;
-	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton, exportButton
-					viewGraphButton;
+	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton,
+			exportButton, viewGraphButton;
 	private JSpinner playersCount;
 	private JCheckBox enableFlop, enableTurn, enableRiver;
 	private JLabel flopCard1, flopCard2, flopCard3, turnCard, riverCard;
@@ -91,6 +96,11 @@ public class GUI implements PropertyChangeListener
 			_instance = new GUI (lang);
 		}
 
+		return _instance;
+	}
+	
+	public static GUI getGUI ()
+	{
 		return _instance;
 	}
 	
@@ -251,11 +261,11 @@ public class GUI implements PropertyChangeListener
 		
 		loadProfileButton = new JButton ("Load Profile");
 		importPanel.add (loadProfileButton);
-		
+	
 		panel.add (importPanel, BorderLayout.CENTER);*/
 
 		choicesPanel = createChoicesPanel ();
-		panel.add (choicesPanel, BorderLayout.CENTER);
+		panel.add (choicesPanel, BorderLayout.SOUTH);
 
 		return panel;
 	}
@@ -439,13 +449,14 @@ public class GUI implements PropertyChangeListener
 		
 		JPanel buttonsPanel = new JPanel (new FlowLayout (FlowLayout.CENTER, 5, 5));
 		
-//		exportButton = new JButton (dictionary.getValue ("button.results.export"));
+		exportButton = new JButton ("Export to XML");
+		exportButton.addActionListener (new ResultXMLListener ());
 		viewGraphButton = new JButton (dictionary.getValue ("button.results.graph"));
 		viewGraphButton.addActionListener (new ViewGraphListener ());
 		
-	//	buttonsPanel.add (exportButton);
 		buttonsPanel.add (viewGraphButton);
-		
+		buttonsPanel.add (exportButton);
+
 		panel.add (buttonsPanel, BorderLayout.SOUTH);
 		
 		return panel;
@@ -900,8 +911,8 @@ public class GUI implements PropertyChangeListener
 
 			statusBar.setText (dictionary.getValue ("statusbar.done") +
 								" (" +
-								df.format (durationSeconds) +
-								dictionary.getValue ("statusbar.seconds"));
+								df.format (durationSeconds) + " " +
+								dictionary.getValue ("statusbar.seconds") + ")");
 			
 			viewGraphButton.setEnabled (true);
 		}
@@ -1073,6 +1084,28 @@ public class GUI implements PropertyChangeListener
 			setChoicesTableContent ();
 			
 			setCommunityCardsContent ();
+		}
+	}
+	
+	private class ResultXMLListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			JFileChooser fc = new JFileChooser ();
+			int returnVal = fc.showSaveDialog (mainframe);
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				File file = fc.getSelectedFile ();
+				try (BufferedWriter bw = new BufferedWriter (new FileWriter (file)))
+				{
+					bw.write (SimulationExport.getResultXMLString (simulator.getResult ()));
+				}
+				catch (Exception ex)
+				{
+					GUIUtilities.showErrorDialog (mainframe, "Could not save the result", "Save Error");
+				}
+			}
 		}
 	}
 	

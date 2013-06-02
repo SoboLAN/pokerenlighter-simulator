@@ -2,7 +2,9 @@ package org.javafling.pokerenlighter.simulation;
 
 /**
  *
- * @author Murzea Radu
+ * @author Radu Murzea
+ * 
+ * @version 1.0
  */
 public class SimulationWorkerResult
 {

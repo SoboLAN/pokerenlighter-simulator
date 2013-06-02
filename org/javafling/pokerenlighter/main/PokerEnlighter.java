@@ -1,14 +1,6 @@
 package org.javafling.pokerenlighter.main;
 
-import com.easynth.lookandfeel.EaSynthLookAndFeel;
-import com.nilo.plaf.nimrod.NimRODLookAndFeel;
-import com.seaglasslookandfeel.SeaGlassLookAndFeel;
-import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import org.javafling.pokerenlighter.gui.GUI;
 import org.javafling.pokerenlighter.gui.GUIUtilities;
 import org.javafling.pokerenlighter.gui.Language;
@@ -37,12 +29,12 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * Represents the full version string of this current release.
 	 */
-	public static final String FULL_VERSION = "2.0 build 456";
+	public static final String FULL_VERSION = "2.1 build 488";
 	
 	/**
 	 * The build number of this release.
 	 */
-	public static final int BUILD_NUMBER = 456;
+	public static final int BUILD_NUMBER = 488;
 	
 	/**
 	 * Version string of the JDK version used to compile this release.
@@ -52,7 +44,7 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * String containing the compile date of this release.
 	 */
-	public static final String BUILD_DATE = "11 May 2013 12:19 PM UTC";
+	public static final String BUILD_DATE = "02 Jun 2013 11:14 AM UTC";
 	
 	//if an error occurs in this class, these Strings will be used in the error dialog that appears
 	private static final String errorTitle = "Program error";
@@ -111,7 +103,7 @@ public final class PokerEnlighter implements Runnable
 			return;
 		}
 		
-		//show the GUi on the EDT
+		//show the GUI on the EDT
 		SwingUtilities.invokeLater (new PokerEnlighter ());
 	}
 	
@@ -126,7 +118,7 @@ public final class PokerEnlighter implements Runnable
 		//set the look & feel
 		try
 		{
-			setLNF ();
+			SystemUtils.setLNF (options.getLookAndFeel ());
 		}
 		catch (Exception ex)
 		{
@@ -137,23 +129,5 @@ public final class PokerEnlighter implements Runnable
 		GUI g = GUI.getGUI (dictionary);
 		g.setLocationToCenterOfScreen ();
 		g.setVisible (true);
-	}
-	
-	//sets the look & feel that is mentioned in the options
-	private void setLNF () throws Exception
-	{
-		switch (options.getLookAndFeel ())
-		{
-			case "Nimbus": UIManager.setLookAndFeel (new NimbusLookAndFeel ()); break;
-			case "System": UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ()); break;
-			case "Motif": UIManager.setLookAndFeel (new MotifLookAndFeel ()); break;
-			case "NimROD": UIManager.setLookAndFeel (new NimRODLookAndFeel ()); break;
-			case "EaSynth": UIManager.setLookAndFeel (new EaSynthLookAndFeel ()); break;
-			case "SeaGlass": UIManager.setLookAndFeel (new SeaGlassLookAndFeel ()); break;
-			default: throw new RuntimeException ("invalid look-and-feel");
-		}
-				
-		JFrame.setDefaultLookAndFeelDecorated (true);
-		JDialog.setDefaultLookAndFeelDecorated (true);
 	}
 }

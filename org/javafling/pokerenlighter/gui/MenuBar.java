@@ -3,6 +3,7 @@ package org.javafling.pokerenlighter.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -24,7 +25,7 @@ public class MenuBar
 	
 	private JMenu fileMenu, helpMenu;
 	
-	private JMenuItem exitAction, aboutAction, prefsAction, updateAction;
+	private JMenuItem exitAction, aboutAction, prefsAction, updateAction, newSimulationAction;
 	
 	private PEDictionary dictionary;
 	
@@ -48,11 +49,14 @@ public class MenuBar
 		exitAction = new JMenuItem (dictionary.getValue ("menubar.file.exit"));
 		prefsAction = new JMenuItem (dictionary.getValue ("menubar.file.prefs"));
 		aboutAction = new JMenuItem (dictionary.getValue ("menubar.help.about"));
-		updateAction = new JMenuItem (dictionary.getValue ("menubar.file.checkupdate"));
+		updateAction = new JMenuItem (dictionary.getValue ("menubar.help.checkupdate"));
+		newSimulationAction = new JMenuItem (dictionary.getValue ("menubar.file.newsim"));
 
+		//fyi: order is important (user interface standards)
+		fileMenu.add (newSimulationAction);
 		fileMenu.add (prefsAction);
-		fileMenu.add (updateAction);
 		fileMenu.add (exitAction);
+		helpMenu.add (updateAction);
 		helpMenu.add (aboutAction);
 
 		aboutAction.addActionListener (new AboutListener ());
@@ -112,7 +116,15 @@ public class MenuBar
 		{
 			String url = "http://pokerenlighter.javafling.org/update.check.php?build=" + PokerEnlighter.BUILD_NUMBER;
 			
-			InternetConnection conn = InternetConnectionFactory.createDirectConnection (url);
+			InternetConnection conn = null;
+			try
+			{
+				conn = InternetConnectionFactory.createDirectConnection (url);
+			}
+			catch (IOException ex)
+			{
+				GUIUtilities.showErrorDialog (parent, "There was an error while checking for update", "Update Check");
+			}
 			
 			String content = conn.getContent ();
 			

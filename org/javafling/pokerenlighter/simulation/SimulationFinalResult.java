@@ -14,11 +14,13 @@ public class SimulationFinalResult
 	private long duration;
 	private PokerType gameType;
 	private ArrayList<PlayerProfile> players;
+	private int nrThreads;
 	
 	private DecimalFormat formatter;
 	
 	public SimulationFinalResult (PokerType gameType, ArrayList<PlayerProfile> players,
-									double[] wins, double[] ties, double[] loses, int rounds, long duration)
+									double[] wins, double[] ties, double[] loses, int rounds,
+									int nrThreads, long duration)
 	{
 		if (players == null || wins == null || ties == null || loses == null)
 		{
@@ -36,6 +38,7 @@ public class SimulationFinalResult
 		this.rounds = rounds;
 		this.duration = duration;
 		this.gameType = gameType;
+		this.nrThreads = nrThreads;
 		
 		formatter = new DecimalFormat ();
 		formatter.setMaximumFractionDigits (2);
@@ -44,6 +47,11 @@ public class SimulationFinalResult
 	public int getNrOfPlayers ()
 	{
 		return wins.length;
+	}
+	
+	public int getNrOfThreads ()
+	{
+		return nrThreads;
 	}
 	
 	public double getWinPercentage (int player)

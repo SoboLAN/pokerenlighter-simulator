@@ -3,11 +3,26 @@ package org.javafling.pokerenlighter.simulation;
 import org.javafling.pokerenlighter.combination.Card;
 
 /**
- *
- * @author Murzea Radu
+ * Represents a range of hands that a player can have. Its purpose is to work with Texas Hold'em
+ * games only. A range is represented by the percentage of hand types that it contains. There are
+ * 169 hand types in Texas Hold'em. You can include any one of those 169 hand types in the range,
+ * even if the range wouldn't normally support it. Setting a specific percentage to a range will include
+ * a set of predefined hand types in it and eliminate all previously included types. Because of this,
+ * it's recommended to set the range to a specific percentage and then, if needed, make tiny adjustments
+ * to it. The methods within this class will document this behaviour in more detail.
+ * 
+ * @author Radu Murzea
+ * 
+ * @version 1.0
  */
 public final class Range
 {
+	/**
+	 * Contains the names of all hand types. They are split among 13 lines and 13 columns. In order
+	 * to work with them easier, there are some patterns to their arrangements. For example: the pocket
+	 * pairs run along the main diagonal. Also, all suited types are above this diagonal while the
+	 * offsuit types are found below.
+	 */
 	public static final String[][] rangeNames = 
 	{
 		{"AA", "AKs", "AQs", "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s"},
