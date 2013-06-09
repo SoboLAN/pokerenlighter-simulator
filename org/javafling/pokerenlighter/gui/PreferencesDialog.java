@@ -33,7 +33,7 @@ public class PreferencesDialog
 	
 	private JSlider roundsSlider;
 	private JTextField roundsText, winsCode, losesCode, tiesCode;
-	private JCheckBox displayLabelCheckBox;
+	private JCheckBox displayLabelCheckBox, isGraphStackedCheckBox, isGraph3DCheckBox;
 	private JSpinner[][] colorSpinners;
 	private JLabel winsColorLabel, losesColorLabel, tiesColorLabel;
 	
@@ -330,18 +330,46 @@ public class PreferencesDialog
 		
 		panel.add (colorsPanel, BorderLayout.CENTER);
 		
-		JPanel percentagePanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
+		JPanel checkBoxesPanel = createBarCheckboxesPanel ();
+
+		panel.add (checkBoxesPanel, BorderLayout.SOUTH);
+	
+		return panel;
+	}
+	
+	private JPanel createBarCheckboxesPanel ()
+	{
+		JPanel panel = new JPanel (new GridLayout (3, 1));
+		panel.setBorder (BorderFactory.createEmptyBorder ());
 
 		displayLabelCheckBox = new JCheckBox ();
 		displayLabelCheckBox.setSelected (options.getShowGraphLabels ());
 		displayLabelCheckBox.addItemListener (new GeneralChangeListener ());
 		
-		percentagePanel.add (displayLabelCheckBox);
+		isGraphStackedCheckBox = new JCheckBox ();
+		isGraphStackedCheckBox.setSelected (options.getGraphStacked ());
+		isGraphStackedCheckBox.addItemListener (new GeneralChangeListener ());
 		
+		isGraph3DCheckBox = new JCheckBox ();
+		isGraph3DCheckBox.setSelected (options.getGraph3D ());
+		isGraph3DCheckBox.addItemListener (new GeneralChangeListener ());
+		
+		JPanel percentagePanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
+		percentagePanel.add (displayLabelCheckBox);
 		percentagePanel.add (new JLabel (dictionary.getValue ("label.prefs.graph.displaygraph")));
 		
-		panel.add (percentagePanel, BorderLayout.SOUTH);
-	
+		JPanel stackedPanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
+		stackedPanel.add (isGraphStackedCheckBox);
+		stackedPanel.add (new JLabel ("Stacked Graph"));
+		
+		JPanel threeDPanel = new JPanel (new FlowLayout (FlowLayout.LEFT));
+		threeDPanel.add (isGraph3DCheckBox);
+		threeDPanel.add (new JLabel ("3D Graph"));
+		
+		panel.add (percentagePanel);
+		panel.add (stackedPanel);
+		panel.add (threeDPanel);
+		
 		return panel;
 	}
 	
@@ -399,6 +427,8 @@ public class PreferencesDialog
 			options.setTiesGreen (colorValues[2][1]);
 			options.setTiesBlue (colorValues[2][2]);
 			options.setDisplayLabel (displayLabelCheckBox.isSelected ());
+			options.setGraphStacked (isGraphStackedCheckBox.isSelected ());
+			options.setGraph3D (isGraph3DCheckBox.isSelected ());
 			
 			options.saveConfiguration ();
 			

@@ -3,7 +3,8 @@ package org.javafling.pokerenlighter.simulation;
 import org.javafling.pokerenlighter.combination.Card;
 
 /**
- *
+ * Provides export functionality for simulation results.
+ * 
  * @author Radu Murzea
  * 
  * @version 1.0
@@ -12,6 +13,15 @@ public class SimulationExport
 {
 	private static final String LINE_END = System.lineSeparator ();
 	
+	/**
+	 * Constructs a XML representation of the simulation result and returns it in the form of
+	 * a String.
+	 * 
+	 * @param result the result of the simulation that must be converted to XML.
+	 * 
+	 * @return a String containing an XML representation of the provided result. If the result
+	 * is null, then an empty String is returned.
+	 */
 	public static String getResultXMLString (SimulationFinalResult result)
 	{
 		if (result == null)

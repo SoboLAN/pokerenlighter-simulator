@@ -5,7 +5,9 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Murzea Radu
+ * @author Radu Murzea
+ * 
+ * @version 1.0
  */
 public class SimulationFinalResult
 {
@@ -18,27 +20,93 @@ public class SimulationFinalResult
 	
 	private DecimalFormat formatter;
 	
-	public SimulationFinalResult (PokerType gameType, ArrayList<PlayerProfile> players,
-									double[] wins, double[] ties, double[] loses, int rounds,
-									int nrThreads, long duration)
+	public static class ResultBuilder
 	{
-		if (players == null || wins == null || ties == null || loses == null)
+		private double[] wins, ties, loses;
+		private int rounds;
+		private long duration;
+		private PokerType gameType;
+		private ArrayList<PlayerProfile> players;
+		private int nrThreads;
+		
+		public ResultBuilder setGameType (PokerType gameType)
 		{
-			throw new NullPointerException ();
-		}
-		else if (wins.length != ties.length || ties.length != loses.length || rounds <= 0 || duration <= 0)
-		{
-			throw new IllegalArgumentException ();
+			this.gameType = gameType;
+			return this;
 		}
 		
-		this.players = players;
-		this.wins = wins;
-		this.loses = loses;
-		this.ties = ties;
-		this.rounds = rounds;
-		this.duration = duration;
-		this.gameType = gameType;
-		this.nrThreads = nrThreads;
+		public ResultBuilder setPlayers (ArrayList<PlayerProfile> players)
+		{
+			this.players = players;
+			return this;
+		}
+		
+		public ResultBuilder setWins (double[] wins)
+		{
+			this.wins = wins;
+			return this;
+		}
+		
+		public ResultBuilder setLoses (double[] loses)
+		{
+			this.loses = loses;
+			return this;
+		}
+		
+		public ResultBuilder setTies (double[] ties)
+		{
+			this.ties = ties;
+			return this;
+		}
+		
+		public ResultBuilder setRounds (int rounds)
+		{
+			this.rounds = rounds;
+			return this;
+		}
+		
+		public ResultBuilder setThreads (int nrThreads)
+		{
+			this.nrThreads = nrThreads;
+			return this;
+		}
+		
+		public ResultBuilder setDuration (long duration)
+		{
+			this.duration = duration;
+			return this;
+		}
+		
+		public SimulationFinalResult build ()
+		{
+			if (gameType == null ||
+				players == null ||
+				wins == null ||
+				ties == null ||
+				loses == null ||
+				wins.length != ties.length ||
+				ties.length != loses.length ||
+				rounds <= 0 ||
+				duration <= 0 ||
+				nrThreads <= 0)
+			{
+				throw new IllegalStateException ();
+			}
+			
+			return new SimulationFinalResult (this);
+		}
+	}
+	
+	private SimulationFinalResult (ResultBuilder builder)
+	{		
+		this.players = builder.players;
+		this.wins = builder.wins;
+		this.loses = builder.loses;
+		this.ties = builder.ties;
+		this.rounds = builder.rounds;
+		this.duration = builder.duration;
+		this.gameType = builder.gameType;
+		this.nrThreads = builder.nrThreads;
 		
 		formatter = new DecimalFormat ();
 		formatter.setMaximumFractionDigits (2);

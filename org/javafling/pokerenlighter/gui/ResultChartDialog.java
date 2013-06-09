@@ -6,69 +6,171 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.CategoryItemLabelGenerator;
+import org.jfree.chart.labels.ItemLabelAnchor;
+import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
+import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.TextAnchor;
 
 /**
  *
- * @author Murzea Radu
+ * @author Radu Murzea
  * 
- * @version 1.0
+ * @version 1.1
  */
-public final class ResultChartDialog extends JDialog implements ActionListener
+public final class ResultChartDialog extends JDialog
 {
+	private ResultChartDialog rcd;
+	
+	private static final String XAxis = "Players";
+	private static final String YAxis = "Percentage";
+	
+	private JFreeChart chart;
+	private ChartPanel chartPanel;
+	private String title;
 	private SimulationFinalResult result;
 	
 	public ResultChartDialog (JFrame parent, String title, SimulationFinalResult result)
 	{
 		super (parent, title, true);
+
+		this.title = title;
 		
 		setLayout (new BorderLayout ());
 		setDefaultCloseOperation (DISPOSE_ON_CLOSE);
 		
 		this.result = result;
 		
-		ChartPanel chartPanel = buildChart (title);
+		OptionsContainer options = OptionsContainer.getOptionsContainer ();
+		buildChart (options.getGraph3D (), options.getGraphStacked ());
 		add (chartPanel, BorderLayout.CENTER);
 		
-		JButton btn = new JButton ("Close");
-		btn.addActionListener (this);
-		JPanel btnPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
-		btnPanel.add (btn);
-		
-		add (btnPanel, BorderLayout.SOUTH);
+		add (createButtonPanel (), BorderLayout.SOUTH);
 		
 		pack ();
+		
+		rcd = this;
 	}
 	
-	private ChartPanel buildChart (String title)
+	private JPanel createButtonPanel ()
+	{
+		JPanel panel = new JPanel (new FlowLayout (FlowLayout.CENTER));
+		
+		JButton exportButton = new JButton ("Export as PNG");
+		exportButton.addActionListener (new ExportListener ());
+		
+		JButton closeButton = new JButton ("Close");
+		closeButton.addActionListener (new ActionListener ()
+		{
+			@Override
+			public void actionPerformed (ActionEvent e)
+			{
+				dispose ();
+			}
+		});
+		
+		panel.add (exportButton);
+		panel.add (closeButton);
+		
+		return panel;
+	}
+	
+	private class ExportListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed (ActionEvent e)
+		{
+			JFileChooser fc = new JFileChooser ();
+			int returnVal = fc.showSaveDialog (rcd);
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				try
+				{
+					ChartUtilities.saveChartAsPNG (fc.getSelectedFile (),
+													chart,
+													chartPanel.getWidth (),
+													chartPanel.getHeight ());
+				}
+				catch (IOException ex)
+				{
+					GUIUtilities.showErrorDialog (rcd,
+												"Could not save the image: " + ex.getMessage (),
+												"Save Error");
+				}
+			}
+		}
+	}
+	
+	//set width
+	//for 6 players: 7 x 30 pixels space zone and 6 x 130 pixels bar zone
+	//so formula will be:
+	//width = 130 x nr_players + 30 x (nr_players + 1)
+	//additionally, 60 pixels should be added for accomodating metadata on the side
+	//
+	//final formula: 160 x nr_players + 90
+	private int getDynamicWidth ()
+	{
+		return 160 * result.getNrOfPlayers () + 90;
+	}
+	
+	//for now, there is no formula for the height, its fixed.
+	//but it's provided by a method in case a formula will be implemented in the future
+	private int getDynamicHeight ()
+	{
+		return 450;
+	}
+	
+	private void buildChart (boolean is3D, boolean isStacked)
 	{
 		DefaultCategoryDataset dataset = createDataset();
-
-        JFreeChart chart = ChartFactory.createBarChart(title,					//title of the chart
-													"Players",					//X axis label
-													"Percentage",				//Y axis label
-													dataset,					//data
-													PlotOrientation.VERTICAL,	//orientation (vert/horiz)
-													true,						//whether or not legend is required
-													true,						//generate tooltips ?
-													false);						//generate URLs ?
+	
+        if (is3D)
+		{
+			if (isStacked)
+			{
+				create3DStackedChart (dataset);
+			}
+			else
+			{
+				create3DChart (dataset);
+			}
+		}
+		else
+		{
+			if (isStacked)
+			{
+				createStackedChart (dataset);
+			}
+			else
+			{
+				createClassicChart (dataset);
+			}
+		}
 		
 		CategoryPlot plot = (CategoryPlot) chart.getPlot ();
 		
@@ -79,21 +181,64 @@ public final class ResultChartDialog extends JDialog implements ActionListener
 			setBarLabels (plot);
 		}
 
-        ChartPanel chartPanel = new ChartPanel(chart);
-		
-        //set size
-		//for 6 players: 7 x 30 pixels space zone and 6 x 130 pixels bar zone
-		//so formula will be:
-		//width = 130 x nr_players + 30 x (nr_players + 1)
-		//additionally, 60 pixels should be added for accomodating metadata on the side
-		//
-		//final formula: 160 x nr_players + 90
-		
-		int width = 160 * result.getNrOfPlayers () + 90;
+        chartPanel = new ChartPanel(chart);
+
+        chartPanel.setPreferredSize(new Dimension(getDynamicWidth (), getDynamicHeight ()));
+	}
 	
-        chartPanel.setPreferredSize(new Dimension(width, 450));
+	private void createClassicChart(CategoryDataset dataset)
+	{
+		chart = ChartFactory.createBarChart(title, XAxis, YAxis, dataset,
+											PlotOrientation.VERTICAL,	//orientation (vert/horiz)
+											true,						//whether or not legend is required
+											true,						//generate tooltips ?
+											false);						//generate URLs ?
+	}
+	
+	private void create3DStackedChart(CategoryDataset dataset)
+	{
+		chart = ChartFactory.createStackedBarChart3D(title, XAxis, YAxis, dataset,
+											PlotOrientation.VERTICAL,	//orientation (vert/horiz)
+											true,						//whether or not legend is required
+											true,						//generate tooltips ?
+											false);						//generate URLs ?
 		
-		return chartPanel;
+		CategoryPlot categoryplot = (CategoryPlot) chart.getPlot();
+		BarRenderer barrenderer = (BarRenderer)categoryplot.getRenderer();
+		barrenderer.setDrawBarOutline(false);
+		barrenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+		barrenderer.setBaseItemLabelsVisible(true);
+		barrenderer.setBasePositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER));
+		barrenderer.setBaseNegativeItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.CENTER, TextAnchor.CENTER));
+
+	}
+	
+	private void createStackedChart(CategoryDataset dataset)
+	{
+		chart = ChartFactory.createStackedBarChart(title, XAxis, YAxis, dataset,
+											PlotOrientation.VERTICAL,	//orientation (vert/horiz)
+											true,						//whether or not legend is required
+											true,						//generate tooltips ?
+											false);						//generate URLs ?
+		CategoryPlot categoryplot = (CategoryPlot) chart.getPlot();
+		StackedBarRenderer stackedbarrenderer = (StackedBarRenderer)categoryplot.getRenderer();
+		stackedbarrenderer.setDrawBarOutline(false);
+		stackedbarrenderer.setBaseItemLabelsVisible(true);
+		stackedbarrenderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+	}
+	
+	private void create3DChart(CategoryDataset dataset)
+	{
+		chart = ChartFactory.createBarChart3D(title, XAxis, YAxis, dataset,
+											PlotOrientation.VERTICAL,	//orientation (vert/horiz)
+											true,						//whether or not legend is required
+											true,						//generate tooltips ?
+											false);						//generate URLs ?
+		CategoryPlot categoryplot = (CategoryPlot) chart.getPlot();
+		CategoryItemRenderer categoryitemrenderer = categoryplot.getRenderer();
+		categoryitemrenderer.setBaseItemLabelsVisible(true);
+		BarRenderer barrenderer = (BarRenderer)categoryitemrenderer;
+		barrenderer.setItemMargin(0.2D);
 	}
 	
 	//sets the colors of the bars according to the values found in the options file
@@ -144,7 +289,8 @@ public final class ResultChartDialog extends JDialog implements ActionListener
 		
 		for (int i = 0; i < result.getNrOfPlayers (); i++)
 		{
-			StringBuilder playerLabel = new StringBuilder ("Player " + Integer.toString (i + 1));
+			StringBuilder playerLabel = new StringBuilder ("Player ");
+			playerLabel.append (Integer.toString (i + 1));
 			playerLabel.append (" (");
 			
 			HandType handType = result.getPlayer (i).getHandType ();
@@ -184,10 +330,4 @@ public final class ResultChartDialog extends JDialog implements ActionListener
 		
 		return categoryDataSet;        
     }
-	
-	@Override
-	public void actionPerformed (ActionEvent e)
-	{
-		dispose ();
-	}
 }

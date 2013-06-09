@@ -37,6 +37,8 @@ public class OptionsContainer
 	private String defLNF = availableLNFs[0];
 	private int defRounds = 105000;
 	private boolean defShowLabels = true;
+	private boolean defStackedGraph = false;
+	private boolean def3DGraph = false;
 	private int[][] defColors = 
 	{
 		{38, 206, 70},	//wins
@@ -60,6 +62,8 @@ public class OptionsContainer
 	private String tiesRedKey = "tiesred";
 	private String tiesGreenKey = "tiesgreen";
 	private String tiesBlueKey = "tiesblue";
+	private String graphStackedKey = "graphstacked";
+	private String graph3DKey = "graph3d";
 	
 	public static OptionsContainer getOptionsContainer ()
 	{
@@ -171,6 +175,20 @@ public class OptionsContainer
 	public String[] getAvailableLookAndFeels ()
 	{
 		return availableLNFs;
+	}
+	
+	public boolean getGraphStacked ()
+	{
+		String graphStacked = options.get (graphStackedKey);
+		
+		return Boolean.parseBoolean (graphStacked);
+	}
+	
+	public boolean getGraph3D ()
+	{
+		String graph3D = options.get (graph3DKey);
+		
+		return Boolean.parseBoolean (graph3D);
 	}
 	
 	public void setLanguage (int newIndex)
@@ -298,6 +316,16 @@ public class OptionsContainer
 		options.put (showLabelsKey, Boolean.toString (showLabel));
 	}
 	
+	public void setGraphStacked (boolean graphStacked)
+	{
+		options.put (graphStackedKey, Boolean.toString (graphStacked));
+	}
+	
+	public void setGraph3D (boolean graph3D)
+	{
+		options.put (graph3DKey, Boolean.toString (graph3D));
+	}
+	
 	private void loadConfiguration ()
 	{
 		Properties prop = new Properties ();
@@ -328,6 +356,8 @@ public class OptionsContainer
 		boolean tiesRedOK = isValidNumericValue (prop.getProperty (tiesRedKey), 0, 255);
 		boolean tiesGreenOK = isValidNumericValue (prop.getProperty (tiesGreenKey), 0, 255);
 		boolean tiesBlueOK = isValidNumericValue (prop.getProperty (tiesBlueKey), 0, 255);
+		boolean graphStackOK = isValidBoolean (prop.getProperty (graphStackedKey));
+		boolean graph3DOK = isValidBoolean (prop.getProperty (graph3DKey));
 		
 		options.put (languageKey, languageOK ? prop.getProperty (languageKey) : defLanguage);
 		options.put (lnfKey, lnfOK ? prop.getProperty (lnfKey) : defLNF);
@@ -342,6 +372,8 @@ public class OptionsContainer
 		options.put (tiesRedKey, tiesRedOK ? prop.getProperty (tiesRedKey) : Integer.toString (defColors[2][0]));
 		options.put (tiesGreenKey, tiesGreenOK ? prop.getProperty (tiesGreenKey) : Integer.toString (defColors[2][1]));
 		options.put (tiesBlueKey, tiesBlueOK ? prop.getProperty (tiesBlueKey) : Integer.toString (defColors[2][2]));
+		options.put (graphStackedKey, graphStackOK ? prop.getProperty (graphStackedKey) : Boolean.toString (defStackedGraph));
+		options.put (graph3DKey, graph3DOK ? prop.getProperty (graph3DKey) : Boolean.toString (def3DGraph));
 		
 		boolean everythingOK = languageOK &&
 								lnfOK &&
@@ -355,7 +387,9 @@ public class OptionsContainer
 								losesBlueOK &&
 								tiesRedOK &&
 								tiesGreenOK &&
-								tiesBlueOK;
+								tiesBlueOK &&
+								graphStackOK &&
+								graph3DOK;
 		
 		if (! everythingOK)
 		{
@@ -453,6 +487,8 @@ public class OptionsContainer
 		prop.setProperty (tiesRedKey, options.get (tiesRedKey));
 		prop.setProperty (tiesGreenKey, options.get (tiesGreenKey));
 		prop.setProperty (tiesBlueKey, options.get (tiesBlueKey));
+		prop.setProperty (graphStackedKey, options.get (graphStackedKey));
+		prop.setProperty (graph3DKey, options.get (graph3DKey));
 
 		try (FileOutputStream fileStream = new FileOutputStream (preferencesFile, false))
 		{
@@ -481,5 +517,7 @@ public class OptionsContainer
 		options.put (tiesRedKey, Integer.toString (defColors[2][0]));
 		options.put (tiesGreenKey, Integer.toString (defColors[2][1]));
 		options.put (tiesBlueKey, Integer.toString (defColors[2][2]));
+		options.put (graphStackedKey, Boolean.toString (defStackedGraph));
+		options.put (graph3DKey, Boolean.toString (def3DGraph));
 	}
 }
