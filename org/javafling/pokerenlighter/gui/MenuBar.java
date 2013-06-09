@@ -15,7 +15,7 @@ import org.javafling.pokerenlighter.main.PokerEnlighter;
 
 /**
  *
- * @author Murzea Radu
+ * @author Radu Murzea
  */
 public class MenuBar
 {
@@ -63,6 +63,7 @@ public class MenuBar
 		prefsAction.addActionListener (new PreferencesListener ());
 		exitAction.addActionListener (new ExitListener ());
 		updateAction.addActionListener (new UpdateListener ());
+		newSimulationAction.addActionListener (new NewSimulationListener ());
 	}
 	
 	public JMenuBar getMenuBar ()
@@ -98,14 +99,22 @@ public class MenuBar
 			parent.dispose ();
 		}
 	}
-	
-	//TO DO: move this functionality to a SwingWorker
+
 	private class UpdateListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed (ActionEvent e)
 		{
 			new UpdateChecker ().execute ();
+		}
+	}
+	
+	private class NewSimulationListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed (ActionEvent e)
+		{
+			GUI.getGUI ().newSimulation ();
 		}
 	}
 	

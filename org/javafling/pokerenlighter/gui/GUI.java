@@ -50,9 +50,9 @@ import org.javafling.pokerenlighter.simulation.Simulator;
 
 /** Main GUI (Graphical User Interface) class.
  *
- * @author Murzea Radu
+ * @author Radu Murzea
  */
-public class GUI implements PropertyChangeListener
+public final class GUI implements PropertyChangeListener
 {
 	private static GUI _instance;
 	
@@ -111,12 +111,6 @@ public class GUI implements PropertyChangeListener
 		holdemProfiles = new PlayerProfile[MAX_PLAYERS];
 		omahaProfiles = new PlayerProfile[MAX_PLAYERS];
 		omahaHiLoProfiles = new PlayerProfile[MAX_PLAYERS];
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			holdemProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
-			omahaProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
-			omahaHiLoProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
-		}
 		
 		holdemCommunityCards = new Card[5];
 		omahaCommunityCards = new Card[5];
@@ -136,12 +130,11 @@ public class GUI implements PropertyChangeListener
 		statusBar = new StatusBar (dictionary.getValue ("statusbar.ready"));
 		mainframe.add (statusBar, BorderLayout.SOUTH);
 		
+		newSimulation ();
+		
 		setChoicesTableContent ();
-		adjustAvailablePlayerIDs ();
-		
-		stopButton.setEnabled (false);
-		viewGraphButton.setEnabled (false);
-		
+		//adjustAvailablePlayerIDs ();
+
 		mainframe.pack ();
 	}
 
@@ -190,6 +183,50 @@ public class GUI implements PropertyChangeListener
 				}
 				break;
 		}
+	}
+	
+	public void newSimulation ()
+	{
+		if (simulator != null)
+		{
+			if (simulator.isRunning ())
+			{
+				return;
+			}
+		}
+		
+		simulator = null;
+		
+		for (int i = 0; i < MAX_PLAYERS; i++)
+		{
+			holdemProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
+			omahaProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
+			omahaHiLoProfiles[i] = new PlayerProfile (HandType.RANDOM, null, null);
+		}
+		
+		for (int i = 0; i < 5; i++)
+		{
+			holdemCommunityCards[i] = null;
+			omahaCommunityCards[i] = null;
+			omahaHiLoCommunityCards[i] = null;
+		}
+		
+		playersCount.setValue (Integer.valueOf (2));
+		adjustAvailablePlayerIDs ();
+		
+		variationBox.setSelectedIndex (0);
+		
+		setCommunityCardsContent ();
+		
+		setResultsTableContent ();
+		
+		stopButton.setEnabled (false);
+		viewGraphButton.setEnabled (false);
+		exportButton.setEnabled (false);
+		
+		progressBar.setValue (0);
+		
+		statusBar.setText (dictionary.getValue ("statusbar.ready"));
 	}
 	
 	private JPanel createCustomPanel ()
@@ -350,9 +387,9 @@ public class GUI implements PropertyChangeListener
 		
 		enableFlop = new JCheckBox (dictionary.getValue ("label.community.flop"));
 		
-		flopCard1 = new JLabel (new ImageIcon (getClass ().getResource (blankCardPath)));
-		flopCard2 = new JLabel (new ImageIcon (getClass ().getResource (blankCardPath)));
-		flopCard3 = new JLabel (new ImageIcon (getClass ().getResource (blankCardPath)));
+		flopCard1 = new JLabel ();
+		flopCard2 = new JLabel ();
+		flopCard3 = new JLabel ();
 		
 		panel.add (enableFlop);
 		panel.add (flopCard1);
@@ -361,14 +398,14 @@ public class GUI implements PropertyChangeListener
 	
 		enableTurn = new JCheckBox (dictionary.getValue ("label.community.turn"));
 		
-		turnCard = new JLabel (new ImageIcon (getClass ().getResource (blankCardPath)));
+		turnCard = new JLabel ();
 		
 		panel.add (enableTurn);
 		panel.add (turnCard);
 
 		enableRiver = new JCheckBox (dictionary.getValue ("label.community.river"));
 		
-		riverCard = new JLabel (new ImageIcon (getClass ().getResource (blankCardPath)));
+		riverCard = new JLabel ();
 		
 		panel.add (enableRiver);
 		panel.add (riverCard);
@@ -397,7 +434,6 @@ public class GUI implements PropertyChangeListener
 		progressBar = new JProgressBar (0, 100);
 		progressBar.setPreferredSize (new Dimension (220, 20));		
 		progressBar.setStringPainted (true);
-		progressBar.setValue (0);
 
 		panel.add (startButton);
 		panel.add (stopButton);
@@ -833,12 +869,24 @@ public class GUI implements PropertyChangeListener
 	
 	private void setResultsTableContent ()
 	{
-		SimulationFinalResult result = simulator.getResult ();
-		
-		int nrPlayersToFill = result.getNrOfPlayers ();
-
 		TableModel model = resultsTable.getModel ();
 		
+		if (simulator == null)
+		{
+			for (int i = 0; i < MAX_PLAYERS; i++)
+			{
+				model.setValueAt (" ", i, 0);
+				model.setValueAt (" ", i, 1);
+				model.setValueAt (" ", i, 2);
+				model.setValueAt (" ", i, 3);
+			}
+			
+			return;
+		}
+		
+		SimulationFinalResult result = simulator.getResult ();
+		int nrPlayersToFill = result.getNrOfPlayers ();
+
 		for (int i = 0; i < nrPlayersToFill; i++)
 		{
 			model.setValueAt (Integer.toString (i + 1), i, 0);
@@ -858,7 +906,7 @@ public class GUI implements PropertyChangeListener
 	}
 	
 	private void setGUIElementsRunning ()
-	{
+	{		
 		handTypeBox.setEnabled (false);
 		variationBox.setEnabled (false);
 		playerIDBox.setEnabled (false);

@@ -75,6 +75,7 @@ public final class Simulator implements PropertyChangeListener
 	private long startTime, endTime;
 	private int updateInterval, totalProgress;
 	private int nrOfWorkers;
+	private boolean isRunning;
 	
 	private SimulationFinalResult simulationResult;
 
@@ -119,6 +120,11 @@ public final class Simulator implements PropertyChangeListener
 		{
 			updateInterval = percentage;
 		}
+	}
+	
+	public boolean isRunning ()
+	{
+		return isRunning;
 	}
 	
 	public int getProgress ()
@@ -322,6 +328,11 @@ public final class Simulator implements PropertyChangeListener
 	
 	public void start ()
 	{
+		if (isRunning || simulationResult != null)
+		{
+			return;
+		}
+		
 		if (isPredictableResult ())
 		{
 			throw new IllegalStateException ("the simulation result is predictable");
@@ -353,6 +364,8 @@ public final class Simulator implements PropertyChangeListener
 		new Supervisor ().execute ();
 		
 		startTime = System.currentTimeMillis ();
+		
+		isRunning = true;
 	}
 	
 	private boolean isPredictableResult ()
@@ -437,6 +450,8 @@ public final class Simulator implements PropertyChangeListener
 	public void stop ()
 	{
 		executor.shutdownNow ();
+		
+		isRunning = false;
 	}
 	
 	public int getNrOfThreads ()
@@ -498,6 +513,8 @@ public final class Simulator implements PropertyChangeListener
 		@Override
 		protected void done ()
 		{
+			isRunning = false;
+			
 			//will be called when all workers are done
 			if (! executor.isShutdown ())
 			{

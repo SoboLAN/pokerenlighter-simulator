@@ -119,8 +119,6 @@ public class SimulationExport
 		xml.append (result.getDuration ());
 		xml.append ("</duration>");
 		xml.append (LINE_END);
-		xml.append ("<percentages>");
-		xml.append (LINE_END);
 		
 		for (int i = 1; i <= result.getNrOfPlayers (); i++)
 		{
