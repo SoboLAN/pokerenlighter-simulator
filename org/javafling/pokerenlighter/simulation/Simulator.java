@@ -10,7 +10,6 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
-import org.javafling.pokerenlighter.main.SystemUtils;
 
 /**
  * The control center of the simulations. This class manages the progress of all the simulations and
