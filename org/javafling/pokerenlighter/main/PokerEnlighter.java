@@ -75,7 +75,7 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * String containing the compile date of this release.
 	 */
-	public static final String BUILD_DATE = "09 Jun 2013 07:28 PM UTC";
+	public static final String BUILD_DATE = "09 Jun 2013 10:28 PM UTC";
 	
 	//if an error occurs in this class, these Strings will be used in the error dialog that appears
 	private static final String errorTitle = "Program error";
