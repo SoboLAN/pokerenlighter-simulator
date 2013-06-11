@@ -134,7 +134,6 @@ public final class GUI implements PropertyChangeListener
 		newSimulation ();
 		
 		setChoicesTableContent ();
-		//adjustAvailablePlayerIDs ();
 
 		mainframe.pack ();
 	}
@@ -912,6 +911,7 @@ public final class GUI implements PropertyChangeListener
 		variationBox.setEnabled (false);
 		playerIDBox.setEnabled (false);
 		viewGraphButton.setEnabled (false);
+		exportButton.setEnabled (false);
 		startButton.setEnabled (false);
 		stopButton.setEnabled (true);
 		playersCount.setEnabled (false);
@@ -940,6 +940,7 @@ public final class GUI implements PropertyChangeListener
 	{
 		handTypeBox.setEnabled (true);
 		variationBox.setEnabled (true);
+		exportButton.setEnabled (true);
 		playerIDBox.setEnabled (true);
 		startButton.setEnabled (true);
 		stopButton.setEnabled (false);
