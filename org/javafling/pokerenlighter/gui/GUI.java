@@ -76,7 +76,8 @@ public final class GUI implements PropertyChangeListener
 	private StatusBar statusBar;
 	
 	private JTable choicesTable, resultsTable;
-	private JComboBox playerIDBox, handTypeBox, variationBox;
+	private JComboBox<Integer> playerIDBox;
+	private JComboBox<String> handTypeBox, variationBox;
 	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton,
 			exportButton, viewGraphButton;
 	private JSpinner playersCount;
@@ -88,7 +89,7 @@ public final class GUI implements PropertyChangeListener
 	private Card[] holdemCommunityCards, omahaCommunityCards, omahaHiLoCommunityCards;
 	
 	private Simulator simulator;
-	
+
 	public static GUI getGUI (PEDictionary lang)
 	{
 		if (_instance == null)
@@ -270,7 +271,7 @@ public final class GUI implements PropertyChangeListener
 		{
 			IDs[i] = i + 1;
 		}
-		playerIDBox = new JComboBox (IDs);
+		playerIDBox = new JComboBox<> (IDs);
 		playerIDBox.setEditable (false);
 		topPanel.add (playerIDBox);
 		
@@ -280,7 +281,7 @@ public final class GUI implements PropertyChangeListener
 								dictionary.getValue ("combobox.handoptions.range"),
 								dictionary.getValue ("combobox.handoptions.exactcards")};
 
-		handTypeBox = new JComboBox (handBoxOptions);
+		handTypeBox = new JComboBox<> (handBoxOptions);
 		handTypeBox.setEditable (false);
 		handTypeBox.addItemListener (new HandTypeItemListener ());
 		topPanel.add (handTypeBox);
@@ -367,7 +368,7 @@ public final class GUI implements PropertyChangeListener
 		
 		JPanel variationPanel = new JPanel (new FlowLayout (FlowLayout.RIGHT));
 		
-		variationBox = new JComboBox (new String[]{"Texas Hold'em", "Omaha", "Omaha Hi/Lo"});
+		variationBox = new JComboBox<> (new String[]{"Texas Hold'em", "Omaha", "Omaha Hi/Lo"});
 		variationBox.addItemListener (new PokerTypeListener ());
 		variationBox.setEditable (false);
 		variationPanel.add (new JLabel (dictionary.getValue ("label.general.pokertype")));
