@@ -638,7 +638,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 			{
 				for (int i = 0; i < winningPlayers.length; i++)
 				{
-					tmpTies[i] = true;
+					tmpTies[winningPlayers[i]] = true;
 				}
 			}
 			else
@@ -651,7 +651,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
 			{
 				for (int i = 0; i < winningPlayersLo.length; i++)
 				{
-					tmpTies[i] = true;
+					tmpTies[winningPlayersLo[i]] = true;
 				}
 			}
 			else if (winningPlayersLo[0] != -1)
