@@ -2,6 +2,7 @@ package org.javafling.pokerenlighter.simulation;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import org.javafling.pokerenlighter.combination.Card;
 
 /**
  *
@@ -15,6 +16,9 @@ public class SimulationFinalResult
 	private int rounds;
 	private long duration;
 	private PokerType gameType;
+	private Card[] flop;
+	private Card turn;
+	private Card river;
 	private ArrayList<PlayerProfile> players;
 	private int nrThreads;
 	
@@ -26,6 +30,9 @@ public class SimulationFinalResult
 		private int rounds;
 		private long duration;
 		private PokerType gameType;
+		private Card[] flop;
+		private Card turn;
+		private Card river;
 		private ArrayList<PlayerProfile> players;
 		private int nrThreads;
 		
@@ -38,6 +45,24 @@ public class SimulationFinalResult
 		public ResultBuilder setPlayers (ArrayList<PlayerProfile> players)
 		{
 			this.players = players;
+			return this;
+		}
+		
+		public ResultBuilder setFlop (Card[] flop)
+		{
+			this.flop = flop;
+			return this;
+		}
+		
+		public ResultBuilder setTurn (Card turn)
+		{
+			this.turn = turn;
+			return this;
+		}
+		
+		public ResultBuilder setRiver (Card river)
+		{
+			this.river = river;
 			return this;
 		}
 		
@@ -93,6 +118,20 @@ public class SimulationFinalResult
 				throw new IllegalStateException ();
 			}
 			
+			if (flop != null)
+			{
+				if (flop.length != 3 ||
+				flop[0] == null ||
+				flop[1] == null ||
+				flop[2] == null ||
+				flop[0].equals (flop[1]) ||
+				flop[0].equals (flop[2]) ||
+				flop[1].equals (flop[2]))
+				{
+					throw new IllegalStateException ();
+				}
+			}
+			
 			return new SimulationFinalResult (this);
 		}
 	}
@@ -103,6 +142,9 @@ public class SimulationFinalResult
 		this.wins = builder.wins;
 		this.loses = builder.loses;
 		this.ties = builder.ties;
+		this.flop = builder.flop;
+		this.turn = builder.turn;
+		this.river = builder.river;
 		this.rounds = builder.rounds;
 		this.duration = builder.duration;
 		this.gameType = builder.gameType;
@@ -120,6 +162,21 @@ public class SimulationFinalResult
 	public int getNrOfThreads ()
 	{
 		return nrThreads;
+	}
+	
+	public Card[] getFlop ()
+	{
+		return flop;
+	}
+	
+	public Card getTurn ()
+	{
+		return turn;
+	}
+	
+	public Card getRiver ()
+	{
+		return river;
 	}
 	
 	public double getWinPercentage (int player)

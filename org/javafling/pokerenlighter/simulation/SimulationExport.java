@@ -109,6 +109,51 @@ public class SimulationExport
 		xml.append ("</players>");
 		xml.append (LINE_END);
 		
+		Card[] flop = result.getFlop ();
+		Card turn = result.getTurn ();
+		Card river = result.getRiver ();
+		
+		if (flop != null || turn != null || river != null)
+		{
+			xml.append ("<community>");
+			xml.append (LINE_END);
+			
+			if (flop != null)
+			{
+				xml.append ("<flop id=\"1\">");
+				xml.append (flop[0].toString ());
+				xml.append ("</flop>");
+				xml.append (LINE_END);
+				xml.append ("<flop id=\"2\">");
+				xml.append (flop[1].toString ());
+				xml.append ("</flop>");
+				xml.append (LINE_END);
+				xml.append ("<flop id=\"3\">");
+				xml.append (flop[2].toString ());
+				xml.append ("</flop>");
+				xml.append (LINE_END);
+			}
+			
+			if (turn != null)
+			{
+				xml.append ("<turn>");
+				xml.append (turn.toString ());
+				xml.append ("</turn>");
+				xml.append (LINE_END);
+			}
+			
+			if (river != null)
+			{
+				xml.append ("<river>");
+				xml.append (river.toString ());
+				xml.append ("</river>");
+				xml.append (LINE_END);
+			}
+			
+			xml.append ("</community>");
+			xml.append (LINE_END);
+		}
+		
 		xml.append ("<result>");
 		xml.append (LINE_END);
 		xml.append ("<threads>");

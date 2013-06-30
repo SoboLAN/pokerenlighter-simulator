@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -564,6 +565,9 @@ public final class Simulator implements PropertyChangeListener
 			
 			simulationResult = new SimulationFinalResult.ResultBuilder ().setGameType (gameType).
 																		setPlayers (profiles).
+																		setFlop (Arrays.copyOfRange (communityCards, 0, 3)).
+																		setTurn (communityCards[3]).
+																		setRiver (communityCards[4]).
 																		setWins (wins).
 																		setTies (ties).
 																		setLoses (loses).
