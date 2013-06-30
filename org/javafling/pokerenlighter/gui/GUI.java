@@ -325,7 +325,14 @@ public final class GUI implements PropertyChangeListener
 			rows[i][0] = " ";
 		}
 
-		DefaultTableModel model = new DefaultTableModel (rows, titles);
+		DefaultTableModel model = new DefaultTableModel (rows, titles)
+		{
+			@Override
+			public boolean isCellEditable (int row, int column)
+			{
+				return false;
+			}
+		};
 
 		choicesTable = new JTable (model);
 		
@@ -462,7 +469,14 @@ public final class GUI implements PropertyChangeListener
 			rows[i][0] = " ";
 		}
 		
-		DefaultTableModel model = new DefaultTableModel (rows, titles);
+		DefaultTableModel model = new DefaultTableModel (rows, titles)
+		{
+			@Override
+			public boolean isCellEditable (int row, int column)
+			{
+				return false;
+			}
+		};
 		
 		resultsTable = new JTable (model);
 	
