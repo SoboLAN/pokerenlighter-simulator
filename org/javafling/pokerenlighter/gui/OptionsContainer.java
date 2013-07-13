@@ -27,9 +27,9 @@ public class OptionsContainer
 	"Nimbus", "System", "Motif", "EaSynth", "NimROD", "SeaGlass", "Substance-Business",
 	"Substance-BusinessBlack", "Substance-BusinessBlue", "Substance-Challenger", "Substance-Creme",
 	"Substance-CremeCoffee", "Substance-Dust", "Substance-DustCoffee", "Substance-Emerald",
-	"Substance-Magma", "Substance-MistAqua", "Substance-MistSilver", "Substance-Moderate", "Substance-Nebula",
+	"Substance-Magellan", "Substance-MistAqua", "Substance-MistSilver", "Substance-Moderate", "Substance-Nebula",
 	"Substance-NebulaBrick", "Substance-OfficeBlue", "Substance-OfficeSilver", "Substance-Raven",
-	"Substance-RavenGraphite", "Substance-Sahara", "Substance-Twilight"
+	"Substance-Sahara", "Substance-Twilight"
 	};
 	
 	//default values
