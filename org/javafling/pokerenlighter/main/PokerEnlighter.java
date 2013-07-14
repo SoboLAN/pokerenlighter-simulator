@@ -53,7 +53,7 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * Specifies the minimum minor version needed to run this program.
 	 */
-	public static final int MINOR_VERSION = 1;
+	public static final int MINOR_VERSION = 2;
 	
 	/**
 	 * Represents the full version string of this current release.
