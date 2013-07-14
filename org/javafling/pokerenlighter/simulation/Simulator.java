@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
+import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
 
 /**
  * The control center of the simulations. This class manages the progress of all the simulations and
@@ -563,18 +564,24 @@ public final class Simulator implements PropertyChangeListener
 
 			long duration = endTime - startTime;
 			
-			simulationResult = new SimulationFinalResult.ResultBuilder ().setGameType (gameType).
-																		setPlayers (profiles).
-																		setFlop (Arrays.copyOfRange (communityCards, 0, 3)).
-																		setTurn (communityCards[3]).
-																		setRiver (communityCards[4]).
-																		setWins (wins).
-																		setTies (ties).
-																		setLoses (loses).
-																		setRounds (nrRounds).
-																		setThreads (nrOfWorkers).
-																		setDuration (duration).
-																		build ();
+			ResultBuilder resultBuilder = new SimulationFinalResult.ResultBuilder ().setGameType (gameType).
+																					setPlayers (profiles);
+			
+			//flop is set
+			if (communityCards[0] != null)
+			{
+				resultBuilder.setFlop (Arrays.copyOfRange (communityCards, 0, 3));
+			}
+			
+			simulationResult = resultBuilder.setTurn (communityCards[3]).
+											setRiver (communityCards[4]).
+											setWins (wins).
+											setTies (ties).
+											setLoses (loses).
+											setRounds (nrRounds).
+											setThreads (nrOfWorkers).
+											setDuration (duration).
+											build ();
 			
 			//tell the listeners that the simulation is done
 			SwingUtilities.invokeLater (new LastPropertyCall ());
