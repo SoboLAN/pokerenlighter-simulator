@@ -220,6 +220,8 @@ public final class GUI implements PropertyChangeListener
 		
 		setResultsTableContent ();
 		
+		setChoicesTableContent ();
+		
 		stopButton.setEnabled (false);
 		viewGraphButton.setEnabled (false);
 		exportButton.setEnabled (false);
