@@ -6,6 +6,7 @@ import com.seaglasslookandfeel.SeaGlassLookAndFeel;
 import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.LookAndFeel;
 import org.javafling.pokerenlighter.simulation.SystemUtils;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -171,35 +172,42 @@ public final class PokerEnlighter implements Runnable
 	 */
 	public void setLNF (String lnf) throws Exception
 	{
+		LookAndFeel lnfObject = null;
+		
 		switch (lnf)
 		{
-			case "Nimbus": UIManager.setLookAndFeel (new NimbusLookAndFeel ()); break;
+			case "Nimbus": lnfObject = new NimbusLookAndFeel (); break;
 			case "System": UIManager.setLookAndFeel (UIManager.getSystemLookAndFeelClassName ()); break;
-			case "Motif": UIManager.setLookAndFeel (new MotifLookAndFeel ()); break;
-			case "NimROD": UIManager.setLookAndFeel (new NimRODLookAndFeel ()); break;
-			case "EaSynth": UIManager.setLookAndFeel (new EaSynthLookAndFeel ()); break;
-			case "SeaGlass": UIManager.setLookAndFeel (new SeaGlassLookAndFeel ()); break;
-			case "Substance-Business": UIManager.setLookAndFeel (new SubstanceBusinessLookAndFeel ()); break;
-			case "Substance-BusinessBlack": UIManager.setLookAndFeel (new SubstanceBusinessBlackSteelLookAndFeel ()); break;
-			case "Substance-BusinessBlue": UIManager.setLookAndFeel (new SubstanceBusinessBlueSteelLookAndFeel ()); break;
-			case "Substance-Challenger": UIManager.setLookAndFeel (new SubstanceChallengerDeepLookAndFeel ()); break;
-			case "Substance-Creme": UIManager.setLookAndFeel (new SubstanceCremeLookAndFeel ()); break;
-			case "Substance-CremeCoffee": UIManager.setLookAndFeel (new SubstanceCremeCoffeeLookAndFeel ()); break;
-			case "Substance-Dust": UIManager.setLookAndFeel (new SubstanceDustLookAndFeel ()); break;
-			case "Substance-DustCoffee": UIManager.setLookAndFeel (new SubstanceDustCoffeeLookAndFeel ()); break;
-			case "Substance-Emerald": UIManager.setLookAndFeel (new SubstanceEmeraldDuskLookAndFeel ()); break;
-			case "Substance-Magellan": UIManager.setLookAndFeel (new SubstanceMagellanLookAndFeel ()); break;
-			case "Substance-MistAqua": UIManager.setLookAndFeel (new SubstanceMistAquaLookAndFeel ()); break;
-			case "Substance-MistSilver": UIManager.setLookAndFeel (new SubstanceMistSilverLookAndFeel ()); break;
-			case "Substance-Moderate": UIManager.setLookAndFeel (new SubstanceModerateLookAndFeel ()); break;
-			case "Substance-Nebula": UIManager.setLookAndFeel (new SubstanceNebulaLookAndFeel ()); break;
-			case "Substance-NebulaBrick": UIManager.setLookAndFeel (new SubstanceNebulaBrickWallLookAndFeel ()); break;
-			case "Substance-OfficeBlue": UIManager.setLookAndFeel (new SubstanceOfficeBlue2007LookAndFeel ()); break;
-			case "Substance-OfficeSilver": UIManager.setLookAndFeel (new SubstanceOfficeSilver2007LookAndFeel ()); break;
-			case "Substance-Raven": UIManager.setLookAndFeel (new SubstanceRavenLookAndFeel ()); break;
-			case "Substance-Sahara": UIManager.setLookAndFeel (new SubstanceSaharaLookAndFeel ()); break;
-			case "Substance-Twilight": UIManager.setLookAndFeel (new SubstanceTwilightLookAndFeel ()); break;
+			case "Motif": lnfObject = new MotifLookAndFeel (); break;
+			case "NimROD": lnfObject = new NimRODLookAndFeel (); break;
+			case "EaSynth": lnfObject = new EaSynthLookAndFeel (); break;
+			case "SeaGlass": lnfObject = new SeaGlassLookAndFeel (); break;
+			case "Substance-Business": lnfObject = new SubstanceBusinessLookAndFeel (); break;
+			case "Substance-BusinessBlack": lnfObject = new SubstanceBusinessBlackSteelLookAndFeel (); break;
+			case "Substance-BusinessBlue": lnfObject = new SubstanceBusinessBlueSteelLookAndFeel (); break;
+			case "Substance-Challenger": lnfObject = new SubstanceChallengerDeepLookAndFeel (); break;
+			case "Substance-Creme": lnfObject = new SubstanceCremeLookAndFeel (); break;
+			case "Substance-CremeCoffee": lnfObject = new SubstanceCremeCoffeeLookAndFeel (); break;
+			case "Substance-Dust": lnfObject = new SubstanceDustLookAndFeel (); break;
+			case "Substance-DustCoffee": lnfObject = new SubstanceDustCoffeeLookAndFeel (); break;
+			case "Substance-Emerald": lnfObject = new SubstanceEmeraldDuskLookAndFeel (); break;
+			case "Substance-Magellan": lnfObject = new SubstanceMagellanLookAndFeel (); break;
+			case "Substance-MistAqua": lnfObject = new SubstanceMistAquaLookAndFeel (); break;
+			case "Substance-MistSilver": lnfObject = new SubstanceMistSilverLookAndFeel (); break;
+			case "Substance-Moderate": lnfObject = new SubstanceModerateLookAndFeel (); break;
+			case "Substance-Nebula": lnfObject = new SubstanceNebulaLookAndFeel (); break;
+			case "Substance-NebulaBrick": lnfObject = new SubstanceNebulaBrickWallLookAndFeel (); break;
+			case "Substance-OfficeBlue": lnfObject = new SubstanceOfficeBlue2007LookAndFeel (); break;
+			case "Substance-OfficeSilver": lnfObject = new SubstanceOfficeSilver2007LookAndFeel (); break;
+			case "Substance-Raven": lnfObject = new SubstanceRavenLookAndFeel (); break;
+			case "Substance-Sahara": lnfObject = new SubstanceSaharaLookAndFeel (); break;
+			case "Substance-Twilight": lnfObject = new SubstanceTwilightLookAndFeel (); break;
 			default: throw new IllegalArgumentException ("invalid look-and-feel");
+		}
+		
+		if (lnfObject != null)
+		{
+			UIManager.setLookAndFeel (lnfObject);
 		}
 				
 		JFrame.setDefaultLookAndFeelDecorated (true);
