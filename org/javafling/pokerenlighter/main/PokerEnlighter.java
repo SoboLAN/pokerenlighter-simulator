@@ -59,12 +59,12 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * Represents the full version string of this current release.
 	 */
-	public static final String FULL_VERSION = "2.1.2 build 490";
+	public static final String FULL_VERSION = "2.2 build 514";
 	
 	/**
 	 * The build number of this release.
 	 */
-	public static final int BUILD_NUMBER = 490;
+	public static final int BUILD_NUMBER = 514;
 	
 	/**
 	 * Version string of the JDK version used to compile this release.
@@ -74,7 +74,7 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * String containing the compile date of this release.
 	 */
-	public static final String BUILD_DATE = "11 Jun 2013 09:26 AM UTC";
+	public static final String BUILD_DATE = "16 Jul 2013 05:37 AM UTC";
 	
 	//if an error occurs in this class, these Strings will be used in the error dialog that appears
 	private static final String errorTitle = "Program error";
@@ -209,7 +209,7 @@ public final class PokerEnlighter implements Runnable
 		{
 			UIManager.setLookAndFeel (lnfObject);
 		}
-				
+		
 		JFrame.setDefaultLookAndFeelDecorated (true);
 		JDialog.setDefaultLookAndFeelDecorated (true);
 	}
