@@ -450,7 +450,7 @@ public final class Combination
 		//if the cards form a straight and a flush, then we have a straight flush
 		if (! straight.equals ("0") && ! flush.equals ("0"))
 		{
-			stt = Character.toString (cards[0].getCharCard ());
+			stt = straight.equals("5") ? "5" : Character.toString (cards[0].getCharCard ());
 		}
 
 		return stt;
