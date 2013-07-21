@@ -9,5 +9,26 @@ package org.javafling.pokerenlighter.simulation;
  */
 public enum HandType
 {
-	RANDOM, RANGE, EXACTCARDS
+	RANDOM, RANGE, EXACTCARDS;
+	
+	@Override
+	public String toString ()
+	{
+		if (this == RANDOM)
+		{
+			return "Random";
+		}
+		else if (this == RANGE)
+		{
+			return "Range";
+		}
+		else if (this == EXACTCARDS)
+		{
+			return "Exact Cards";
+		}
+		else
+		{
+			return "";
+		}
+	}
 }

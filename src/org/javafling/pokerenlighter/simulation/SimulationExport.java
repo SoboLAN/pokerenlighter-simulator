@@ -55,6 +55,16 @@ public class SimulationExport
 		xml.append (result.getPokerType ().toString ());
 		xml.append ("</type>");
 		xml.append (LINE_END);
+		xml.append (getNestingCharacters (2));
+		xml.append ("<threads>");
+		xml.append (result.getNrOfThreads ());
+		xml.append ("</threads>");
+		xml.append (LINE_END);
+		xml.append (getNestingCharacters (2));
+		xml.append ("<duration unit=\"milliseconds\">");
+		xml.append (result.getDuration ());
+		xml.append ("</duration>");
+		xml.append (LINE_END);
 		xml.append (getNestingCharacters (1));
 		xml.append ("</meta>");
 		xml.append (LINE_END);
@@ -69,19 +79,16 @@ public class SimulationExport
 			xml.append ("\">");
 			xml.append (LINE_END);
 			xml.append (getNestingCharacters (3));
-			xml.append ("<handtype>");
+			
 			PlayerProfile profile = result.getPlayer (i - 1);
-			if (profile.getHandType () == HandType.RANDOM)
+			
+			xml.append ("<handtype>");
+			xml.append (profile.getHandType ().toString ());
+			xml.append ("</handtype>");
+			xml.append (LINE_END);
+			
+			if (profile.getHandType () == HandType.EXACTCARDS)
 			{
-				xml.append ("random");
-				xml.append ("</handtype>");
-				xml.append (LINE_END);
-			}
-			else if (profile.getHandType () == HandType.EXACTCARDS)
-			{
-				xml.append ("cards");
-				xml.append ("</handtype>");
-				xml.append (LINE_END);
 				Card[] cards = profile.getCards ();
 				for (Card card : cards)
 				{
@@ -94,9 +101,6 @@ public class SimulationExport
 			}
 			else if (profile.getHandType () == HandType.RANGE)
 			{
-				xml.append ("range");
-				xml.append ("</handtype>");
-				xml.append (LINE_END);
 				Range range = profile.getRange ();
 				for (int row = 0; row < 13; row++)
 				{
@@ -177,16 +181,6 @@ public class SimulationExport
 		
 		xml.append (getNestingCharacters (1));
 		xml.append ("<result>");
-		xml.append (LINE_END);
-		xml.append (getNestingCharacters (2));
-		xml.append ("<threads>");
-		xml.append (result.getNrOfThreads ());
-		xml.append ("</threads>");
-		xml.append (LINE_END);
-		xml.append (getNestingCharacters (2));
-		xml.append ("<duration>");
-		xml.append (result.getDuration ());
-		xml.append ("</duration>");
 		xml.append (LINE_END);
 		
 		for (int i = 1; i <= result.getNrOfPlayers (); i++)
