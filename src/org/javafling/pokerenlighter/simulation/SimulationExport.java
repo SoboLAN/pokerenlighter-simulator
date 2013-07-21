@@ -52,7 +52,7 @@ public class SimulationExport
 		xml.append (LINE_END);
 		xml.append (getNestingCharacters (2));
 		xml.append ("<type>");
-		xml.append (result.getPokerType ());
+		xml.append (result.getPokerType ().toString ());
 		xml.append ("</type>");
 		xml.append (LINE_END);
 		xml.append (getNestingCharacters (1));
