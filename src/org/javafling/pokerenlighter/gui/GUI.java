@@ -216,6 +216,8 @@ public final class GUI implements PropertyChangeListener
 		
 		variationBox.setSelectedIndex (0);
 		
+		handTypeBox.setSelectedIndex (0);
+		
 		setCommunityCardsContent ();
 		
 		setResultsTableContent ();
