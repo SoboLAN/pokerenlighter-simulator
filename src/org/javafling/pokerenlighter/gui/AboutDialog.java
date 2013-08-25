@@ -82,7 +82,7 @@ public class AboutDialog extends JDialog
 		minimumField.setEditable (false);
 		panel.add (minimumField);
 		
-		panel.add (new JLabel ("Compiled with: "));
+		panel.add (new JLabel ("Developed using: "));
 		
 		JTextField compilerField = new JTextField (PokerEnlighter.COMPILED_WITH);
 		compilerField.setEditable (false);
