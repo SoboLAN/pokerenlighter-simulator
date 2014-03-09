@@ -864,7 +864,7 @@ public final class TexasCombination
 		// Create array of cards that have dominant color
 		domin_color = ids[3].getColor ();
 		tmp_dim = 0;
-		for (i = 0; i < 6; ++i)
+		for (i = 0; i < 7; ++i)
 		{
 			if (ids[i].getColor () == domin_color)
 			{
