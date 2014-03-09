@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.javafling.pokerenlighter.combination;
 
 import org.junit.Test;
@@ -9,7 +5,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author SoboLAN
+ * @author Radu Murzea
  */
 public class CombinationTest
 {
