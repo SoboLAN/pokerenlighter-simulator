@@ -78,7 +78,7 @@ public final class GUI implements PropertyChangeListener
 	private JTable choicesTable, resultsTable;
 	private JComboBox<Integer> playerIDBox;
 	private JComboBox<String> handTypeBox, variationBox;
-	private JButton selectButton, startButton, stopButton, //saveProfileButton, loadProfileButton,
+	private JButton selectButton, startButton, stopButton,
 			exportButton, viewGraphButton;
 	private JSpinner playersCount;
 	private JCheckBox enableFlop, enableTurn, enableRiver;
@@ -295,16 +295,6 @@ public final class GUI implements PropertyChangeListener
 		
 		panel.add (topPanel, BorderLayout.NORTH);
 		
-		/*JPanel importPanel = new JPanel (new FlowLayout (FlowLayout.CENTER));
-		
-		saveProfileButton = new JButton ("Save Profile");
-		importPanel.add (saveProfileButton);
-		
-		loadProfileButton = new JButton ("Load Profile");
-		importPanel.add (loadProfileButton);
-	
-		panel.add (importPanel, BorderLayout.CENTER);*/
-
 		choicesPanel = createChoicesPanel ();
 		panel.add (choicesPanel, BorderLayout.SOUTH);
 
