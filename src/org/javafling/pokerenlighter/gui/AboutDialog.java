@@ -151,7 +151,7 @@ public class AboutDialog extends JDialog
 		//character that represents the copyright sign.
 		//used here to avoid issues from compilers/obfuscators/etc.
 		char copyright_char = '\u00A9';
-		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2013 Radu Murzea.");
+		JLabel aboutcopyright = new JLabel ("Copyright " + copyright_char + " 2011 - 2014 Radu Murzea.");
 		
 		panel.add (aboutcopyright, BorderLayout.NORTH);
 		
