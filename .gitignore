@@ -1,0 +1,10 @@
+*.class
+build/*
+nbproject/*
+build.xml
+manifest.mf
+sonar-project.properties
+.sonar/*
+.jacocoverage/*
+lib/jfreechart-src/*
+javadocs/*	
