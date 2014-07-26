@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.javafling.pokerenlighter.combination;
 
 import org.junit.Test;
@@ -416,12 +412,76 @@ public class OmahaCombinationTest
 	@Test
 	public void testEquals()
 	{
-		System.out.println ("equals");
-		Object oc = null;
-		OmahaCombination instance = null;
-		boolean expResult = false;
-		boolean result = instance.equals (oc);
-		assertEquals (expResult, result);
+		Card[] cards = {
+			new Card('J', 'h'),
+			new Card('6', 's'),
+			new Card('T', 's'),
+			new Card('2', 'h'),
+			new Card('T', 'd'),
+			new Card('Q', 'c'),
+			new Card('8', 's'),
+			new Card('4', 'd'),
+			new Card('A', 'c')
+		};
+        
+        OmahaCombination instance = new OmahaCombination(cards);
+        
+        //same cards but in different order
+        Card[] cards2 = {
+			new Card('T', 's'),
+            new Card('2', 'h'),
+			new Card('6', 's'),
+			new Card('J', 'h'),
+			new Card('A', 'c'),
+            new Card('4', 'd'),
+			new Card('T', 'd'),
+			new Card('8', 's'),
+			new Card('Q', 'c'),
+		};
+        
+        OmahaCombination instance2 = new OmahaCombination(cards2);
+        
+		boolean result = instance.equals (instance2);
+		assertEquals (true, result);
+	}
+    
+    /**
+	 * Test of equals method, of class OmahaCombination. False situation
+	 */
+	@Test
+	public void testNotEquals()
+	{
+		Card[] cards = {
+			new Card('J', 'h'),
+			new Card('6', 's'),
+			new Card('2', 'h'),
+			new Card('T', 'd'),
+			new Card('Q', 'c'),
+			new Card('8', 's'),
+			new Card('4', 'd'),
+			new Card('A', 'c'),
+            new Card('T', 's'),
+		};
+        
+        OmahaCombination instance = new OmahaCombination(cards);
+        
+        //same cards but the order was changed so much that equality must be non-existent
+        Card[] cards2 = {
+			new Card('T', 's'),
+            new Card('2', 'h'),
+            new Card('4', 'd'),
+            new Card('A', 'c'),
+            new Card('8', 's'),
+			new Card('J', 'h'),
+			new Card('T', 'd'),
+            new Card('6', 's'),
+			new Card('Q', 'c'),
+		};
+        
+        OmahaCombination instance2 = new OmahaCombination(cards2);
+        
+		boolean result = instance.equals (instance2);
+		assertEquals (false, result);
 	}
 
 	/**
@@ -430,10 +490,22 @@ public class OmahaCombinationTest
 	@Test
 	public void testToString()
 	{
-		System.out.println ("toString");
-		OmahaCombination instance = null;
-		String expResult = "";
-		String result = instance.toString ();
+        Card[] cards = {
+			new Card('J', 'h'),
+			new Card('6', 's'),
+			new Card('2', 'h'),
+			new Card('T', 'd'),
+			new Card('Q', 'c'),
+			new Card('8', 's'),
+			new Card('4', 'd'),
+			new Card('A', 'c'),
+            new Card('T', 's'),
+		};
+        
+        OmahaCombination instance = new OmahaCombination(cards);
+		
+		String expResult = "Jh6s2hTdQc8s4dAcTs";
+		String result = instance.toString();
 		assertEquals (expResult, result);
 	}
 }

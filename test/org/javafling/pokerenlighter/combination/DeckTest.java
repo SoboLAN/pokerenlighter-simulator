@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.javafling.pokerenlighter.combination;
 
 import org.junit.Test;
@@ -13,7 +9,6 @@ import static org.junit.Assert.*;
  */
 public class DeckTest
 {
-
 	/**
 	 * Test of removeCard method, of class Deck.
 	 */
