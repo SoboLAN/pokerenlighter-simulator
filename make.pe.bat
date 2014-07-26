@@ -34,8 +34,8 @@ set mainclass=org/javafling/pokerenlighter/main/PokerEnlighter
 set lib1=lib/substance.lnf/substance.jar
 set lib2=lib/substance.lnf/trident.jar
 set lib3=lib/easynth.lnf/EaSynthLookAndFeel.jar
-set lib4=lib/jfreechart/jcommon-1.0.18.jar
-set lib5=lib/jfreechart/jfreechart-1.0.15.jar
+set lib4=lib/jfreechart/jcommon-1.0.22.jar
+set lib5=lib/jfreechart/jfreechart-1.0.18.jar
 set lib6=lib/nimrod.lnf/nimrodlf-1.2.jar
 set lib7=lib/seaglass.lnf/seaglasslookandfeel-0.2.jar
 
