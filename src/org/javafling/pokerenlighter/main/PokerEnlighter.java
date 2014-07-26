@@ -59,22 +59,22 @@ public final class PokerEnlighter implements Runnable
 	/**
 	 * Represents the full version string of this current release.
 	 */
-	public static final String FULL_VERSION = "2.2 build 514";
+	public static final String FULL_VERSION = "2.3 build 538";
 	
 	/**
 	 * The build number of this release.
 	 */
-	public static final int BUILD_NUMBER = 514;
+	public static final int BUILD_NUMBER = 538;
 	
 	/**
 	 * Version string of the JDK version used to compile this release.
 	 */
-	public static final String COMPILED_WITH = "Java 7 Update 11";
+	public static final String COMPILED_WITH = "Java 7 Update 51";
 
 	/**
 	 * String containing the compile date of this release.
 	 */
-	public static final String BUILD_DATE = "16 Jul 2013 05:37 AM UTC";
+	public static final String BUILD_DATE = "26 Jul 2014 04:55 PM UTC";
 	
 	//if an error occurs in this class, these Strings will be used in the error dialog that appears
 	private static final String errorTitle = "Program error";
