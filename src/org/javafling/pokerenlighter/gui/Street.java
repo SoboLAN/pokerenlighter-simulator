@@ -6,5 +6,5 @@ package org.javafling.pokerenlighter.gui;
  */
 public enum Street
 {
-	FLOP, TURN, RIVER
+    FLOP, TURN, RIVER
 }
