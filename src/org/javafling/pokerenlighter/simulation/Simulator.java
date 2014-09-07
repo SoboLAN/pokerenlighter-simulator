@@ -8,10 +8,16 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
+import org.javafling.pokerenlighter.simulation.worker.SimulationWorker;
+import org.javafling.pokerenlighter.simulation.worker.SimulationWorkerResult;
+import org.javafling.pokerenlighter.simulation.worker.WorkerEvent;
+import org.javafling.pokerenlighter.simulation.worker.WorkerNotifiable;
 
 /**
  * The control center of the simulations. This class manages the progress of all the simulations and
@@ -54,11 +60,9 @@ import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuild
  * }
  * </pre>
  * 
- * @author Murzea Radu
- * 
- * @version 1.1
+ * @author Radu Murzea
  */
-public final class Simulator implements PropertyChangeListener
+public final class Simulator implements WorkerNotifiable
 {
     //simulation data
     private PokerType gameType;
@@ -72,15 +76,16 @@ public final class Simulator implements PropertyChangeListener
     //additional stuff needed for correct implementation
     private ExecutorService executor;
     private CountDownLatch latch;
-    private PropertyChangeSupport pcs;
     private long startTime, endTime;
-    private int updateInterval, totalProgress;
+    private int updateInterval, overallProgress, lastUpdatePercentage;
     private int nrOfWorkers;
     private boolean isRunning;
     
+    private SimulationNotifiable notifiable;
+    
     private SimulationFinalResult simulationResult;
 
-    public Simulator(PokerType type, int rounds)
+    public Simulator(PokerType type, int rounds, SimulationNotifiable notifiable)
     {
         if (type == null || rounds <= 0) {
             throw new IllegalArgumentException("invalid arguments");
@@ -91,10 +96,10 @@ public final class Simulator implements PropertyChangeListener
         profiles = new ArrayList<>();
         communityCards = new Card[5];
         workers = new ArrayList<>();
-        pcs = new PropertyChangeSupport(this);
         updateInterval = 100;
-        startTime = endTime = totalProgress = 0;
+        startTime = endTime = overallProgress = lastUpdatePercentage = 0;
         nrOfWorkers = SystemUtils.getNrOfLogicalCPUs();
+        this.notifiable = notifiable;
     }
     
     /**
@@ -105,7 +110,7 @@ public final class Simulator implements PropertyChangeListener
      * this method is not called at all, then the progress will be reported only once, when the
      * SimulationWorker is finished (equivalent with calling <code>setUpdateInterval(100)</code>).
      * 
-     * @param updateInterval the update interval. Value must be a strictly pozitive integer divisible by 100.
+     * @param percentage the update interval. Value must be a strictly positive integer divisible by 100.
      * 
      * @throws IllegalArgumentException if the parameter is an invalid value.
      */
@@ -127,12 +132,41 @@ public final class Simulator implements PropertyChangeListener
     
     public int getProgress()
     {
-        return totalProgress;
+        return overallProgress;
     }
     
     public SimulationFinalResult getResult()
     {
-        return simulationResult;
+        return this.simulationResult;
+    }
+    
+    @Override
+    public void onSimulationDone(WorkerEvent event)
+    {
+        this.latch.countDown();
+    }
+    
+    @Override
+    public synchronized void onSimulationProgress(WorkerEvent event)
+    {        
+        int totalProgress = 0;
+        for (int i = 0; i < this.nrOfWorkers; i++) {
+            totalProgress += this.workers.get(i).getProgress();
+        }
+        
+        this.overallProgress = (int) (totalProgress / this.nrOfWorkers);
+        
+        if (this.overallProgress - this.lastUpdatePercentage >= this.updateInterval) {
+            SimulationEvent mainEvent = new SimulationEvent(SimulationEvent.EVENT_SIM_PROGRESS, this.overallProgress);
+            this.notifiable.onSimulationProgress(mainEvent);
+            this.lastUpdatePercentage = this.overallProgress;
+        }
+    }
+    
+    @Override
+    public void onSimulationError(WorkerEvent event)
+    {
+        
     }
 
     /**
@@ -167,9 +201,9 @@ public final class Simulator implements PropertyChangeListener
         
         //if the player has a range of 100 % set, then it's a random hand
         if (player.getHandType() == HandType.RANGE && player.getRange().getPercentage() == 100) {
-            profiles.add(new PlayerProfile(HandType.RANDOM, null, null));
+            this.profiles.add(new PlayerProfile(HandType.RANDOM, null, null));
         } else {
-            profiles.add(player);
+            this.profiles.add(player);
         }
     }
     
@@ -188,7 +222,7 @@ public final class Simulator implements PropertyChangeListener
             return false;
         }
         
-        return profiles.remove(player);
+        return this.profiles.remove(player);
     }
     
     public void setFlop(Card[] flopCards)
@@ -227,15 +261,15 @@ public final class Simulator implements PropertyChangeListener
      */
     public void removeFlop()
     {
-        communityCards[0] = null;
-        communityCards[1] = null;
-        communityCards[2] = null;
+        this.communityCards[0] = null;
+        this.communityCards[1] = null;
+        this.communityCards[2] = null;
     }
     
     public void setTurn(Card turnCard)
     {
         if (turnCard == null) {
-            communityCards[3] = null;
+            this.communityCards[3] = null;
             return;
         }
         
@@ -243,13 +277,13 @@ public final class Simulator implements PropertyChangeListener
             throw new IllegalArgumentException("card already exists");
         }
         
-        communityCards[3] = turnCard;
+        this.communityCards[3] = turnCard;
     }
     
     public void setRiver (Card riverCard)
     {
         if (riverCard == null) {
-            communityCards[4] = null;
+            this.communityCards[4] = null;
             return;
         }
         
@@ -257,12 +291,12 @@ public final class Simulator implements PropertyChangeListener
             throw new IllegalArgumentException("card already exists");
         }
         
-        communityCards[4] = riverCard;
+        this.communityCards[4] = riverCard;
     }
 
     private boolean isCardInProfiles(Card card)
     {
-        for (PlayerProfile profile : profiles) {
+        for (PlayerProfile profile : this.profiles) {
             if (profile.getHandType() == HandType.EXACTCARDS) {
                 if (isCardInArray(card, profile.getCards())) {
                     return true;
@@ -275,7 +309,7 @@ public final class Simulator implements PropertyChangeListener
     
     private boolean isCardInCommunity(Card card)
     {
-        for (Card communityCard : communityCards) {
+        for (Card communityCard : this.communityCards) {
             if (communityCard != null) {
                 if (card.equals(communityCard))
                 {
@@ -300,7 +334,7 @@ public final class Simulator implements PropertyChangeListener
     
     public void start()
     {
-        if (isRunning || simulationResult != null) {
+        if (this.isRunning || this.simulationResult != null) {
             return;
         }
         
@@ -312,32 +346,31 @@ public final class Simulator implements PropertyChangeListener
             throw new IllegalStateException("the community cards sequence is incorrect");
         }
 
-        latch = new CountDownLatch(nrOfWorkers);
-        int roundsPerWorker = getNrOfRoundsPerWorker(nrOfWorkers);
+        this.latch = new CountDownLatch(this.nrOfWorkers);
+        int roundsPerWorker = getNrOfRoundsPerWorker(this.nrOfWorkers);
         
-        executor = Executors.newFixedThreadPool(nrOfWorkers);
+        this.executor = Executors.newFixedThreadPool(this.nrOfWorkers);
     
-        for (int i = 0; i < nrOfWorkers; i++) {
+        for (int i = 0; i < this.nrOfWorkers; i++) {
             SimulationWorker worker = new SimulationWorker(
                 i,
-                gameType,
-                profiles,
-                communityCards,
+                this.gameType,
+                this.profiles,
+                this.communityCards,
                 roundsPerWorker,
-                latch
+                this
             );
             
-            worker.setUpdateInterval(getUpdateInterval(nrOfWorkers));
-            worker.addPropertyChangeListener(this);
-            executor.execute(worker);
-            workers.add(worker);
+            worker.setUpdateInterval(getUpdateInterval(this.nrOfWorkers));
+            this.executor.execute(worker);
+            this.workers.add(worker);
         }
         
-        new Supervisor().execute();
+        this.startTime = System.currentTimeMillis();
         
-        startTime = System.currentTimeMillis();
+        this.isRunning = true;
         
-        isRunning = true;
+        new Thread(new Supervisor()).start();
     }
     
     private boolean isPredictableResult()
@@ -390,11 +423,11 @@ public final class Simulator implements PropertyChangeListener
     
     private int getNrOfRoundsPerWorker(int workers)
     {
-        while (nrRounds % workers != 0) {
-            nrRounds++;
+        while (this.nrRounds % workers != 0) {
+            this.nrRounds++;
         }
         
-        return nrRounds / workers;
+        return this.nrRounds / workers;
     }
     
     private int getUpdateInterval(int workers)
@@ -410,42 +443,14 @@ public final class Simulator implements PropertyChangeListener
     
     public void stop()
     {
-        executor.shutdownNow();
+        this.executor.shutdownNow();
         
-        isRunning = false;
+        this.isRunning = false;
+        
+        SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, this.overallProgress);
+        this.notifiable.onSimulationCancel(event);
     }
-    
-    public int getNrOfThreads ()
-    {
-        return nrOfWorkers;
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        //will be called when a SimulationWorker reports progress
-        //WARNING: will be called on the EDT
         
-        if (! evt.getPropertyName().equals("progress")) {
-            return;
-        }
-        
-        int combinedProgress = 0;
-        for (int i = 0; i < nrOfWorkers; i++) {
-            combinedProgress += workers.get(i).getProgress();
-        }
-        
-        combinedProgress /= nrOfWorkers;
-        
-        //the property change fire for 100 % is made in the Supervisor
-        //this is to ensure that the result will be available when the fire is triggered
-        if (combinedProgress - totalProgress > updateInterval && combinedProgress != 100) {
-            pcs.firePropertyChange("progress", totalProgress, combinedProgress);
-
-            totalProgress = combinedProgress;
-        }
-    }
-    
     public boolean isSimulationDone()
     {
         for (SimulationWorker worker : workers) {
@@ -457,29 +462,35 @@ public final class Simulator implements PropertyChangeListener
         return true;
     }
     
-    private class Supervisor extends SwingWorker<Void, Void>
+    private class Supervisor implements Runnable
     {
         @Override
-        protected Void doInBackground() throws Exception
+        public void run()
         {
-            latch.await();
+            try {
+                latch.await();
+            } catch (InterruptedException ex) {
+                executor.shutdownNow();
+                SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_ERROR, ex);
+                notifiable.onSimulationError(event);
+                return;
+            }
 
-            return null;
+            this.finalizeSimulation();
         }
         
-        @Override
-        protected void done()
+        //will be called when all workers are done
+        private void finalizeSimulation()
         {
             isRunning = false;
             
-            //will be called when all workers are done
             if (! executor.isShutdown()) {
                 executor.shutdownNow();
             }
 
             if (! isSimulationDone()) {
-                pcs.firePropertyChange("state", null, "cancelled");
-                return;
+                SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_CANCELLED, overallProgress);
+                notifiable.onSimulationCancel(event);
             }
 
             endTime = System.currentTimeMillis();
@@ -522,55 +533,18 @@ public final class Simulator implements PropertyChangeListener
                 resultBuilder.setFlop(Arrays.copyOfRange(communityCards, 0, 3));
             }
             
-            simulationResult = resultBuilder.setTurn(communityCards[3]).
-                                            setRiver(communityCards[4]).
-                                            setWins(wins).
-                                            setTies(ties).
-                                            setLoses(loses).
-                                            setRounds(nrRounds).
-                                            setThreads(nrOfWorkers).
-                                            setDuration(duration).
-                                            build();
+            simulationResult = resultBuilder.setTurn(communityCards[3])
+                                            .setRiver(communityCards[4])
+                                            .setWins(wins)
+                                            .setTies(ties)
+                                            .setLoses(loses)
+                                            .setRounds(nrRounds)
+                                            .setThreads(nrOfWorkers)
+                                            .setDuration(duration)
+                                            .build();
             
-            //tell the listeners that the simulation is done
-            SwingUtilities.invokeLater(new LastPropertyCall());
+            SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, simulationResult);
+            notifiable.onSimulationDone(event);
         }
-    }
-    
-    private class LastPropertyCall implements Runnable
-    {
-        @Override
-        public void run()
-        {
-            pcs.firePropertyChange("progress", totalProgress, 100);
-            totalProgress = 100;
-        }
-    }
-    
-    /**
-     * Adds a <code>PropertyChangeListener</code> to the listener list. The <code>listener</code> is
-     * registered for all properties. The same <code>listener</code> object may be added more
-     * than once, and will be called as many times as it is added. If <code>listener</code> is
-     * <code>null</code>, no exception is thrown and no action is taken. 
-     * 
-     * @param listener the <code>PropertyChangeListener</code> to be added
-     */
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-        pcs.addPropertyChangeListener(listener);
-    }
-    
-    /**
-     * Removes a <code>PropertyChangeListener</code> from the listener list. This removes a
-     * <code>PropertyChangeListener</code> that was registered for all properties.
-     * If <code>listener</code> was added more than once to the same event source, it will be notified
-     * one less time after being removed. If <code>listener</code> is <code>null</code>, or was
-     * never added, no exception is thrown and no action is taken. 
-     * 
-     * @param listener the <code>PropertyChangeListener</code> to be removed
-     */
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
-        pcs.removePropertyChangeListener(listener);
     }
 }

@@ -1,21 +1,20 @@
-package org.javafling.pokerenlighter.simulation;
+package org.javafling.pokerenlighter.simulation.worker;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.combination.Deck;
 import org.javafling.pokerenlighter.combination.OmahaCombination;
 import org.javafling.pokerenlighter.combination.TexasCombination;
+import org.javafling.pokerenlighter.simulation.HandType;
+import org.javafling.pokerenlighter.simulation.PlayerProfile;
+import org.javafling.pokerenlighter.simulation.PokerType;
 
 /**
  *
- * @author Murzea Radu
- * 
- * @version 1.0
+ * @author Radu Murzea
  */
-public class SimulationWorker extends SwingWorker<Void, Integer>
-{    
+public class SimulationWorker implements Runnable
+{
     //simulation data
     private PokerType gameType;
     private ArrayList<PlayerProfile> profiles;
@@ -29,30 +28,34 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
     
     //other properties necessary for operations
     private int ID;
-    private CountDownLatch latch;
     private int updateInterval;
+    
+    private int progress;
+    
+    private WorkerNotifiable notifiable;
     
     public SimulationWorker(int ID,
                             PokerType gameType,
                             ArrayList<PlayerProfile> profiles,
                             Card[] communityCards,
                             int rounds,
-                            CountDownLatch latch)
+                            WorkerNotifiable notifiable)
     {
         this.ID = ID;
         this.gameType = gameType;
         this.profiles = profiles;
         this.communityCards = communityCards;
         this.rounds = rounds;
-        this.latch = latch;
         this.updateInterval = 100;
         this.nrPlayers = profiles.size();
+        this.notifiable = notifiable;
+        this.progress = 0;
     }
     
     public int getID ()
     {
         return ID;
-    }    
+    }
     
     /**
      * Tells the Simulation engine how often to report progress. The progress will be reported by
@@ -75,8 +78,13 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         this.updateInterval = updateInterval;
     }
     
+    public int getProgress()
+    {
+        return progress;
+    }
+    
     @Override
-    protected Void doInBackground()
+    public void run()
     {
         wins = new int[nrPlayers];
         loses = new int[nrPlayers];
@@ -93,8 +101,6 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         } else if (gameType == PokerType.OMAHA_HILO) {
             omahaHiLoRun();
         }
-            
-        return null;
     }
     
     private void texasHoldemRun()
@@ -194,7 +200,17 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             }
             
             if (((current_round * 100) / rounds) % updateInterval == 0) {
-                setProgress((current_round) * 100 / rounds);
+                this.progress = (current_round) * 100 / rounds;
+                WorkerEvent event;
+                
+                if (this.progress == 100) {
+                    this.buildWorkerResult();
+                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
+                    this.notifiable.onSimulationDone(event);
+                } else {
+                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
+                    this.notifiable.onSimulationProgress(event);
+                }
             }
         }
     }
@@ -221,16 +237,16 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
     // then the returning array will contain 0 and 5 (in this order) (0-based index).
     private int[] getWinners(String[] hands)
     {
-        int j, k, compare_result, nr_winners = nrPlayers;
-        boolean[] eliminated = new boolean[nrPlayers];
+        int j, k, compare_result, nr_winners = this.nrPlayers;
+        boolean[] eliminated = new boolean[this.nrPlayers];
         int[] winners;
 
-        for (j = 0; j < nrPlayers; ++j) {
+        for (j = 0; j < this.nrPlayers; ++j) {
             eliminated[j] = false;
         }
 
-        for (j = 0; j < nrPlayers - 1; ++j) {
-            for (k = j + 1; k < nrPlayers; ++k) {
+        for (j = 0; j < this.nrPlayers - 1; ++j) {
+            for (k = j + 1; k < this.nrPlayers; ++k) {
                 if (! eliminated[j] && ! eliminated[k])
                 {
                     compare_result = compareHands(hands[j], hands[k]);
@@ -249,7 +265,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         winners = new int[nr_winners];
         k = 0;
 
-        for (j = 0; j < nrPlayers; ++j) {
+        for (j = 0; j < this.nrPlayers; ++j) {
             if (! eliminated[j]) {
                 winners[k++] = j;
             }
@@ -301,7 +317,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         int i;
         boolean lohands = false;
 
-        for (i = 0; i < nrPlayers; ++i) {
+        for (i = 0; i < this.nrPlayers; ++i) {
             if (! hands[i].equals("0")) {
                 lohands = true;
                 break;
@@ -314,18 +330,18 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             return winners;
         }
 
-        boolean[] eliminated = new boolean[nrPlayers];
+        boolean[] eliminated = new boolean[this.nrPlayers];
 
         int j, compare_result, nr_winners;
 
-        for (i = 0; i < nrPlayers; ++i) {
+        for (i = 0; i < this.nrPlayers; ++i) {
             eliminated[i] = false;
         }
 
-        nr_winners = nrPlayers;
+        nr_winners = this.nrPlayers;
 
-        for (i = 0; i < nrPlayers - 1; ++i) {
-            for (j = i + 1; j < nrPlayers; ++j) {
+        for (i = 0; i < this.nrPlayers - 1; ++i) {
+            for (j = i + 1; j < this.nrPlayers; ++j) {
                 if (! eliminated[i] && ! eliminated[j]) {
                     compare_result = compareHandsLo(hands[i], hands[j]);
 
@@ -343,7 +359,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         int[] winners = new int[nr_winners];
         j = 0;
 
-        for (i = 0; i < nrPlayers; ++i) {
+        for (i = 0; i < this.nrPlayers; ++i) {
             if (! eliminated[i]) {
                 winners[j] = i;
                 ++j;
@@ -378,9 +394,9 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         
         removeUsedCards(deck);
         
-        Card[][] playerCards = new Card[nrPlayers][4];
+        Card[][] playerCards = new Card[this.nrPlayers][4];
         
-        for (int i = 0; i < nrPlayers; i++) {
+        for (int i = 0; i < this.nrPlayers; i++) {
             if (profiles.get(i).getHandType() == HandType.EXACTCARDS) {
                 Card[] excards = profiles.get(i).getCards();
                 
@@ -391,8 +407,8 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             }
         }
         
-        OmahaCombination[] playerCombinations = new OmahaCombination[nrPlayers];
-        String[] playerHands = new String[nrPlayers];
+        OmahaCombination[] playerCombinations = new OmahaCombination[this.nrPlayers];
+        String[] playerHands = new String[this.nrPlayers];
         Card[] currentHand = new Card[9];
 
         //main simulation loop
@@ -400,7 +416,7 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             deck.shuffle(10);
                         
             //determine what each player has
-            for (int i = 0; i < nrPlayers; i++) {
+            for (int i = 0; i < this.nrPlayers; i++) {
                 if (profiles.get(i).getHandType() == HandType.EXACTCARDS) {
                     currentHand[0] = playerCards[i][0];
                     currentHand[1] = playerCards[i][1];
@@ -408,21 +424,21 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
                     currentHand[3] = playerCards[i][3];
                 } else {
                     currentHand[0] = deck.getCard(i);
-                    currentHand[1] = deck.getCard(i + nrPlayers);
-                    currentHand[2] = deck.getCard(i + 2 * nrPlayers);
-                    currentHand[3] = deck.getCard(i + 3 * nrPlayers);
+                    currentHand[1] = deck.getCard(i + this.nrPlayers);
+                    currentHand[2] = deck.getCard(i + 2 * this.nrPlayers);
+                    currentHand[3] = deck.getCard(i + 3 * this.nrPlayers);
                 }
                 
                 //flop
-                currentHand[4] = communityCards[0] == null ? deck.getCard(1 + 4 * nrPlayers) : communityCards[0];
-                currentHand[5] = communityCards[1] == null ? deck.getCard(2 + 4 * nrPlayers) : communityCards[1];
-                currentHand[6] = communityCards[2] == null ? deck.getCard(3 + 4 * nrPlayers) : communityCards[2];
+                currentHand[4] = communityCards[0] == null ? deck.getCard(1 + 4 * this.nrPlayers) : communityCards[0];
+                currentHand[5] = communityCards[1] == null ? deck.getCard(2 + 4 * this.nrPlayers) : communityCards[1];
+                currentHand[6] = communityCards[2] == null ? deck.getCard(3 + 4 * this.nrPlayers) : communityCards[2];
     
                 //turn
-                currentHand[7] = communityCards[3] == null ? deck.getCard(5 + 4 * nrPlayers) : communityCards[3];
+                currentHand[7] = communityCards[3] == null ? deck.getCard(5 + 4 * this.nrPlayers) : communityCards[3];
                 
                 //river
-                currentHand[8] = communityCards[4] == null ? deck.getCard(7 + 4 * nrPlayers) : communityCards[4];
+                currentHand[8] = communityCards[4] == null ? deck.getCard(7 + 4 * this.nrPlayers) : communityCards[4];
                 
                 if (playerCombinations[i] == null) {
                     playerCombinations[i] = new OmahaCombination(currentHand);
@@ -442,17 +458,27 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
                 }
             //only 1 winner
             } else {
-                wins[winningPlayers[0]]++;
+                this.wins[winningPlayers[0]]++;
             }
             
-            for (int i = 0; i < nrPlayers; i++) {
+            for (int i = 0; i < this.nrPlayers; i++) {
                 if (! contains(winningPlayers, i)) {
-                    loses[i]++;
+                    this.loses[i]++;
                 }
             }
             
-            if (((current_round * 100) / rounds) % updateInterval == 0) {
-                setProgress((current_round) * 100 / rounds);
+            if (((current_round * 100) / this.rounds) % this.updateInterval == 0) {
+                this.progress = (current_round) * 100 / this.rounds;
+                WorkerEvent event;
+                
+                if (this.progress == 100) {
+                    this.buildWorkerResult();
+                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
+                    this.notifiable.onSimulationDone(event);
+                } else {
+                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
+                    this.notifiable.onSimulationProgress(event);
+                }
             }
         }
     }
@@ -463,11 +489,11 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
         
         removeUsedCards(deck);
         
-        Card[][] playerCards = new Card[nrPlayers][4];
+        Card[][] playerCards = new Card[this.nrPlayers][4];
         
-        for (int i = 0; i < nrPlayers; i++) {
-            if (profiles.get(i).getHandType() == HandType.EXACTCARDS) {
-                Card[] excards = profiles.get(i).getCards();
+        for (int i = 0; i < this.nrPlayers; i++) {
+            if (this.profiles.get(i).getHandType() == HandType.EXACTCARDS) {
+                Card[] excards = this.profiles.get(i).getCards();
                 
                 playerCards[i][0] = excards[0];
                 playerCards[i][1] = excards[1];
@@ -476,20 +502,20 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             }
         }
         
-        OmahaCombination[] playerCombinations = new OmahaCombination[nrPlayers];
-        String[] playerHands = new String[nrPlayers];
-        String[] playerHandsLo = new String[nrPlayers];
+        OmahaCombination[] playerCombinations = new OmahaCombination[this.nrPlayers];
+        String[] playerHands = new String[this.nrPlayers];
+        String[] playerHandsLo = new String[this.nrPlayers];
         Card[] currentHand = new Card[9];
         
-        boolean[] tmpWins = new boolean[nrPlayers];
-        boolean[] tmpTies = new boolean[nrPlayers];
+        boolean[] tmpWins = new boolean[this.nrPlayers];
+        boolean[] tmpTies = new boolean[this.nrPlayers];
 
         //main simulation loop
         for (int current_round = 1; current_round <= rounds && ! Thread.currentThread().isInterrupted(); current_round++) {
             deck.shuffle(10);
 
             //determine what each player has
-            for (int i = 0; i < nrPlayers; i++) {
+            for (int i = 0; i < this.nrPlayers; i++) {
                 if (profiles.get(i).getHandType() == HandType.EXACTCARDS) {
                     currentHand[0] = playerCards[i][0];
                     currentHand[1] = playerCards[i][1];
@@ -497,21 +523,21 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
                     currentHand[3] = playerCards[i][3];
                 } else {
                     currentHand[0] = deck.getCard(i);
-                    currentHand[1] = deck.getCard(i + nrPlayers);
-                    currentHand[2] = deck.getCard(i + 2 * nrPlayers);
-                    currentHand[3] = deck.getCard(i + 3 * nrPlayers);
+                    currentHand[1] = deck.getCard(i + this.nrPlayers);
+                    currentHand[2] = deck.getCard(i + 2 * this.nrPlayers);
+                    currentHand[3] = deck.getCard(i + 3 * this.nrPlayers);
                 }
                 
                 //flop
-                currentHand[4] = communityCards[0] == null ? deck.getCard(1 + 4 * nrPlayers) : communityCards[0];
-                currentHand[5] = communityCards[1] == null ? deck.getCard(2 + 4 * nrPlayers) : communityCards[1];
-                currentHand[6] = communityCards[2] == null ? deck.getCard(3 + 4 * nrPlayers) : communityCards[2];
+                currentHand[4] = communityCards[0] == null ? deck.getCard(1 + 4 * this.nrPlayers) : communityCards[0];
+                currentHand[5] = communityCards[1] == null ? deck.getCard(2 + 4 * this.nrPlayers) : communityCards[1];
+                currentHand[6] = communityCards[2] == null ? deck.getCard(3 + 4 * this.nrPlayers) : communityCards[2];
     
                 //turn
-                currentHand[7] = communityCards[3] == null ? deck.getCard(5 + 4 * nrPlayers) : communityCards[3];
+                currentHand[7] = communityCards[3] == null ? deck.getCard(5 + 4 * this.nrPlayers) : communityCards[3];
                 
                 //river
-                currentHand[8] = communityCards[4] == null ? deck.getCard(7 + 4 * nrPlayers) : communityCards[4];
+                currentHand[8] = communityCards[4] == null ? deck.getCard(7 + 4 * this.nrPlayers) : communityCards[4];
                 
                 if (playerCombinations[i] == null) {
                     playerCombinations[i] = new OmahaCombination(currentHand);
@@ -530,14 +556,13 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             int[] winningPlayersLo = getWinnersLo (playerHandsLo);
             
             //let's assume no one wins... at first
-            for (int i = 0; i < nrPlayers; i++) {
+            for (int i = 0; i < this.nrPlayers; i++) {
                 tmpWins[i] = tmpTies[i] = false;
             }
             
             //determine wins & ties for the hi part
             if (winningPlayers.length > 1) {
-                for (int i = 0; i < winningPlayers.length; i++)
-                {
+                for (int i = 0; i < winningPlayers.length; i++) {
                     tmpTies[winningPlayers[i]] = true;
                 }
             } else {
@@ -554,25 +579,35 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             }
             
             //now fill in the records
-            for (int i = 0; i < nrPlayers; i++) {
+            for (int i = 0; i < this.nrPlayers; i++) {
                 if (tmpWins[i]) {
-                    wins[i]++;
+                    this.wins[i]++;
                 } else if (tmpTies[i]) {
-                    ties[i]++;
+                    this.ties[i]++;
                 } else {
-                    loses[i]++;
+                    this.loses[i]++;
                 }
             }
                         
-            if (((current_round * 100) / rounds) % updateInterval == 0) {
-                setProgress((current_round) * 100 / rounds);
+            if (((current_round * 100) / this.rounds) % this.updateInterval == 0) {
+                this.progress = (current_round) * 100 / this.rounds;
+                WorkerEvent event;
+                
+                if (this.progress == 100) {
+                    this.buildWorkerResult();
+                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
+                    this.notifiable.onSimulationDone(event);
+                } else {
+                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
+                    this.notifiable.onSimulationProgress(event);
+                }
             }
         }
     }
     
     private void removeUsedCards(Deck deck)
     {
-        for (PlayerProfile profile : profiles) {
+        for (PlayerProfile profile : this.profiles) {
             if (profile.getHandType () == HandType.EXACTCARDS) {
                 Card[] pcards = profile.getCards();
                 
@@ -582,38 +617,30 @@ public class SimulationWorker extends SwingWorker<Void, Integer>
             }
         }
         
-        for (int i = 0; i < communityCards.length; i++) {
-            if (communityCards[i] != null) {
-                deck.removeCard(communityCards[i]);
+        for (Card communityCard : this.communityCards) {
+            if (communityCard != null) {
+                deck.removeCard(communityCard);
             }
         }
     }
     
     public SimulationWorkerResult getResult()
     {
-        return simResult;
+        return this.simResult;
     }
     
-    @Override
-    protected void done()
+    private void buildWorkerResult()
     {
-        //build result here
-        
-        if (getProgress() == 100) {
-            double[] winP = new double[nrPlayers];
-            double[] losesP = new double[nrPlayers];
-            double[] tiesP = new double [nrPlayers];
+        double[] winP = new double[this.nrPlayers];
+        double[] losesP = new double[this.nrPlayers];
+        double[] tiesP = new double [this.nrPlayers];
 
-            for (int i = 0; i < nrPlayers; i++) {
-                winP[i] = (100.0 * wins[i]) / rounds;
-                losesP[i] = (100.0 * loses[i]) / rounds;
-                tiesP[i] = (100.0 * ties[i]) / rounds;
-            }
-
-            simResult = new SimulationWorkerResult(winP, tiesP, losesP);
-
+        for (int i = 0; i < this.nrPlayers; i++) {
+            winP[i] = (100.0 * this.wins[i]) / this.rounds;
+            losesP[i] = (100.0 * this.loses[i]) / this.rounds;
+            tiesP[i] = (100.0 * this.ties[i]) / this.rounds;
         }
-        
-        latch.countDown();
+
+        this.simResult = new SimulationWorkerResult(winP, tiesP, losesP);
     }
 }

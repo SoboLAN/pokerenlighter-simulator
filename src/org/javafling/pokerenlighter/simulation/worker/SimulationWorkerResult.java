@@ -1,4 +1,4 @@
-package org.javafling.pokerenlighter.simulation;
+package org.javafling.pokerenlighter.simulation.worker;
 
 /**
  *
