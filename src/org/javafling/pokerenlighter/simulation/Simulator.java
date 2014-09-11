@@ -148,7 +148,7 @@ public final class Simulator implements WorkerNotifiable
     
     @Override
     public synchronized void onSimulationProgress(WorkerEvent event)
-    {        
+    {
         int totalProgress = 0;
         for (int i = 0; i < this.nrOfWorkers; i++) {
             totalProgress += this.workers.get(i).getProgress();
@@ -370,7 +370,9 @@ public final class Simulator implements WorkerNotifiable
         
         this.isRunning = true;
         
-        new Thread(new Supervisor()).start();
+        Thread masterThread = new Thread(new Supervisor());
+        masterThread.setDaemon(true);
+        masterThread.start();
     }
     
     private boolean isPredictableResult()
