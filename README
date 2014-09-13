@@ -28,13 +28,9 @@ Usage
 
 In order to use the simulator, you have to import the JAR file into your project. You can download it from the Poker Enlighter website.
 
-Within your project, you have to do this:
-- Have a class that implements the interface `org.javafling.pokerenlighter.simulation.SimulationNotifiable` .
-- Create an object of type `org.javafling.pokerenlighter.simulation.Simulator` and pass to it the class mentioned at the previous point
-- Now, while the simulator is running, it will notify your `SimulationNotifiable` object of any events that occur during simulation by calling the methods present in the interface.
-- You can see a complete and functioning example (SSCCE) on how to do all this in the `use-example/Example.java` file.
-- You can also read through the Javadocs to get a better sense on how the simulator can be used.
-- This same information can be found on the Developer Guide section of the website: http://pokerenlighter.javafling.org/developers.php .
+After this, follow the instructions on how to actually use it on the Developer Guide page: http://pokerenlighter.javafling.org/developers.php .
+
+The code on the Developer Guide page can also be found in the `use-example/Example.java` file.
 
 
 Contributions
