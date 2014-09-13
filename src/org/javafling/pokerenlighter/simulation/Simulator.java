@@ -1,17 +1,10 @@
 package org.javafling.pokerenlighter.simulation;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorker;
@@ -91,17 +84,17 @@ public final class Simulator implements WorkerNotifiable
             throw new IllegalArgumentException("invalid arguments");
         }
         
-        gameType = type;
-        nrRounds = rounds;
-        profiles = new ArrayList<>();
-        communityCards = new Card[5];
-        workers = new ArrayList<>();
-        updateInterval = 100;
-        startTime = endTime = overallProgress = lastUpdatePercentage = 0;
-        nrOfWorkers = SystemUtils.getNrOfLogicalCPUs();
+        this.gameType = type;
+        this.nrRounds = rounds;
+        this.profiles = new ArrayList<>();
+        this.communityCards = new Card[5];
+        this.workers = new ArrayList<>();
+        this.updateInterval = 100;
+        this.startTime = this.endTime = this.overallProgress = this.lastUpdatePercentage = 0;
+        this.nrOfWorkers = SystemUtils.getNrOfLogicalCPUs();
         this.notifiable = notifiable;
     }
-    
+        
     /**
      * Tells the Simulator how often to report progress. The progress will be reported by
      * firing a property change event on all listening PropertyChangeListeners.
@@ -373,6 +366,9 @@ public final class Simulator implements WorkerNotifiable
         Thread masterThread = new Thread(new Supervisor());
         masterThread.setDaemon(true);
         masterThread.start();
+        
+        SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_STARTED, this.nrOfWorkers);
+        this.notifiable.onSimulationStart(event);
     }
     
     private boolean isPredictableResult()

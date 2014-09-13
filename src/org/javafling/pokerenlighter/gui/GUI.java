@@ -32,6 +32,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -44,15 +45,17 @@ import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 import org.javafling.pokerenlighter.simulation.Range;
+import org.javafling.pokerenlighter.simulation.SimulationEvent;
 import org.javafling.pokerenlighter.simulation.SimulationExport;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
+import org.javafling.pokerenlighter.simulation.SimulationNotifiable;
 import org.javafling.pokerenlighter.simulation.Simulator;
 
 /** Main GUI (Graphical User Interface) class.
  *
  * @author Radu Murzea
  */
-public final class GUI implements PropertyChangeListener
+public final class GUI implements SimulationNotifiable
 {
     private static GUI _instance;
     
@@ -158,33 +161,6 @@ public final class GUI implements PropertyChangeListener
         mainframe.setResizable(on);
     }
     
-    @Override
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        switch (evt.getPropertyName())
-        {
-            case "progress":
-                int newValue = (Integer) evt.getNewValue();
-                progressBar.setValue(newValue);
-
-                //simulator is done, so re-enable stuff
-                if (newValue == 100) {
-                    setGUIElementsDone(false);
-
-                    setResultsTableContent();
-                }
-                
-                break;
-            case "state":
-                String state = (String) evt.getNewValue();
-                if (state.equals("cancelled")) {
-                    setGUIElementsDone (true);
-                }
-                
-                break;
-        }
-    }
-    
     public void newSimulation()
     {
         if (simulator != null) {
@@ -216,7 +192,7 @@ public final class GUI implements PropertyChangeListener
         
         setCommunityCardsContent();
         
-        setResultsTableContent();
+        setResultsTableContent(null);
         
         setChoicesTableContent();
         
@@ -498,14 +474,104 @@ public final class GUI implements PropertyChangeListener
         
         return panel;
     }
+
+    @Override
+    public void onSimulationStart(final SimulationEvent event)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                handTypeBox.setEnabled(false);
+                variationBox.setEnabled(false);
+                playerIDBox.setEnabled(false);
+                viewGraphButton.setEnabled(false);
+                exportButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+                playersCount.setEnabled(false);
+                enableFlop.setEnabled(false);
+                enableTurn.setEnabled(false);
+                enableRiver.setEnabled(false);
+
+                mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(dictionary.getValue("statusbar.running"));
+                sb.append(" - ");
+                sb.append(getCurrentPlayerCount());
+                sb.append(" Players");
+                sb.append(" - ");
+                sb.append(OptionsContainer.getOptionsContainer().getRounds());
+                sb.append(" Rounds");
+                sb.append(" - ");
+                sb.append(event.getEventData());
+                sb.append(" Threads");
+
+                statusBar.setText(sb.toString());
+            }
+        });
+    }
+
+    @Override
+    public void onSimulationDone(final SimulationEvent event)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                SimulationFinalResult result = (SimulationFinalResult) event.getEventData();
+                progressBar.setValue(100);
+                
+                setGUIElementsDone(false, result);
+                
+                setResultsTableContent(result);
+            }
+        });
+    }
+
+    @Override
+    public void onSimulationCancel(SimulationEvent event)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                setGUIElementsDone(true, null);
+            }
+        });
+    }
+
+    @Override
+    public void onSimulationProgress(final SimulationEvent event)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                int newValue = (Integer) event.getEventData();
+                progressBar.setValue(newValue);
+            }
+        });
+    }
+
+    @Override
+    public void onSimulationError(SimulationEvent event)
+    {
+        
+    }
     
     private class StartSimulationListener implements ActionListener
     {
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            simulator = new Simulator(getSelectedVariation(), OptionsContainer.getOptionsContainer().getRounds());
-            simulator.addPropertyChangeListener(_instance);
+            simulator = new Simulator(
+                getSelectedVariation(),
+                OptionsContainer.getOptionsContainer().getRounds(),
+                _instance
+            );
+            
             simulator.setUpdateInterval(10);
             
             try {
@@ -520,10 +586,7 @@ public final class GUI implements PropertyChangeListener
                     "The simulator encountered an error: " + ex.getMessage(),
                     "Simulator Error"
                 );
-                return;
             }
-            
-            setGUIElementsRunning();
         }
         
         private void setPlayers()
@@ -799,11 +862,11 @@ public final class GUI implements PropertyChangeListener
         }
     }
     
-    private void setResultsTableContent()
+    private void setResultsTableContent(SimulationFinalResult result)
     {
         TableModel model = resultsTable.getModel();
         
-        if (simulator == null) {
+        if (result == null) {
             for (int i = 0; i < MAX_PLAYERS; i++) {
                 model.setValueAt(" ", i, 0);
                 model.setValueAt(" ", i, 1);
@@ -814,7 +877,6 @@ public final class GUI implements PropertyChangeListener
             return;
         }
         
-        SimulationFinalResult result = simulator.getResult();
         int nrPlayersToFill = result.getNrOfPlayers();
 
         for (int i = 0; i < nrPlayersToFill; i++) {
@@ -833,38 +895,8 @@ public final class GUI implements PropertyChangeListener
         }
     }
     
-    private void setGUIElementsRunning()
-    {        
-        handTypeBox.setEnabled(false);
-        variationBox.setEnabled(false);
-        playerIDBox.setEnabled(false);
-        viewGraphButton.setEnabled(false);
-        exportButton.setEnabled(false);
-        startButton.setEnabled(false);
-        stopButton.setEnabled(true);
-        playersCount.setEnabled(false);
-        enableFlop.setEnabled(false);
-        enableTurn.setEnabled(false);
-        enableRiver.setEnabled(false);
-        
-        mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
-        StringBuilder sb = new StringBuilder();
-        sb.append(dictionary.getValue("statusbar.running"));
-        sb.append(" - ");
-        sb.append(getCurrentPlayerCount());
-        sb.append(" Players");
-        sb.append(" - ");
-        sb.append(OptionsContainer.getOptionsContainer().getRounds());
-        sb.append(" Rounds");
-        sb.append(" - ");
-        sb.append(simulator.getNrOfThreads());
-        sb.append(" Threads");
-        
-        statusBar.setText(sb.toString());
-    }
     
-    private void setGUIElementsDone(boolean stopped)
+    private void setGUIElementsDone(boolean stopped, SimulationFinalResult result)
     {
         handTypeBox.setEnabled(true);
         variationBox.setEnabled(true);
@@ -880,7 +912,7 @@ public final class GUI implements PropertyChangeListener
         mainframe.setCursor(Cursor.getDefaultCursor());
 
         if (! stopped) {
-            long duration = simulator.getResult().getDuration();
+            long duration = result.getDuration();
             double durationSeconds = duration / 1000.0;
             DecimalFormat df = new DecimalFormat();
             df.setMaximumFractionDigits(2);
