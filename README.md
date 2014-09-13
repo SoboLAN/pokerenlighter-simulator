@@ -1,5 +1,5 @@
 Poker Enlighter Simulator
-=======
+======
 
 Description
 -----------------
@@ -16,12 +16,10 @@ Website
 
 You can find everything about this project on its website: http://pokerenlighter.javafling.org/ .
 
-
 License
 -----------------
 
 Poker Enlighter Simulator is published under the GPL v3 license, a copy of which is present in the project root.
-
 
 Usage
 -----------------
@@ -31,7 +29,6 @@ In order to use the simulator, you have to import the JAR file into your project
 After this, follow the instructions on how to actually use it on the Developer Guide page: http://pokerenlighter.javafling.org/developers.php .
 
 The code on the Developer Guide page can also be found in the `use-example/Example.java` file.
-
 
 Contributions
 -----------------
