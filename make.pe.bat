@@ -3,9 +3,6 @@ setlocal
 
 REM This file is for building the Poker Enlighter executable.
 
-REM The build log file:
-set buildlog=build.log
-
 REM Some very important notes:
 REM - The script assumes the availability of the java, javac and jar commands.
 REM - The script makes very specific assumptions of the structure of the JAR file, in the packaging
@@ -20,12 +17,13 @@ REM throughout the build script. Changes of these variables will propagate down 
 
 set simulatorjar=simulator.jar
 set simulatorclass=org/javafling/pokerenlighter/simulation/Simulator
+set extraclass1=org/javafling/pokerenlighter/simulation/SimulationExport
 
 REM The actual compilation command. It is compiled without any debugging
 REM symbols, to add some obfuscation. These symbols will probably be removed by Proguard anyway, but
 REM it's not a bad thing to be extra-careful.
 
-javac -g:none -Xlint:unchecked %simulatorclass%.java > %buildlog% 2>&1
+javac -g:none -Xlint:unchecked %simulatorclass%.java %extraclass1%.java 2>&1
 timeout /t 1 /nobreak > NUL
 
 REM Next, the script will move inside the "org/" folder and delete all the source code files.
@@ -33,13 +31,13 @@ REM This is to ensure that the resulting executable will not contain the source 
 REM The script will move back to the build folder root after it's done deleting.
 
 cd org
-del /s *.java >> %buildlog% 2>&1
+del /s *.java 2>&1
 timeout /t 1 /nobreak > NUL
 cd..
 
 REM Package everything in a JAR file.
 
-jar cf0 %simulatorjar% org/* >> %buildlog% 2>&1
+jar cf0 %simulatorjar% org/* 2>&1
 
 REM And we are done. Enjoy.
 
