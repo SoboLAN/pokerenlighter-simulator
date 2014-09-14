@@ -19,7 +19,7 @@ You can find everything about this project on its website: http://pokerenlighter
 License
 -----------------
 
-Poker Enlighter Simulator is published under the GPL v3 license, a copy of which is present in the project root.
+Poker Enlighter Simulator is published under the LGPL v2.1 license, a copy of which is present in the project root.
 
 Usage
 -----------------
