@@ -6,8 +6,6 @@ import org.javafling.pokerenlighter.combination.Card;
  * Provides export functionality for simulation results.
  * 
  * @author Radu Murzea
- * 
- * @version 1.0
  */
 public class SimulationExport
 {

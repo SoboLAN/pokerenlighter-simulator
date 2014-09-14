@@ -6,8 +6,6 @@ import org.javafling.pokerenlighter.combination.Card;
  * Contains all the information about a player necessary for the simulator to do his job.
  * 
  * @author Radu Murzea
- * 
- * @version 1.0
  */
 public final class PlayerProfile
 {
@@ -82,10 +80,37 @@ public final class PlayerProfile
         }
     }
     
+    /**
+     * Returns the hand type of this profile.
+     * @return the hand type of this profile.
+     */
+    public HandType getHandType()
+    {
+        return handType;
+    }
+    
+    /**
+     * Returns the range of this profile.
+     * @return the range of this profile or NULL if none is set.
+     */
+    public Range getRange()
+    {
+        return range;
+    }
+    
+    /**
+     * Returns the cards of this profile
+     * @return the cards of this profile or NULL if none were set.
+     */
+    public Card[] getCards()
+    {
+        return cards;
+    }
+    
     private boolean testForNull(Card[] cards)
     {
-        for (int i = 0; i < cards.length; i++) {
-            if (cards[i] == null) {
+        for (Card card : cards) {
+            if (card == null) {
                 return false;
             }
         }
@@ -104,20 +129,5 @@ public final class PlayerProfile
         }
         
         return true;
-    }
-    
-    public HandType getHandType()
-    {
-        return handType;
-    }
-    
-    public Range getRange()
-    {
-        return range;
-    }
-    
-    public Card[] getCards()
-    {
-        return cards;
     }
 }

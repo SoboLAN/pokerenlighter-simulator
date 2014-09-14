@@ -17,41 +17,10 @@ import org.javafling.pokerenlighter.simulation.worker.WorkerNotifiable;
  * centralizes them. It will split the simulations on multiple threads, so you can safely create a
  * <code>Simulator</code> and/or start it on any thread you want, even the GUI thread.
  * <br />
- * The progress of the simulation can be monitored by registering one or more
- * <code>PropertyChangeListener</code>s to it.
- * <br />Please note that the implementation of the Simulator
- * will only allow firing a property change event if the difference between the new progress value
- * and the old one is at least 10. This means that, if the simulation will progress from 18 % to 23 %,
- * it will not be reported; but if it progresses to 29 %, then it will be. This is to prevent a very
- * high frequency of updates.
+ * The progress and events of the simulation must be monitored by passing an instance of
+ * <code>SimulationNotifiable</code> to the Simulator's constructor.
  * <br />
- * A typical use of the simulator is this:
- * <br />
- * <pre>
- * Simulator simulator = new Simulator (PokerType.OMAHA, 100 * 1000);
- * simulator.setUpdateInterval (10);
- * 
- * Card[] cards = {new Card ('A', 'h'), new Card ('K', 'h'), new Card ('6', 's'), new Card ('3', 'd')};
- * PlayerProfile player = new PlayerProfile (HandType.EXACTCARDS, null, cards);
- * 
- * simulator.addPlayer (player);
- * simulator.addPlayer (new PlayerProfile (HandType.RANDOM, null, null));
- * simulator.addPlayer (new PlayerProfile (HandType.RANDOM, null, null));
- * 
- * simulator.addPropertyChangeListener (this);
- * 
- * simulator.start ();
- * 
- * public void propertyChange(PropertyChangeEvent event)
- * {
- *    if ((Integer) event.getNewValue () == 100)
- *    {
- *        SimulationResult result = simulator.getResult ();
- *
- *        //do something with the result
- *    }
- * }
- * </pre>
+ * Once a simulation is completed, it can not be started again.
  * 
  * @author Radu Murzea
  */
@@ -133,12 +102,18 @@ public final class Simulator implements WorkerNotifiable
         return this.simulationResult;
     }
     
+    /**
+     * {@inheritDoc} 
+     */
     @Override
     public void onSimulationDone(WorkerEvent event)
     {
         this.latch.countDown();
     }
     
+    /**
+     * {@inheritDoc} 
+     */
     @Override
     public synchronized void onSimulationProgress(WorkerEvent event)
     {
@@ -156,6 +131,9 @@ public final class Simulator implements WorkerNotifiable
         }
     }
     
+    /**
+     * {@inheritDoc} 
+     */
     @Override
     public void onSimulationError(WorkerEvent event)
     {
@@ -273,7 +251,7 @@ public final class Simulator implements WorkerNotifiable
         this.communityCards[3] = turnCard;
     }
     
-    public void setRiver (Card riverCard)
+    public void setRiver(Card riverCard)
     {
         if (riverCard == null) {
             this.communityCards[4] = null;
@@ -285,44 +263,6 @@ public final class Simulator implements WorkerNotifiable
         }
         
         this.communityCards[4] = riverCard;
-    }
-
-    private boolean isCardInProfiles(Card card)
-    {
-        for (PlayerProfile profile : this.profiles) {
-            if (profile.getHandType() == HandType.EXACTCARDS) {
-                if (isCardInArray(card, profile.getCards())) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    private boolean isCardInCommunity(Card card)
-    {
-        for (Card communityCard : this.communityCards) {
-            if (communityCard != null) {
-                if (card.equals(communityCard))
-                {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    private boolean isCardInArray(Card c, Card[] arr)
-    {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i].equals(c)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     public void start()
@@ -371,6 +311,29 @@ public final class Simulator implements WorkerNotifiable
         this.notifiable.onSimulationStart(event);
     }
     
+    public void stop()
+    {
+        this.executor.shutdownNow();
+        
+        this.isRunning = false;
+        
+        if (this.endTime == 0) {
+            SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, this.overallProgress);
+            this.notifiable.onSimulationCancel(event);
+        }
+    }
+        
+    public boolean isSimulationDone()
+    {
+        for (SimulationWorker worker : workers) {
+            if (worker.getProgress() != 100) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     private boolean isPredictableResult()
     {
         boolean commSet = true;
@@ -391,6 +354,44 @@ public final class Simulator implements WorkerNotifiable
             }
             
             if (! correctPlayerTypes) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    private boolean isCardInProfiles(Card card)
+    {
+        for (PlayerProfile profile : this.profiles) {
+            if (profile.getHandType() == HandType.EXACTCARDS) {
+                if (isCardInArray(card, profile.getCards())) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private boolean isCardInCommunity(Card card)
+    {
+        for (Card communityCard : this.communityCards) {
+            if (communityCard != null) {
+                if (card.equals(communityCard))
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private boolean isCardInArray(Card c, Card[] arr)
+    {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i].equals(c)) {
                 return true;
             }
         }
@@ -437,29 +438,6 @@ public final class Simulator implements WorkerNotifiable
             case 4: return 20;
             default: return 25;
         }
-    }
-    
-    public void stop()
-    {
-        this.executor.shutdownNow();
-        
-        this.isRunning = false;
-        
-        if (this.endTime == 0) {
-            SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, this.overallProgress);
-            this.notifiable.onSimulationCancel(event);
-        }
-    }
-        
-    public boolean isSimulationDone()
-    {
-        for (SimulationWorker worker : workers) {
-            if (worker.getProgress() != 100) {
-                return false;
-            }
-        }
-        
-        return true;
     }
     
     private class Supervisor implements Runnable

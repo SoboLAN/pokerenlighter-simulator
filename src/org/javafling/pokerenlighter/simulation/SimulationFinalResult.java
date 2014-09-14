@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import org.javafling.pokerenlighter.combination.Card;
 
 /**
- *
+ * Result of the simulation. Use the inner class ResultBuilder to build an object of this class.
  * @author Radu Murzea
- * 
- * @version 1.0
  */
 public class SimulationFinalResult
 {

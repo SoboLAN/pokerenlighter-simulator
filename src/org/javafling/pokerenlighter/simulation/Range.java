@@ -12,8 +12,6 @@ import org.javafling.pokerenlighter.combination.Card;
  * to it. The methods within this class will document this behaviour in more detail.
  * 
  * @author Radu Murzea
- * 
- * @version 1.0
  */
 public final class Range
 {
@@ -39,6 +37,7 @@ public final class Range
         {"A2o", "K2o", "Q2o", "J2o", "T2o", "92o", "82o", "72o", "62o", "52o", "42o", "32o", "22"}
     };
     
+    //this field defines how the card types of the range progress as the range percentage grows and shrinks
     private static final Coordinate[][] rangeProgressions = {
         {},
         {new Coordinate(0, 0), new Coordinate(1, 1), new Coordinate(2, 2)},
@@ -161,11 +160,18 @@ public final class Range
         {false, false, false, false, false, false, false, false, false, false, false, false, false},
     };
 
+    /**
+     * Constructs a range of 0 % hands.
+     */
     public Range()
     {
-        percentage = 0;
+        this.percentage = 0;
     }
     
+    /**
+     * Constructs a range with the specified percentage.
+     * @param percentage the percentage of the range.
+     */
     public Range(int percentage)
     {
         this.percentage = 0;
@@ -175,48 +181,75 @@ public final class Range
         this.percentage = percentage;
     }
     
+    /**
+     * Changes the specified card type (found at the row and column specified) to the specified value.
+     * @param row the row where the card type is found
+     * @param column the column where the card type is found
+     * @param newValue the new value of the card type (true for enabled, false for disabled).
+     */
     public void changeValue(int row, int column, boolean newValue)
     {
-        rangeSelections[row][column] = newValue;
+        this.rangeSelections[row][column] = newValue;
     }
     
+    /**
+     * Reverts the value of the specified card type: if it's true, then it will become false and vice-versa.
+     * @param row the row where the card type is found
+     * @param column  the column where the card type is found
+     */
     public void flipValue(int row, int column)
     {
-        rangeSelections[row][column] = ! rangeSelections[row][column];
+        this.rangeSelections[row][column] = ! this.rangeSelections[row][column];
     }
     
+    /**
+     * Tells you if a card type is selected in this range or not
+     * @param row the row where the card type is found
+     * @param column  the column where the card type is found
+     * @return true if the card type is selected, false otherwise.
+     */
     public boolean getValue(int row, int column)
     {
-        return rangeSelections[row][column];
+        return this.rangeSelections[row][column];
     }
     
+    /**
+     * Returns the percentage of this range.
+     * @return the percentage of this range.
+     */
     public int getPercentage()
     {
-        return percentage;
+        return this.percentage;
     }
     
+    /**
+     * Sets a new percentage for this range. This will overwrite all the card type selections.
+     * @param newPercentage the new percentage.
+     */
     public void setNewPercentage(int newPercentage)
     {
         for (int i = 1; i <= newPercentage; i++) {
-            for (int j = 0; j < rangeProgressions[i].length; j++) {
-                Coordinate c = rangeProgressions[i][j];
-                
-                rangeSelections[c.x][c.y] = true;
+            for (Coordinate c : Range.rangeProgressions[i]) {
+                this.rangeSelections[c.x][c.y] = true;
             }
         }
         
-        for (int i = newPercentage + 1; i < rangeProgressions.length; i++) {
-            for (int j = 0; j < rangeProgressions[i].length; j++) {
-                Coordinate c = rangeProgressions[i][j];
-                
-                rangeSelections[c.x][c.y] = false;
+        for (int i = newPercentage + 1; i < Range.rangeProgressions.length; i++) {
+            for (Coordinate c : Range.rangeProgressions[i]) {
+                this.rangeSelections[c.x][c.y] = false;
             }
         }
         
-        percentage = newPercentage;
+        this.percentage = newPercentage;
     }
     
-    //tells if the hand made up of c1 and c2 is selected in the range
+    /**
+     * Tells if the hand composed of the two specified cards is selected in this range.
+     * The order in which you specify the cards is not relevant.
+     * @param c1 the first card
+     * @param c2 the second card
+     * @return true if the specified hand is selected in this range, false otherwise.
+     */
     public boolean containsHand(Card c1, Card c2)
     {
         int rbig, rsmall;
@@ -246,18 +279,6 @@ public final class Range
             }
         }
 
-        return rangeSelections[row][column];
-    }
-}
-
-class Coordinate
-{
-    public int x;
-    public int y;
-    
-    Coordinate(int x, int y)
-    {
-        this.x = x;
-        this.y = y;
+        return this.rangeSelections[row][column];
     }
 }
