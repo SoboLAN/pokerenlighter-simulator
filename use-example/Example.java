@@ -64,6 +64,9 @@ public class Example implements SimulationNotifiable
         System.out.println("Win 3: " + w2);
         System.out.println("Lose 3: " + l2);
         System.out.println("Tie 3: " + t2);
+		
+		long duration = result.getDuration();
+        System.out.println("Duration: " + duration + " ms");
     }
 
     @Override

@@ -4,12 +4,13 @@ Poker Enlighter Simulator
 Description
 -----------------
 
-Poker Enlighter is a freeware poker simulator. It has multiple options for performing a variety of simulations. The program will calculate the percentage of winnings, losses and ties between hands or specific ranges.
+Poker Enlighter is an open-source poker equity calculator. It has multiple options for performing a variety of simulations. The program will calculate the percentage of winnings, losses and ties between hands or specific ranges.
 
 The main advantages of Poker Enlighter are:
 - It is written in Java, which means it can run on Windows, Mac and Linux machines without any problem.
-- It makes use of multi-core CPUs to increase the speed of the simulations. See the Manual for details.
+- It makes use of multi-core CPUs to increase the speed of the simulations.
 - It has support for more than just Texas Hold'em. Omaha and Omaha Hi/Lo are also supported.
+- It's open-source, which means you can see how it works and improve it yourself.
 
 Website
 -----------------
