@@ -473,7 +473,7 @@ public final class Simulator implements WorkerNotifiable
                 notifiable.onSimulationError(event);
                 return;
             }
-
+            
             this.finalizeSimulation();
         }
         
@@ -482,10 +482,6 @@ public final class Simulator implements WorkerNotifiable
         {
             isRunning = false;
             
-            if (! executor.isShutdown()) {
-                executor.shutdownNow();
-            }
-
             if (! isSimulationDone()) {
                 SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_CANCELLED, overallProgress);
                 notifiable.onSimulationCancel(event);
@@ -543,6 +539,10 @@ public final class Simulator implements WorkerNotifiable
             
             SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, simulationResult);
             notifiable.onSimulationDone(event);
+            
+            if (! executor.isShutdown()) {
+                executor.shutdownNow();
+            }
         }
     }
 }
