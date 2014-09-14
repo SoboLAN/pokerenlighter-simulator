@@ -445,8 +445,10 @@ public final class Simulator implements WorkerNotifiable
         
         this.isRunning = false;
         
-        SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, this.overallProgress);
-        this.notifiable.onSimulationCancel(event);
+        if (this.endTime == 0) {
+            SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, this.overallProgress);
+            this.notifiable.onSimulationCancel(event);
+        }
     }
         
     public boolean isSimulationDone()
