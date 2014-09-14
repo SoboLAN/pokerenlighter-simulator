@@ -8,8 +8,6 @@ package org.javafling.pokerenlighter.combination;
  * This class is not thread-safe.
  * 
  * @author Radu Murzea
- 
- * @version 1.2
  */
 public final class OmahaCombination
 {
@@ -34,30 +32,11 @@ public final class OmahaCombination
      * are the community <code>Card</code>s). This order is very important if you want correct
      * results.
      * <br />
-     * <strong>WARNING:</strong> The constructor accepts duplicate cards. To avoid unexpected
-     * behaviour, don't provide such input.
-     *
-     * @throws IllegalArgumentException if the size of the parameter is different than 9.
-     * 
-     * @throws NullPointerException if the parameter is null or if it contains null values.
+     * <strong>WARNING:</strong> The constructor does not check for duplicate cards, NULL values etc.
+     * To avoid unexpected behaviour, don't provide such input.
      */
     public OmahaCombination(Card[] newCards)
     {
-        if (newCards == null) {
-            throw new NullPointerException();
-        }
-        
-        //check length of argument
-        if (newCards.length != 9) {
-            throw new IllegalArgumentException("invalid number of cards provided");
-        }
-        
-        for (int i = 0; i < 9; i++) {
-            if (newCards[i] == null) {
-                throw new NullPointerException();
-            }
-        }
-
         this.cards = newCards;
 
         combs = new Combination[10 * 6];
@@ -150,31 +129,12 @@ public final class OmahaCombination
     /**
      * Sets new Cards for this OmahaCombination object.
      * <br />
-     * <strong>WARNING</strong>: Just like the constructor, this method accepts duplicate cards.
+     * <strong>WARNING</strong>: Just like the constructor, this method doesn't check the validity of the parameter.
      *
      * @param newCards the cards. This array must contain 9 Card objects.
-     *
-     * @throws IllegalArgumentException if the size of the argument is different than 9.
-     * 
-     * @throws NullPointerException if the parameter is null or if it contains null values.
      */
     public void setCards(Card[] newCards)
     {
-        if (newCards == null) {
-            throw new NullPointerException ();
-        }
-        
-        //check length of argument
-        if (newCards.length != 9) {
-            throw new IllegalArgumentException ("invalid number of cards provided");
-        }
-        
-        for (int i = 0; i < 9; i++) {
-            if (newCards[i] == null) {
-                throw new NullPointerException ();
-            }
-        }
-
         this.cards = newCards;
 
         //next, all 60 possible combinations are created. a more elegant iteration

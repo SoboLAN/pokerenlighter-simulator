@@ -4,8 +4,6 @@ package org.javafling.pokerenlighter.combination;
  * One of the most important classes in the program.
  * It describes a (poker) card, by its 2 elements: the actual card and its color.
  * 
- * @version 1.1
- * 
  * @author Radu Murzea
  */
 public class Card

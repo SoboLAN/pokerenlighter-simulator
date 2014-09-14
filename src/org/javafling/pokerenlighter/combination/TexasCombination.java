@@ -20,31 +20,13 @@ public final class TexasCombination
     /**
      * Constructs a TexasCombination object.
      * <br />
-     * <strong>WARNING:</strong> The constructor accepts duplicate cards. To avoid unexpected
-     * behaviour, don't provide such input.
+     * <strong>WARNING:</strong> The constructor does not check for duplicate cards or NULL values.
+     * To avoid unexpected behaviour, don't provide such input.
      *
      * @param c the cards. This array must contain 7 Card objects.
-     *
-     * @throws IllegalArgumentException if the size of the argument is different than 7.
-     * 
-     * @throws NullPointerException if the parameter is null or if it contains null values.
      */
     public TexasCombination(Card[] c)
     {
-        if (c == null) {
-            throw new NullPointerException();
-        }
-        
-        if (c.length != 7) {
-            throw new IllegalArgumentException("size of array must be 7");
-        }
-        
-        for (int i = 0; i < 7; i++) {
-            if (c[i] == null) {
-                throw new NullPointerException();
-            }
-        }
-        
         //call made like this to avoid duplicate code
         setCards(c);
     }
@@ -61,30 +43,12 @@ public final class TexasCombination
     /**
      * Sets new Cards for this TexasCombination object.
      * <br />
-     * <strong>WARNING</strong>: Just like the constructor, this method accepts duplicate cards.
+     * <strong>WARNING</strong>: Just like the constructor, this method does not check the validity of the parameter.
      *
      * @param c the cards. This array must contain 7 Card objects.
-     *
-     * @throws IllegalArgumentException if the size of the argument is different than 7.
-     * 
-     * @throws NullPointerException if the parameter is null or if it contains null values.
      */
     public void setCards(Card[] c)
     {
-        if (c == null) {
-            throw new NullPointerException();
-        }
-        
-        if (c.length != 7) {
-            throw new IllegalArgumentException("size of array must be 7");
-        }
-        
-        for (int i = 0; i < 7; i++) {
-            if (c[i] == null) {
-                throw new NullPointerException();
-            }
-        }
-        
         //copy argument to field
         cards = c;
 

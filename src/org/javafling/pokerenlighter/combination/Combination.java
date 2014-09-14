@@ -29,8 +29,8 @@ public final class Combination
     /**
      * Creates the combination.
      * <br />
-     * <strong>WARNING:</strong> The constructor accepts duplicate cards. To avoid unexpected
-     * behaviour, don't provide such input.
+     * <strong>WARNING:</strong> The constructor does not check for duplicate cards or NULL parameters.
+     * To avoid unexpected behaviour, don't provide such input.
      *
      * @param a First card.
      *
@@ -41,16 +41,9 @@ public final class Combination
      * @param d Fourth card.
      *
      * @param e Fifth card.
-     * 
-     * @throws NullPointerException if one of the cards is null.
      */
     public Combination(Card a, Card b, Card c, Card d, Card e)
     {
-        if (a == null || b == null || c == null || d == null || e == null)
-        {
-            throw new NullPointerException("card cannot be null");
-        }
-        
         cards = new Card[5];
 
         //this is to avoid duplicate code
@@ -70,26 +63,17 @@ public final class Combination
     /**
      * Sets new cards for this Combination.
      * <br />
-     * <strong>WARNING</strong>: Just like the constructor, this method accepts duplicate cards.
+     * <strong>WARNING</strong>: Just like the constructor,
+     * this method does not check for duplicate cards or NULL parameters.
      * 
      * @param a First card.
-     *
      * @param b Second card.
-     *
      * @param c Third card.
-     *
      * @param d Fourth card.
-     *
      * @param e Fifth card.
-     * 
-     * @throws NullPointerException if one of the cards is null.
      */
     public void setCards(Card a, Card b, Card c, Card d, Card e)
     {
-        if (a == null || b == null || c == null || d == null || e == null) {
-            throw new NullPointerException("card cannot be null");
-        }
-        
         //store parameters in the cards field
         cards[0] = a;
         cards[1] = b;
@@ -463,7 +447,8 @@ public final class Combination
      *
      * @return true if "c" equals this object, false otherwise.
      */
-    @Override public boolean equals(Object c)
+    @Override
+    public boolean equals(Object c)
     {
         if (c == null) {
             return false;
@@ -494,7 +479,8 @@ public final class Combination
      *
      * @return a hash code value for this <code>combination</code>. The value will be between 10 and 280 inclusively.
      */
-    @Override public int hashCode()
+    @Override
+    public int hashCode()
     {
         int rez = 0;
         
@@ -512,7 +498,8 @@ public final class Combination
      * @return The string representation of this <code>Combination</code>. The cards will be in
      * descending order of their rank.
      */
-    @Override public String toString()
+    @Override
+    public String toString()
     {
         StringBuilder rez = new StringBuilder ();
         
