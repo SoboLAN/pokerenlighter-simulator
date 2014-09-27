@@ -3,7 +3,7 @@ package org.javafling.pokerenlighter.combination;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 
-/* A much better alternative than the java.util.Random class for generating random numbers.
+/** A much better alternative than the java.util.Random class for generating random numbers.
  * It was taken from the book "Numerical Recipes: The Art of Scientific Computing" by Teukolsky,
  * Vetterling and Flannery.
  * 
@@ -20,6 +20,8 @@ import java.security.SecureRandom;
  * A better solution would be Java's SecureRandom class. Unfortunately, in this case, better randomness
  * would be payed with some speed penalty. On the plus side, the SecureRandom class is used to
  * seed this generator.
+ * 
+ * @author Radu Murzea
  */
 public final class HighQualityRandomGenerator
 {
@@ -27,15 +29,14 @@ public final class HighQualityRandomGenerator
     private long v = 4101842887655102017L;
     private long w = 1;
     
+    /**
+     * Constructor.
+     */
     public HighQualityRandomGenerator()
     {
         //used to seed this generator
-        SecureRandom secRand = new SecureRandom();
-        
-        //8 bytes because that's the size of a long
-        byte[] seedBuffer = secRand.generateSeed(8);
-
-        long seed = ByteBuffer.wrap(seedBuffer).getLong();
+        //8 bytes because that's the size of a long in 99.9 % of implementations
+        long seed = ByteBuffer.wrap(new SecureRandom().generateSeed(8)).getLong();
         
         u = seed ^ v;
         nextLong();
@@ -45,6 +46,10 @@ public final class HighQualityRandomGenerator
         nextLong();
     }
 
+    /**
+     * Provides a random long value.
+     * @return a random long value
+     */
     public long nextLong()
     {
         u = u * 2862933555777941757L + 7046029254386353087L;
@@ -60,6 +65,11 @@ public final class HighQualityRandomGenerator
         return ret;
     }
 
+    /**
+     * Provides a random integer that is at most 2^bits large.
+     * @param bits how many bits the integer must have
+     * @return a random integer with value at most 2^bits.
+     */
     public int nextInt(int bits)
     {
         return (int) (nextLong() >>> (64 - bits));

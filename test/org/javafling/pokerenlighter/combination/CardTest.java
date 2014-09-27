@@ -155,33 +155,6 @@ public class CardTest
 	}
 
 	/**
-	 * Test of hashCode method, of class Card.
-	 */
-	@Test
-	public void testHashCode()
-	{
-		Card instance = new Card(6, 'c');
-		int expResult = 6;
-		int result = instance.hashCode ();
-		assertEquals (expResult, result);
-		
-		instance = new Card(4, 'd');
-		expResult = 8;
-		result = instance.hashCode ();
-		assertEquals (expResult, result);
-		
-		instance = new Card('J', 'h');
-		expResult = 33;
-		result = instance.hashCode ();
-		assertEquals (expResult, result);
-		
-		instance = new Card(13, 's');
-		expResult = 52;
-		result = instance.hashCode ();
-		assertEquals (expResult, result);
-	}
-
-	/**
 	 * Test of toString method, of class Card.
 	 */
 	@Test

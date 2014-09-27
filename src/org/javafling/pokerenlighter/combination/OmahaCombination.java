@@ -20,8 +20,8 @@ public final class OmahaCombination
     //combs field.
     private Card[] cards;
     
+    //cache storages for Hi + Lo results
     private String result_hi;
-    
     private String result_lo;
 
     /**
@@ -39,11 +39,10 @@ public final class OmahaCombination
     {
         this.cards = newCards;
 
+        //there are exactly 60 ways to combine the cards in a full 9-card Omaha hand
         combs = new Combination[10 * 6];
 
-        //next, all 60 possible combinations are created. a more elegant iteration
-        //over them is very possible, but that would reduce speed. And in Omaha simulations,
-        //speed is something extremely precious.
+        //next, all 60 possible combinations are created.
 
         //5, 6, 7 combination
         combs[0] = new Combination(newCards[0], newCards[1], newCards[4], newCards[5], newCards[6]);
@@ -137,9 +136,7 @@ public final class OmahaCombination
     {
         this.cards = newCards;
 
-        //next, all 60 possible combinations are created. a more elegant iteration
-        //over them is very possible, but that would reduce speed. And in Omaha simulations,
-        //speed is something extremely precious.
+        //next, all 60 possible combinations are created.
 
         //5, 6, 7 combination
         combs[0].setCards(newCards[0], newCards[1], newCards[4], newCards[5], newCards[6]);
@@ -273,7 +270,6 @@ public final class OmahaCombination
         String[] rezs = new String[60];
         int i, j, rezssize = 0, compare_result;
 
-        //check every combination for a royal flush. If one is found, we are already done.
         for (i = 0; i < 60; ++i) {
             if (combs[i].getRoyalFlush()) {
                 result_hi = "9";
@@ -281,8 +277,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for straight flushes. if one or more are found,
-        //they will be added to the result-array.
         for (i = 0; i < 60; ++i) {
             if (! combs[i].getStraightFlush().equals("0")) {
                 rezs[rezssize++] = combs[i].getStraightFlush();
@@ -290,10 +284,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for quads. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getQuad().equals("0")) {
@@ -303,10 +293,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for full houses. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getFullHouse().equals("0")) {
@@ -316,10 +302,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for flushes. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getFlush().equals("0")) {
@@ -329,10 +311,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for straights. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getStraight().equals("0")) {
@@ -342,10 +320,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for sets. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getThreeOfAKind().equals("0")) {
@@ -355,10 +329,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for two pair. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getTwoPair().equals("0")) {
@@ -368,10 +338,6 @@ public final class OmahaCombination
             }
         }
 
-        //check every combination for one pair. if one or more are found,
-        //they will be added to the result-array.
-        //this check will be avoided if something better was previously
-        //found (i.e. the result-array is empty)
         if (rezssize == 0) {
             for (i = 0; i < 60; ++i) {
                 if (! combs[i].getOnePair().equals("0")) {
@@ -450,14 +416,12 @@ public final class OmahaCombination
         int[] ranks = new int[5];
         int i, j, compare_result, rezssize = 0;
 
-        //go through every combination and look for Lo candidates
         for (i = 0; i < 60; ++i) {
-            //what I need are the 5 cards that make up the combination.
+            //what are needed are the 5 cards that make up the combination.
             //getHighCard method gives me that
             String hc = combs[i].getHighCard();
 
-            //I will work with the numeric ranks of the cards.
-            //it's a lot easier
+            //work with the numeric ranks of the cards, it's a lot easier
             for (j = 0; j < 5; ++j) {
                 ranks[j] = Card.getRank(hc.charAt(j));
             }
@@ -478,7 +442,7 @@ public final class OmahaCombination
                 continue;
             }
 
-            //if all the checks are passed, I add the combination as a valid candidate
+            //if all the checks are passed, add the combination as a valid candidate
             for (j = 0; j < 5; ++j) {
                 rezs[rezssize][j] = ranks[j];
             }
@@ -505,7 +469,7 @@ public final class OmahaCombination
             }
         }
 
-        //next I do exactly as in the getCombination method.
+        //next do exactly as in the getCombination method.
         //every combination is compared with all the others and they "fight" with each other
         //the losers are eliminated. if there is a tie, the combination gets another chance
 
@@ -532,8 +496,7 @@ public final class OmahaCombination
         //now let's see who is still left standing...
         for (i = 0; i < rezssize; ++i) {
             if (! eliminated[i]) {
-                //turn the 1 back to 14 (Ace)
-                //I must admit I almost forgot this :P
+                //don't forget to turn the 1 back to 14 (Ace)
                 rezs[i][4] = (rezs[i][4] == 1) ? 14 : rezs[i][4];
 
                 //compose result
@@ -639,8 +602,7 @@ public final class OmahaCombination
             }
         }
 
-        //let's see if they match. If not, we're lucky and we won't have to stress out
-        //the CPU with further computation of a totally useless method
+        //let's see if they match.
         for (i = 0; i < 4; ++i) {
             if (! local[i].equals(imported[i])) {
                 return false;
@@ -685,24 +647,6 @@ public final class OmahaCombination
 
         //if all tests pass, the 2 objects are equal
         return true;
-    }
-
-    /**
-     * Returns the hash code value for this <code>OmahaCombination</code>.
-     *
-     * @return a hash code value for this <code>OmahaCombination</code>.
-     */
-    @Override
-    public int hashCode()
-    {
-        int rez = 0;
-
-        for (int i = 0; i < 9; i++) {
-            //add all the ranks
-            rez += cards[i].hashCode();
-        }
-
-        return rez;
     }
 
     /**

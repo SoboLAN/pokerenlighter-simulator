@@ -2,7 +2,7 @@ package org.javafling.pokerenlighter.combination;
 
 /**
  * One of the most important classes in the program.
- * It describes a (poker) card, by its 2 elements: the actual card and its color.
+ * It describes a (poker) card, by its 2 elements: rank and color.
  * 
  * @author Radu Murzea
  */
@@ -17,48 +17,36 @@ public class Card
     /**
      * Creates a card of the specified value and color.
      *
-     * @param  x   Card value. Can be only '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K' or 'A'.
-     * @param  y   Card color. Can be only 'c', 'd', 'h' or 's'.
+     * @param x Card value. Can be only '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K' or 'A'.
+     * @param y Card color. Can be only 'c', 'd', 'h' or 's'.
      *
-     * @throws  IllegalArgumentException  If x or y have unacceptable values.
+     * @throws IllegalArgumentException If x or y have unacceptable values.
      */
     public Card(char x, char y)
     {
-        this.card = Card.getRank(x);
-        
-        // check validity of card        
-        if (this.card == 0) {
-            throw new IllegalArgumentException("invalid card rank");
-        }
-
-        // check validity of color
-        if (y != 'c' && y != 'd' && y != 'h' && y != 's') {
-            throw new IllegalArgumentException("invalid card color");
-        } else {
-            this.color = y;
-        }
+        this(Card.getRank(x), y);
     }
     
     /**
      * Creates a card of the specified rank and color.
      *
-     * @param  x   Card rank. Can be only 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 or 14.
-     * @param  y   Card color. Can be only 'c', 'd', 'h' or 's'.
+     * @param x Card rank. Can be only 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 or 14.
+     * @param y Card color. Can be only 'c', 'd', 'h' or 's'.
      *
-     * @throws  IllegalArgumentException  If x or y have unacceptable values.
+     * @throws IllegalArgumentException If x or y have unacceptable values.
      */
     public Card(int x, char y)
     {
         // The rank must be a valid card rank (between 2 and 14 inclusively)
         if (x < 2 || x > 14) {
-            throw new IllegalArgumentException("invalid card rank");
+            throw new IllegalArgumentException("Invalid card rank");
         } else {
             this.card = x;
         }
 
         // check color validity
         if (y != 'c' && y != 'd' && y != 'h' && y != 's') {
-            throw new IllegalArgumentException("invalid card color");
+            throw new IllegalArgumentException("Invalid card color");
         } else {
             this.color = y;
         }
@@ -67,9 +55,9 @@ public class Card
     /**
      * Checks whether 2 cards are suited (they have the same color).
      *
-     * @param a    Another card.
+     * @param a Another card.
      *
-     * @return    True if the current card is suited with the card a, false otherwise.
+     * @return True if the current card is suited with the card a, false otherwise.
      */
     public final boolean isSuited(Card a)
     {
@@ -79,7 +67,7 @@ public class Card
     /**
      * Returns the card rank (same one used to construct the card).
      *
-     * @return    The card rank of the current object.
+     * @return The card rank of the current object.
      */
     public final int getRank()
     {
@@ -89,7 +77,7 @@ public class Card
     /**
      * Returns the card color (same one used to construct the card).
      *
-     * @return    The card color of the current object.
+     * @return The card color of the current object.
      */
     public final char getColor()
     {
@@ -97,9 +85,9 @@ public class Card
     }
     
     /**
-     * Returns the card as a char ('3', 7', 'A', 'K', etc.).
+     * Returns the card rank as a character ('3', 7', 'A', 'K', etc.).
      *
-     * @return    The card value.
+     * @return The card value.
      */
     public final char getCharCard()
     {
@@ -107,11 +95,11 @@ public class Card
     }
 
     /**
-     * Returns the card as an integer (3, 7, 14, 13, etc.).
+     * Returns the card rank as an integer (3, 7, 14, 13, etc.).
      *
-     * @param c    Character representation of a card.
+     * @param c Character representation of a card.
      *
-     * @return    The card value. If c doesn't represent a valid card, 0 is returned.
+     * @return The card value. If c doesn't represent a valid card, 0 is returned.
      */
     public static int getRank(char c)
     {
@@ -134,7 +122,7 @@ public class Card
     }
 
     /**
-     * Returns the card as a char ('3', 7', 'A', 'K', etc.).
+     * Returns the card rank as a character ('3', 7', 'A', 'K', etc.).
      *
      * @param x The card rank. Accepted values are between 2 and 14 inclusively.
      *
@@ -189,28 +177,6 @@ public class Card
         Card param = (Card) c;
 
         return (param.getRank() == this.card && param.getColor() == this.color);
-    }
-
-    /**
-     * Returns the hash code value for this <code>Card</code>.
-     *
-     * @return a hash code value for this <code>Card</code>. The value will be between 2 and 56 inclusively.
-     */
-    @Override
-    public int hashCode()
-    {
-        //add rank
-        int rez = this.card;
-
-        //add color
-        switch (this.color) {
-            case 'c': return rez;
-            case 'd': return rez * 2;
-            case 'h': return rez * 3;
-            case 's': return rez * 4;
-        }
-        
-        return rez;
     }
 
     /**

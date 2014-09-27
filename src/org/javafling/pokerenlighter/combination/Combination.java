@@ -8,15 +8,13 @@ package org.javafling.pokerenlighter.combination;
  * and stop when you hit something that is valid (i.e. String different from "0"). That is because,
  * for example, when you have three of a kind, the method isOnePair will return a valid String,
  * despite the fact that you might want something else.
- * <br />
+ * <br /><br />
  * NOTE: The results are returned as Strings. The card representation in these Strings is of the form 'A', 'K',
  * 'J', 'T', '5' etc.
  * <br /><br />
  * This class is not thread-safe.
  * 
  * @author Radu Murzea
- * 
- * @version 1.2
  */
 public final class Combination
 {
@@ -33,35 +31,21 @@ public final class Combination
      * To avoid unexpected behaviour, don't provide such input.
      *
      * @param a First card.
-     *
      * @param b Second card.
-     *
      * @param c Third card.
-     *
      * @param d Fourth card.
-     *
      * @param e Fifth card.
      */
     public Combination(Card a, Card b, Card c, Card d, Card e)
     {
-        cards = new Card[5];
+        this.cards = new Card[5];
 
         //this is to avoid duplicate code
         setCards(a, b, c, d, e);
     }
     
-    //if the card at index "x" has a lower rank than that at index "y", it swaps them
-    private void swapCards(int x, int y)
-    {
-        if (cards[x].getRank() < cards[y].getRank()) {
-            Card k = cards[x];
-            cards[x] = cards[y];
-            cards[y] = k;
-        }
-    }
-    
     /**
-     * Sets new cards for this Combination.
+     * Sets new cards for this <code>Combination</code>.
      * <br />
      * <strong>WARNING</strong>: Just like the constructor,
      * this method does not check for duplicate cards or NULL parameters.
@@ -74,29 +58,28 @@ public final class Combination
      */
     public void setCards(Card a, Card b, Card c, Card d, Card e)
     {
-        //store parameters in the cards field
-        cards[0] = a;
-        cards[1] = b;
-        cards[2] = c;
-        cards[3] = d;
-        cards[4] = e;
+        this.cards[0] = a;
+        this.cards[1] = b;
+        this.cards[2] = c;
+        this.cards[3] = d;
+        this.cards[4] = e;
         
         //sort the cards in descending order by rank
         //sorting network is used since it is extremely fast for such small arrays
         //it is actually the fastest sorting method known to man
         //9 comparisons. insertion sort would've required 10
-        swapCards(0, 1);
-        swapCards(3, 4);
-        swapCards(2, 4);
-        swapCards(2, 3);
-        swapCards(0, 3);
-        swapCards(0, 2);
-        swapCards(1, 4);
-        swapCards(1, 3);
-        swapCards(1, 2);
+        orderCards(0, 1);
+        orderCards(3, 4);
+        orderCards(2, 4);
+        orderCards(2, 3);
+        orderCards(0, 3);
+        orderCards(0, 2);
+        orderCards(1, 4);
+        orderCards(1, 3);
+        orderCards(1, 2);
         
         //new input means old cache is invalid, so purge it
-        flush = straight = null;
+        this.flush = this.straight = null;
     }
 
     /**
@@ -112,18 +95,16 @@ public final class Combination
     }
 
     /**
-     * Returns the 5 cards of this combination.
+     * Returns the 5 cards of this <code>Combination</code>.
      *
-     * @return The 5 cards of the combination (in descending order of their rank).
+     * @return The 5 cards of the <code>Combination</code> (in descending order of their rank).
      */
     public String getHighCard()
     {
         StringBuilder stt = new StringBuilder();
-        int i;
-
-        //just add the cards to the result
-        for (i = 0; i < 5; ++i) {
-            stt.append(cards[i].getCharCard());
+        
+        for (Card card : this.cards) {
+            stt.append(card.getCharCard());
         }
 
         return stt.toString();
@@ -143,6 +124,7 @@ public final class Combination
         //beginning (in order to return the highest pair, if there is none).
         //every neighbouring cards are checked for equal ranks.
         //if a match is found, result is composed and returned.
+        
         if (cards[0].getRank() == cards[1].getRank()) {
             stt = Character.toString(cards[0].getCharCard());
             stt = stt + cards[2].getCharCard();
@@ -197,27 +179,21 @@ public final class Combination
 
         if (cards[0].getRank() == cards[1].getRank()) {
             if (cards[2].getRank() == cards[3].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[2].getCharCard();
-                stt = stt + cards[4].getCharCard();
-
+                stt = Character.toString(cards[0].getCharCard()) + cards[2].getCharCard() + cards[4].getCharCard();
+                
                 return stt;
             }
             
             if (cards[3].getRank() == cards[4].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[3].getCharCard();
-                stt = stt + cards[2].getCharCard();
-
+                stt = Character.toString(cards[0].getCharCard()) + cards[3].getCharCard() + cards[2].getCharCard();
+                
                 return stt;
             }
         }
         
         if (cards[1].getRank() == cards[2].getRank()) {
             if (cards[3].getRank() == cards[4].getRank()) {
-                stt = Character.toString(cards[1].getCharCard());
-                stt = stt + cards[3].getCharCard();
-                stt = stt + cards[0].getCharCard();
+                stt = Character.toString(cards[1].getCharCard()) + cards[3].getCharCard() + cards[0].getCharCard();
 
                 return stt;
             }
@@ -239,25 +215,19 @@ public final class Combination
         //search for groups of 3 neighbouring cards that have the same rank
 
         if (cards[0].getRank() == cards[1].getRank() && cards[1].getRank() == cards[2].getRank()) {
-            stt = Character.toString (cards[0].getCharCard());
-            stt = stt + cards[3].getCharCard();
-            stt = stt + cards[4].getCharCard();
+            stt = Character.toString (cards[0].getCharCard()) + cards[3].getCharCard() + cards[4].getCharCard();
 
             return stt;
         }
         
         if (cards[1].getRank() == cards[2].getRank() && cards[2].getRank() == cards[3].getRank()) {
-            stt = Character.toString(cards[1].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[4].getCharCard();
-
+            stt = Character.toString(cards[1].getCharCard()) + cards[0].getCharCard() + cards[4].getCharCard();
+            
             return stt;
         }
         
         if (cards[2].getRank() == cards[3].getRank() && cards[3].getRank() == cards[4].getRank()) {
-            stt = Character.toString(cards[2].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
+            stt = Character.toString(cards[2].getCharCard()) + cards[0].getCharCard() + cards[1].getCharCard();
 
             return stt;
         }
@@ -272,12 +242,12 @@ public final class Combination
      */
     public String getStraight()
     {
-        //if the straight has already been called, don't compute again.
+        //if the straight has already been determined, don't compute again.
         if (straight != null) {
             return straight;
         }
 
-        String stt = "0";
+        straight = "0";
 
         //check for straight
         if (cards[0].getRank() == cards[1].getRank() + 1
@@ -285,12 +255,9 @@ public final class Combination
             && cards[2].getRank() == cards[3].getRank() + 1
             && cards[3].getRank() == cards[4].getRank() + 1)
         {
-            stt = Character.toString(cards[0].getCharCard());
+            straight = Character.toString(cards[0].getCharCard());
 
-            //fill the straight field
-            straight = stt;
-
-            return stt;
+            return straight;
         }
 
         //the wheel is also a possibility
@@ -300,13 +267,10 @@ public final class Combination
             && cards[3].getRank() == 3
             && cards[4].getRank() == 2)
         {
-            stt = "5";
-
-            //fill the straight field
-            straight = stt;
+            straight = "5";
         }
 
-        return stt;
+        return straight;
     }
 
     /**
@@ -322,7 +286,7 @@ public final class Combination
             return flush;
         }
 
-        String stt = "0";
+        flush = "0";
 
         //check for flush
         if (cards[0].getColor() == cards[1].getColor()
@@ -330,17 +294,14 @@ public final class Combination
             && cards[2].getColor() == cards[3].getColor()
             && cards[3].getColor() == cards[4].getColor())
         {
-            stt = Character.toString(cards[0].getCharCard());
-            stt = stt + cards[1].getCharCard();
-            stt = stt + cards[2].getCharCard();
-            stt = stt + cards[3].getCharCard();
-            stt = stt + cards[4].getCharCard();
-
-            //fill the flush field
-            flush = stt;
+            flush = Character.toString(cards[0].getCharCard());
+            flush = flush + cards[1].getCharCard();
+            flush = flush + cards[2].getCharCard();
+            flush = flush + cards[3].getCharCard();
+            flush = flush + cards[4].getCharCard();
         }
 
-        return stt;
+        return flush;
     }
 
     /**
@@ -357,8 +318,7 @@ public final class Combination
 
         if (cards[0].getRank() == cards[1].getRank() && cards[1].getRank() == cards[2].getRank()) {
             if (cards[3].getRank() == cards[4].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[3].getCharCard();
+                stt = Character.toString(cards[0].getCharCard()) + cards[3].getCharCard();
 
                 return stt;
             }
@@ -366,8 +326,7 @@ public final class Combination
 
         if (cards[2].getRank() == cards[3].getRank() && cards[3].getRank() == cards[4].getRank()) {
             if (cards[0].getRank() == cards[1].getRank()) {
-                stt = Character.toString(cards[2].getCharCard());
-                stt = stt + cards[0].getCharCard();
+                stt = Character.toString(cards[2].getCharCard()) + cards[0].getCharCard();
             }
         }
 
@@ -390,8 +349,7 @@ public final class Combination
             && cards[1].getRank() == cards[2].getRank()
             && cards[2].getRank() == cards[3].getRank())
         {
-            stt = Character.toString(cards[0].getCharCard());
-            stt = stt + cards[4].getCharCard();
+            stt = Character.toString(cards[0].getCharCard()) + cards[4].getCharCard();
 
             return stt;
         }
@@ -400,8 +358,7 @@ public final class Combination
             && cards[2].getRank() == cards[3].getRank()
             && cards[3].getRank() == cards[4].getRank())
         {
-            stt = Character.toString(cards[1].getCharCard());
-            stt = stt + cards[0].getCharCard();
+            stt = Character.toString(cards[1].getCharCard()) + cards[0].getCharCard();
         }
 
         return stt;
@@ -423,7 +380,7 @@ public final class Combination
 
         //if the cards form a straight and a flush, then we have a straight flush
         if (! straight.equals("0") && ! flush.equals("0")) {
-            stt = straight.equals("5") ? "5" : Character.toString(cards[0].getCharCard());
+            stt = straight.equals("5") ? straight : Character.toString(cards[0].getCharCard());
         }
 
         return stt;
@@ -438,6 +395,16 @@ public final class Combination
     {
         //the royal flush is a straight flush with highest card Ace. as simple as that
         return (getStraightFlush().equals("A"));
+    }
+    
+    //if the card at index "x" has a lower rank than that at index "y", it swaps them
+    private void orderCards(int x, int y)
+    {
+        if (this.cards[x].getRank() < this.cards[y].getRank()) {
+            Card k = this.cards[x];
+            this.cards[x] = this.cards[y];
+            this.cards[y] = k;
+        }
     }
 
     /**
@@ -475,24 +442,6 @@ public final class Combination
     }
 
     /**
-     * Returns the hash code value for this <code>Combination</code>.
-     *
-     * @return a hash code value for this <code>combination</code>. The value will be between 10 and 280 inclusively.
-     */
-    @Override
-    public int hashCode()
-    {
-        int rez = 0;
-        
-        for (int i = 0; i < 5; ++i) {
-            //add the ranks of the cards
-            rez += cards[i].hashCode();
-        }
-
-        return rez;
-    }
-
-    /**
      * Return a String representation of this <code>Combination</code>.
      *
      * @return The string representation of this <code>Combination</code>. The cards will be in
@@ -501,12 +450,12 @@ public final class Combination
     @Override
     public String toString()
     {
-        StringBuilder rez = new StringBuilder ();
+        StringBuilder rez = new StringBuilder();
         
-        for (int i = 0; i < 5; i++) {
-            rez.append (cards[i].toString());
+        for (Card card : cards) {
+            rez.append(card.toString());
         }
 
-        return rez.toString ();
+        return rez.toString();
     }
 }

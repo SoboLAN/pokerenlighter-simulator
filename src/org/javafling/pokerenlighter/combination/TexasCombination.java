@@ -6,8 +6,6 @@ package org.javafling.pokerenlighter.combination;
  * This class is not thread-safe.
  * 
  * @autho Radu Murzea
- * 
- * @version 1.2
  */
 public final class TexasCombination
 {
@@ -31,7 +29,7 @@ public final class TexasCombination
         setCards(c);
     }
     
-    private void swapCards(int x, int y)
+    private void orderCards(int x, int y)
     {
         if (cards[x].getRank() < cards[y].getRank()) {
             Card k = cards[x];
@@ -55,22 +53,22 @@ public final class TexasCombination
         //sort the cards in descending order by rank
         //sorting network is used since it is extremely fast for such small arrays
         //16 comparisons. insertion sort would've required 21
-        swapCards(1, 2);
-        swapCards(0, 2);
-        swapCards(0, 1);
-        swapCards(3, 4);
-        swapCards(5, 6);
-        swapCards(3, 5);
-        swapCards(4, 6);
-        swapCards(4, 5);
-        swapCards(0, 4);
-        swapCards(0, 3);
-        swapCards(1, 5);
-        swapCards(2, 6);
-        swapCards(2, 5);
-        swapCards(1, 3);
-        swapCards(2, 4);
-        swapCards(2, 3);
+        orderCards(1, 2);
+        orderCards(0, 2);
+        orderCards(0, 1);
+        orderCards(3, 4);
+        orderCards(5, 6);
+        orderCards(3, 5);
+        orderCards(4, 6);
+        orderCards(4, 5);
+        orderCards(0, 4);
+        orderCards(0, 3);
+        orderCards(1, 5);
+        orderCards(2, 6);
+        orderCards(2, 5);
+        orderCards(1, 3);
+        orderCards(2, 4);
+        orderCards(2, 3);
         
         //new input means old cache is invalid, so purge it
         result = null;
@@ -120,13 +118,11 @@ public final class TexasCombination
         
         String tmprank;
 
-        //check for royal flush
         if (isRoyalFlush ()) {
             result = "9";
             return result;
         }
 
-        //check for straight flush
         tmprank = getStraightFlush();
         
         if (! tmprank.equals("0")) {
@@ -134,7 +130,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for quad
         tmprank = getQuad();
         
         if (! tmprank.equals ("0")) {
@@ -142,7 +137,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for full house
         tmprank = getFullHouse();
         
         if (! tmprank.equals ("0")) {
@@ -150,7 +144,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for flush
         tmprank = getFlush();
         
         if (! tmprank.equals("0")) {
@@ -158,7 +151,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for straight
         tmprank = getStraight();
         
         if (! tmprank.equals("0")) {
@@ -166,7 +158,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for sets
         tmprank = getThreeOfAKind();
         
         if (! tmprank.equals("0")) {
@@ -174,7 +165,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for 2 pair
         tmprank = getTwoPair();
         
         if (! tmprank.equals("0")) {
@@ -182,7 +172,6 @@ public final class TexasCombination
             return result;
         }
 
-        //check for 1 pair
         tmprank = getOnePair();
         
         if (! tmprank.equals("0")) {
@@ -204,16 +193,15 @@ public final class TexasCombination
      */
     public String getHighCard()
     {
-        String stt = new String();
-        int i;
-
+        StringBuilder stt = new StringBuilder();
+        
         //since the cards are already in descending order (sorted by the constructor),
         //just adding them to the result is ok
-        for (i = 0; i < 5; ++i) {
-            stt = stt + cards[i].getCharCard();
+        for (int i = 0; i < 5; ++i) {
+            stt.append(cards[i].getCharCard());
         }
 
-        return stt;
+        return stt.toString();
     }
     
     /**
@@ -224,67 +212,66 @@ public final class TexasCombination
      */
     public String getOnePair()
     {
-        String stt = "0";
+        StringBuilder stt = new StringBuilder();
 
         //search for 1 pair.
         //if found, return the pair and the highest kickers
 
         if (cards[0].getRank() == cards[1].getRank()) {
-            stt = Character.toString(cards[0].getCharCard());
-            stt = stt + cards[2].getCharCard();
-            stt = stt + cards[3].getCharCard();
-            stt = stt + cards[4].getCharCard();
+            stt.append(Character.toString(cards[0].getCharCard()))
+                .append(cards[2].getCharCard())
+                .append(cards[3].getCharCard())
+                .append(cards[4].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[1].getCharCard() == cards[2].getCharCard()) {
-            stt = Character.toString(cards[1].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[3].getCharCard();
-            stt = stt + cards[4].getCharCard();
+            stt.append(Character.toString(cards[1].getCharCard()))
+                .append(cards[0].getCharCard())
+                .append(cards[3].getCharCard())
+                .append(cards[4].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[2].getRank() == cards[3].getRank()) {
-            stt = Character.toString(cards[2].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
-            stt = stt + cards[4].getCharCard();
+            stt.append(Character.toString(cards[2].getCharCard()))
+                .append(cards[0].getCharCard())
+                .append(cards[1].getCharCard())
+                .append(cards[4].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[3].getRank() == cards[4].getRank()) {
-            stt = Character.toString(cards[3].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
-            stt = stt + cards[2].getCharCard();
+            stt.append(Character.toString(cards[3].getCharCard()))
+                .append(cards[0].getCharCard())
+                .append(cards[1].getCharCard())
+                .append(cards[2].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[4].getRank() == cards[5].getRank()) {
-            stt = Character.toString(cards[4].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
-            stt = stt + cards[2].getCharCard();
+            stt.append(Character.toString(cards[4].getCharCard()))
+                .append(cards[0].getCharCard())
+                .append(cards[1].getCharCard())
+                .append(cards[2].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
-        if (cards[5].getRank() == cards[6].getRank())
-        {
-            stt = Character.toString(cards[5].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
-            stt = stt + cards[2].getCharCard();
+        if (cards[5].getRank() == cards[6].getRank()) {
+            stt.append(Character.toString(cards[5].getCharCard()))
+                .append(cards[0].getCharCard())
+                .append(cards[1].getCharCard())
+                .append(cards[2].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
 
-        return stt;
+        return "0";
     }
 
     /**
@@ -295,101 +282,101 @@ public final class TexasCombination
      */
     public String getTwoPair()
     {
-        String stt = "0";
+        StringBuilder stt = new StringBuilder();
 
         if (cards[0].getRank() == cards[1].getRank()) {
             if (cards[2].getRank() == cards[3].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[2].getCharCard();
-                stt = stt + cards[4].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard()))
+                    .append(cards[2].getCharCard())
+                    .append(cards[4].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[3].getRank() == cards[4].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[3].getCharCard();
-                stt = stt + cards[2].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard()))
+                    .append(cards[3].getCharCard())
+                    .append(cards[2].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[4].getRank() == cards[5].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[4].getCharCard();
-                stt = stt + cards[2].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard()))
+                    .append(cards[4].getCharCard())
+                    .append(cards[2].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[5].getRank () == cards[6].getRank ()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[5].getCharCard();
-                stt = stt + cards[2].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard()))
+                    .append(cards[5].getCharCard())
+                    .append(cards[2].getCharCard());
+                
+                return stt.toString();
             }
 
-            return stt;
+            return "0";
         }
         
         if (cards[1].getRank() == cards[2].getRank()) {
             if (cards[3].getRank() == cards[4].getRank()) {
-                stt = Character.toString(cards[1].getCharCard ());
-                stt = stt + cards[3].getCharCard();
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[1].getCharCard()))
+                    .append(cards[3].getCharCard())
+                    .append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[4].getRank() == cards[5].getRank()) {
-                stt = Character.toString(cards[1].getCharCard());
-                stt = stt + cards[4].getCharCard();
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[1].getCharCard()))
+                    .append(cards[4].getCharCard())
+                    .append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[5].getRank() == cards[6].getRank()) {
-                stt = Character.toString (cards[1].getCharCard());
-                stt = stt + cards[5].getCharCard();
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[1].getCharCard()))
+                    .append(cards[5].getCharCard())
+                    .append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
 
-            return stt;
+            return "0";
         }
         
         if (cards[2].getRank() == cards[3].getRank()) {
             if (cards[4].getRank() == cards[5].getRank()) {
-                stt = Character.toString(cards[2].getCharCard());
-                stt = stt + cards[4].getCharCard();
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[2].getCharCard()))
+                    .append(cards[4].getCharCard())
+                    .append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[5].getRank() == cards[6].getRank()) {
-                stt = Character.toString(cards[2].getCharCard());
-                stt = stt + cards[5].getCharCard();
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[2].getCharCard()))
+                    .append(cards[5].getCharCard())
+                    .append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
         }
         
         if (cards[3].getRank() == cards[4].getRank()) {
             if (cards[5].getRank() == cards[6].getRank()) {
-                stt = Character.toString(cards[3].getCharCard());
-                stt = stt + cards[5].getCharCard();
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[3].getCharCard()))
+                    .append(cards[5].getCharCard())
+                    .append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
         }
 
-        return stt;
+        return "0";
     }
     
     /**
@@ -400,49 +387,49 @@ public final class TexasCombination
      */
     public String getThreeOfAKind()
     {
-        String stt = "0";
+        StringBuilder stt = new StringBuilder();
 
         if (cards[0].getRank() == cards[1].getRank() && cards[1].getRank() == cards[2].getRank()) {
-            stt = Character.toString(cards[0].getCharCard());
-            stt = stt + cards[3].getCharCard();
-            stt = stt + cards[4].getCharCard();
+            stt.append(Character.toString(cards[0].getCharCard()))
+                    .append(cards[3].getCharCard())
+                    .append(cards[4].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[1].getRank() == cards[2].getRank() && cards[2].getRank() == cards[3].getRank()) {
-            stt = Character.toString(cards[1].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[4].getCharCard();
+            stt.append(Character.toString(cards[1].getCharCard()))
+                    .append(cards[0].getCharCard())
+                    .append(cards[4].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[2].getRank() == cards[3].getRank() && cards[3].getRank() == cards[4].getRank()) {
-            stt = Character.toString(cards[2].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
+            stt.append(Character.toString(cards[2].getCharCard()))
+                    .append(cards[0].getCharCard())
+                    .append(cards[1].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[3].getRank() == cards[4].getRank() && cards[4].getRank() == cards[5].getRank()) {
-            stt = Character.toString(cards[3].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
+            stt.append(Character.toString(cards[3].getCharCard()))
+                    .append(cards[0].getCharCard())
+                    .append(cards[1].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
         
         if (cards[4].getRank() == cards[5].getRank() && cards[5].getRank() == cards[6].getRank()) {
-            stt = Character.toString(cards[4].getCharCard());
-            stt = stt + cards[0].getCharCard();
-            stt = stt + cards[1].getCharCard();
+            stt.append(Character.toString(cards[4].getCharCard()))
+                    .append(cards[0].getCharCard())
+                    .append(cards[1].getCharCard());
 
-            return stt;
+            return stt.toString();
         }
 
-        return stt;
+        return "0";
     }
 
     /**
@@ -452,22 +439,22 @@ public final class TexasCombination
      */
     public String getStraight()
     {
-        String stt = "0";
         int[] ids = new int[7];
         int i, j, k;
 
-        //I will use the ranks, it's easier
+        //use the ranks, it's easier
         for (i = 0; i < 7; ++i) {
             ids[i] = cards[i].getRank();
         }
 
-        // eliminate duplicates (the big if statements at the end of the method will not work correctly if
+        //eliminate duplicates (the big if statements at the end of the method will not work correctly if
         //there are duplicate cards)
         for (i = 0; i < 6; ++i) {
             ids[i] = (ids[i] == ids[i + 1]) ? 0 : ids[i];
         }
 
-        // resort cards (duplicates (which are now = 0) will be moved in the back)
+        // resort cards
+        //duplicates, which are now = 0, will be moved in the back
         for (i = 0; i < 6; ++i) {
             for (j = i + 1; j < 7; ++j) {
                 if (ids[i] < ids[j]) {
@@ -481,39 +468,33 @@ public final class TexasCombination
         //now let's search for straights
 
         if (ids[0] == ids[1] + 1 && ids[1] == ids[2] + 1 && ids[2] == ids[3] + 1 && ids[3] == ids[4] + 1) {
-            stt = Character.toString(Card.getCharCard(ids[0]));
-            return stt;
+            return Character.toString(Card.getCharCard(ids[0]));
         }
 
         if (ids[1] == ids[2] + 1 && ids[2] == ids[3] + 1 && ids[3] == ids[4] + 1 && ids[4] == ids[5] + 1) {
-            stt = Character.toString(Card.getCharCard(ids[1]));
-            return stt;
+            return Character.toString(Card.getCharCard(ids[1]));
         }
 
         if (ids[2] == ids[3] + 1 && ids[3] == ids[4] + 1 && ids[4] == ids[5] + 1 && ids[5] == ids[6]+ 1) {
-            stt = Character.toString(Card.getCharCard(ids[2]));
-            return stt;
+            return Character.toString(Card.getCharCard(ids[2]));
         }
 
         // There is one aditional situation. That is the wheel
         if (ids[0] == 14) {
             if (ids[1] == 5 && ids[2] == 4 && ids[3] == 3 && ids[4] == 2) {
-                stt = "5";
-                return stt;
+                return "5";
             }
             
             if (ids[2] == 5 && ids[3] == 4 && ids[4] == 3 && ids[5] == 2) {
-                stt = "5";
-                return stt;
+                return "5";
             }
             
             if (ids[3] == 5 && ids[4] == 4 && ids[5] == 3 && ids[6] == 2) {
-                stt = "5";
-                return stt;
+                return "5";
             }
         }
 
-        return stt;
+        return "0";
     }
 
     /**
@@ -527,15 +508,13 @@ public final class TexasCombination
         Card[] ids = new Card[7];
         Card z;
         int i, j;
-        String stt = "0";
 
         //I will need the color too for this one, so let's use the whole cards.
         for (i = 0; i < 7; ++i) {
             ids[i] = cards[i];
         }
 
-        // Group all cards by their color (which color is not relevant since no color
-        //is more important than the other in Texas Hold'em)
+        // Group all cards by their color
         for (i = 0; i < 6; ++i) {
             for (j = i + 1; j < 7; ++j) {
                 if (ids[i].getColor() > ids[j].getColor()) {
@@ -548,7 +527,7 @@ public final class TexasCombination
 
         // Rudimentary / basic check of color condition. If it fails, it is surely no flush.
         if (ids[2].getColor() != ids[3].getColor() || ids[3].getColor() != ids[4].getColor()) {
-            return stt;
+            return "0";
         }
 
         int[] tmp = new int[7];
@@ -565,7 +544,7 @@ public final class TexasCombination
 
         // If there are less than 5 cards of the same color, there is no flush
         if (tmp_dim < 5) {
-            return stt;
+            return "0";
         }
 
         // Sort cards that have the same color in ascending order */
@@ -580,13 +559,13 @@ public final class TexasCombination
         }
 
         // Compose Result
-        stt = Character.toString (Card.getCharCard(tmp[0]));
-        stt = stt + Card.getCharCard(tmp[1]);
-        stt = stt + Card.getCharCard(tmp[2]);
-        stt = stt + Card.getCharCard(tmp[3]);
-        stt = stt + Card.getCharCard(tmp[4]);
+        StringBuilder stt = new StringBuilder(Character.toString(Card.getCharCard(tmp[0])));
+        stt.append(Card.getCharCard(tmp[1]))
+            .append(Card.getCharCard(tmp[2]))
+            .append(Card.getCharCard(tmp[3]))
+            .append(Card.getCharCard(tmp[4]));
 
-        return stt;
+        return stt.toString();
     }
 
     /**
@@ -597,104 +576,91 @@ public final class TexasCombination
      */
     public String getFullHouse()
     {
-        String stt = "0";
+        StringBuilder stt = new StringBuilder();
 
         if (cards[0].getRank() == cards[1].getRank() && cards[1].getRank() == cards[2].getRank()) {
             if (cards[3].getRank() == cards[4].getRank()) {
-                stt = Character.toString (cards[0].getCharCard());
-                stt = stt + cards[3].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard())).append(cards[3].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[4].getRank() == cards[5].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[4].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard())).append(cards[4].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[5].getRank() == cards[6].getRank()) {
-                stt = Character.toString(cards[0].getCharCard());
-                stt = stt + cards[5].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[0].getCharCard())).append(cards[5].getCharCard());
+                
+                return stt.toString();
             }
         }
         
         if (cards[1].getRank() == cards[2].getRank() && cards[2].getRank() == cards[3].getRank()) {
             if (cards[4].getRank() == cards[5].getRank()) {
-                stt = Character.toString(cards[1].getCharCard());
-                stt = stt + cards[4].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[1].getCharCard())).append(cards[4].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[5].getRank() == cards[6].getRank()) {
-                stt = Character.toString(cards[1].getCharCard());
-                stt = stt + cards[5].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[1].getCharCard())).append(cards[5].getCharCard());
+                
+                return stt.toString();
             }
         }
         
         if (cards[2].getRank() == cards[3].getRank() && cards[3].getRank() == cards[4].getRank()) {
             if (cards[0].getRank() == cards[1].getRank()) {
-                stt = Character.toString(cards[2].getCharCard());
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[2].getCharCard())).append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[5].getRank() == cards[6].getRank()) {
-                stt = Character.toString(cards[2].getCharCard());
-                stt = stt + cards[5].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[2].getCharCard())).append(cards[5].getCharCard());
+                
+                return stt.toString();
             }
         }
         
         if (cards[3].getRank() == cards[4].getRank() && cards[4].getRank() == cards[5].getRank()) {
             if (cards[0].getRank() == cards[1].getRank()) {
-                stt = Character.toString(cards[3].getCharCard());
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[3].getCharCard())).append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[1].getRank() == cards[2].getRank()) {
-                stt = Character.toString(cards[3].getCharCard());
-                stt = stt + cards[1].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[3].getCharCard())).append(cards[1].getCharCard());
+                
+                return stt.toString();
             }
         }
         
         if (cards[4].getRank() == cards[5].getRank() && cards[5].getRank() == cards[6].getRank()) {
-            if (cards[0].getRank() == cards[1].getRank())
-            {
-                stt = Character.toString(cards[4].getCharCard());
-                stt = stt + cards[0].getCharCard();
-
-                return stt;
+            if (cards[0].getRank() == cards[1].getRank()) {
+                stt.append(Character.toString(cards[4].getCharCard())).append(cards[0].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[1].getRank() == cards[2].getRank()) {
-                stt = Character.toString(cards[4].getCharCard());
-                stt = stt + cards[1].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[4].getCharCard())).append(cards[1].getCharCard());
+                
+                return stt.toString();
             }
             
             if (cards[2].getRank() == cards[3].getRank()) {
-                stt = Character.toString(cards[4].getCharCard());
-                stt = stt + cards[2].getCharCard();
-
-                return stt;
+                stt.append(Character.toString(cards[4].getCharCard())).append(cards[2].getCharCard());
+                
+                return stt.toString();
             }
         }
 
-        return stt;
+        return "0";
     }
     
     /**
@@ -705,37 +671,33 @@ public final class TexasCombination
      */
     public String getQuad ()
     {
-        String stt = "0";
+        StringBuilder stt = new StringBuilder();
 
         if (cards[0].getRank() == cards[1].getRank() && cards[1].getRank() == cards[2].getRank() && cards[2].getRank() == cards[3].getRank()) {
-            stt = Character.toString(cards[0].getCharCard());
-            stt = stt + cards[4].getCharCard();
-
-            return stt;
+            stt.append(Character.toString(cards[0].getCharCard())).append(cards[4].getCharCard());
+                
+            return stt.toString();
         }
         
         if (cards[1].getRank() == cards[2].getRank() && cards[2].getRank() == cards[3].getRank() && cards[3].getRank() == cards[4].getRank()) {
-            stt = Character.toString(cards[1].getCharCard());
-            stt = stt + cards[0].getCharCard();
-
-            return stt;
+            stt.append(Character.toString(cards[1].getCharCard())).append(cards[0].getCharCard());
+                
+            return stt.toString();
         }
         
         if (cards[2].getRank() == cards[3].getRank() && cards[3].getRank() == cards[4].getRank() && cards[4].getRank() == cards[5].getRank()) {
-            stt = Character.toString (cards[2].getCharCard());
-            stt = stt + cards[0].getCharCard();
-
-            return stt;
+            stt.append(Character.toString(cards[2].getCharCard())).append(cards[0].getCharCard());
+                
+            return stt.toString();
         }
         
         if (cards[3].getRank() == cards[4].getRank() && cards[4].getRank() == cards[5].getRank() && cards[5].getRank() == cards[6].getRank()) {
-            stt = Character.toString(cards[3].getCharCard());
-            stt = stt + cards[0].getCharCard();
-
-            return stt;
+            stt.append(Character.toString(cards[3].getCharCard())).append(cards[0].getCharCard());
+                
+            return stt.toString();
         }
 
-        return stt;
+        return "0";
     }
     
     /**
@@ -746,7 +708,6 @@ public final class TexasCombination
      */
     public String getStraightFlush()
     {
-        String stt = "0";
         int[] tmp = new int[7];
         int i, j, k, tmp_dim;
         Card[] ids = new Card[7];
@@ -758,7 +719,7 @@ public final class TexasCombination
             ids[i] = cards[i];
         }
 
-        // Group cards by color
+        //group cards by color
         for (i = 0; i < 6; ++i) {
             for (j = i + 1; j < 7; ++j) {
                 if (ids[i].getColor() > ids[j].getColor()) {
@@ -769,7 +730,7 @@ public final class TexasCombination
             }
         }
 
-        // Create array of cards that have dominant color
+        //create array of cards that have dominant color
         domin_color = ids[3].getColor();
         tmp_dim = 0;
         for (i = 0; i < 7; ++i) {
@@ -779,12 +740,12 @@ public final class TexasCombination
             }
         }
 
-        // If there are less than 5 cards of the same color, there is no straight flush
+        //if there are less than 5 cards of the same color, there is no straight flush
         if (tmp_dim < 5) {
-            return stt;
+            return "0";
         }
 
-        // Sort the cards in descending order
+        //sort the cards in descending order
         for (i = 0; i < tmp_dim - 1; ++i) {
             for (j = i + 1; j < tmp_dim; ++j) {
                 if (tmp[i] < tmp[j]) {
@@ -798,30 +759,27 @@ public final class TexasCombination
         //search for straights among the cards with dominant color
 
         if (tmp[0] - 1 == tmp[1] && tmp[1] - 1 == tmp[2] && tmp[2] - 1 == tmp[3] && tmp[3] - 1 == tmp[4]) {
-            stt = Character.toString(Card.getCharCard(tmp[0]));
-            return stt;
+            return Character.toString(Card.getCharCard(tmp[0]));
         }
         
         if (tmp_dim > 5) {
             if (tmp[1] - 1 == tmp[2] && tmp[2] - 1 == tmp[3] && tmp[3] - 1 == tmp[4] && tmp[4] - 1 == tmp[5]) {
-                stt = Character.toString(Card.getCharCard(tmp[1]));
-                return stt;
+                return Character.toString(Card.getCharCard(tmp[1]));
             }
         }
         
         if (tmp_dim > 6) {
             if (tmp[2] - 1 == tmp[3] && tmp[3] - 1 == tmp[4] && tmp[4] - 1 == tmp[5] && tmp[5] - 1 == tmp[6]) {
-                stt = Character.toString(Card.getCharCard(tmp[2]));
-                return stt;
+                return Character.toString(Card.getCharCard(tmp[2]));
             }
         }
 
         // A special case is the straight flush composed of A, 2, 3, 4, 5.
         if (tmp[0] == 14 && tmp[tmp_dim - 4] == 5 && tmp[tmp_dim - 3] == 4 && tmp[tmp_dim - 2] == 3 && tmp[tmp_dim - 1] == 2) {
-            stt = "5";
+            return "5";
         }
 
-        return stt;
+        return "0";
     }
 
     /**
@@ -868,23 +826,6 @@ public final class TexasCombination
     }
 
     /**
-     * Returns a hash code for this TexasCombination.
-     *
-     * @return a hash code for this TexasCombination.
-     */
-    @Override
-    public int hashCode()
-    {
-        int rez = 0;
-
-        for (int i = 0; i < 7; ++i) {
-            rez += cards[i].hashCode();
-        }
-
-        return rez;
-    }
-
-    /**
      * Returns a string representation of this TexasCombination.
      *
      * @return a string representation of this TexasCombination. Length will be exactly 14 characters, the cards
@@ -895,8 +836,8 @@ public final class TexasCombination
     {
         StringBuilder rez = new StringBuilder();
 
-        for (int i = 0; i < 7; ++i) {
-            rez.append (cards[i].toString());
+        for (Card card : cards) {
+            rez.append(card.toString());
         }
 
         return rez.toString();
