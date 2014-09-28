@@ -61,11 +61,11 @@ public final class PlayerProfile
             if (cards == null) {
                 throw new NullPointerException();
             } else {
-                if (! testForNull(cards)) {
+                if (containsNullCards(cards)) {
                     throw new NullPointerException();
                 }
                 
-                if ((cards.length != 2 && cards.length != 4) || ! testDuplicates(cards)) {
+                if ((cards.length != 2 && cards.length != 4) || containsDuplicates(cards)) {
                     throw new IllegalArgumentException();
                 }
             }
@@ -107,27 +107,27 @@ public final class PlayerProfile
         return cards;
     }
     
-    private boolean testForNull(Card[] cards)
+    private boolean containsNullCards(Card[] cards)
     {
         for (Card card : cards) {
             if (card == null) {
-                return false;
+                return true;
             }
         }
         
-        return true;
+        return false;
     }
     
-    private boolean testDuplicates(Card[] cards)
+    private boolean containsDuplicates(Card[] cards)
     {
         for (int i = 0; i < cards.length - 1; i++) {
             for (int j = i + 1; j < cards.length; j++) {
                 if (cards[i].equals(cards[j])) {
-                    return false;
+                    return true;
                 }
             }
         }
         
-        return true;
+        return false;
     }
 }

@@ -19,9 +19,19 @@ public class SimulationEvent
      * Creates an event of the specified type which contains the specified data.
      * @param eventType the event type. See the constants in this class for the acceptable values.
      * @param eventData extra information about the event. Can be anything you want.
+     * @throws IllegalArgumentException if the event type is not one of the pre-defined constants.
      */
     public SimulationEvent(int eventType, Object eventData)
     {
+        if (eventType != EVENT_SIM_STARTED
+            && eventType != EVENT_SIM_DONE
+            && eventType != EVENT_SIM_CANCELLED
+            && eventType != EVENT_SIM_ERROR
+            && eventType != EVENT_SIM_PROGRESS
+        ) {
+            throw new IllegalArgumentException("Invalid event type");
+        }
+        
         this.eventType = eventType;
         this.eventData = eventData;
     }
@@ -32,7 +42,7 @@ public class SimulationEvent
      */
     public int getType()
     {
-        return eventType;
+        return this.eventType;
     }
 
     /**
@@ -41,6 +51,6 @@ public class SimulationEvent
      */
     public Object getEventData()
     {
-        return eventData;
+        return this.eventData;
     }
 }

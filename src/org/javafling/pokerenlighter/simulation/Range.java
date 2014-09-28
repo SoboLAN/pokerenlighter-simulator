@@ -144,7 +144,9 @@ public final class Range
     
     private int percentage;
     
-    private boolean[][] rangeSelections = {
+    //contains the set of cards selected for this range.
+    //initially, none are selected (0 % range)
+    private final boolean[][] rangeSelections = {
         {false, false, false, false, false, false, false, false, false, false, false, false, false},
         {false, false, false, false, false, false, false, false, false, false, false, false, false},
         {false, false, false, false, false, false, false, false, false, false, false, false, false},
@@ -171,14 +173,13 @@ public final class Range
     /**
      * Constructs a range with the specified percentage.
      * @param percentage the percentage of the range.
+     * @throws IllegalArgumentException if the percentage is below 0 or over 100
      */
     public Range(int percentage)
     {
-        this.percentage = 0;
+        this();
         
         setNewPercentage(percentage);
-        
-        this.percentage = percentage;
     }
     
     /**
@@ -199,7 +200,7 @@ public final class Range
      */
     public void flipValue(int row, int column)
     {
-        this.rangeSelections[row][column] = ! this.rangeSelections[row][column];
+        this.rangeSelections[row][column] ^= true;
     }
     
     /**
@@ -225,9 +226,14 @@ public final class Range
     /**
      * Sets a new percentage for this range. This will overwrite all the card type selections.
      * @param newPercentage the new percentage.
+     * @throws IllegalArgumentException if the new percentage is below 0 or over 100
      */
     public void setNewPercentage(int newPercentage)
     {
+        if (newPercentage < 0 || newPercentage > 100) {
+            throw new IllegalArgumentException("percentage value must be between 0 and 100 inclusively");
+        }
+        
         for (int i = 1; i <= newPercentage; i++) {
             for (Coordinate c : Range.rangeProgressions[i]) {
                 this.rangeSelections[c.x][c.y] = true;

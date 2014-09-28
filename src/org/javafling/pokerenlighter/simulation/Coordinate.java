@@ -1,13 +1,15 @@
 package org.javafling.pokerenlighter.simulation;
 
 /**
- *
+ * Representation for a x-y coordinate, used for the ranges functionality.
  * @author Radu Murzea
  */
 class Coordinate
 {
-    //the row (x) and column (y) of the coordinate
+    //the row (x) of the coordinate
     public int x;
+    
+    //the column (y) of the coordinate
     public int y;
     
     /**

@@ -133,8 +133,9 @@ public class SimulationFinalResult
         }
     }
     
+    //constructor
     private SimulationFinalResult(ResultBuilder builder)
-    {        
+    {
         this.players = builder.players;
         this.wins = builder.wins;
         this.loses = builder.loses;

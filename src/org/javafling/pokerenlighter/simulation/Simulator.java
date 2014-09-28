@@ -69,10 +69,9 @@ public final class Simulator implements WorkerNotifiable
      * firing a property change event on all listening PropertyChangeListeners.
      * <br />
      * Note: Calling this method AFTER the Simulator started execution will have no effect. If
-     * this method is not called at all, then the progress will be reported only once, when the
-     * SimulationWorker is finished (equivalent with calling <code>setUpdateInterval(100)</code>).
+     * this method is not called at all, then the progress will not be reported at all.
      * 
-     * @param percentage the update interval. Value must be a strictly positive integer divisible by 100.
+     * @param percentage the update interval. Value must be a strictly positive integer that divides 100.
      * 
      * @throws IllegalArgumentException if the parameter is an invalid value.
      */
@@ -137,7 +136,8 @@ public final class Simulator implements WorkerNotifiable
     @Override
     public void onSimulationError(WorkerEvent event)
     {
-        
+        SimulationEvent errorEvent = new SimulationEvent(SimulationEvent.EVENT_SIM_ERROR, event.getEventData());
+        this.notifiable.onSimulationError(errorEvent);
     }
 
     /**
@@ -184,8 +184,6 @@ public final class Simulator implements WorkerNotifiable
      * @param player the PlayerProfile to be removed
      * 
      * @return true if the profile has been removed, false otherwise
-     * 
-     * @since 1.1
      */
     public boolean removePlayer(PlayerProfile player)
     {
@@ -228,7 +226,6 @@ public final class Simulator implements WorkerNotifiable
     
     /**
      * Removes the flop cards.
-     * @since 1.1
      */
     public void removeFlop()
     {
@@ -422,13 +419,11 @@ public final class Simulator implements WorkerNotifiable
     
     private int getNrOfRoundsPerWorker(int workers)
     {
-        while (this.nrRounds % workers != 0) {
-            this.nrRounds++;
-        }
-        
-        return this.nrRounds / workers;
+        return (int) Math.ceil(1.0 * this.nrRounds / workers);
     }
     
+    //calculates how often the workers should notify the simulator of progress,
+    //based on how many workers there are
     private int getUpdateInterval(int workers)
     {
         switch (workers) {
@@ -438,6 +433,57 @@ public final class Simulator implements WorkerNotifiable
             case 4: return 20;
             default: return 25;
         }
+    }
+    
+    private void buildFinalResult()
+    {
+        int nrPlayers = profiles.size();
+            
+        double[] wins = new double[nrPlayers];
+        double[] loses = new double[nrPlayers];
+        double[] ties = new double[nrPlayers];
+            
+        for (int j = 0; j < nrPlayers; j++) {
+            wins[j] = loses[j] = ties[j] = 0;
+        }
+            
+        //sum up all the percentages
+        for (int i = 0; i < nrOfWorkers; i++) {
+            SimulationWorkerResult result = workers.get(i).getResult();
+                
+            for (int j = 0; j < nrPlayers; j++) {
+                wins[j] += result.getWinPercentage(j);
+                loses[j] += result.getLosePercentage(j);
+                ties[j] += result.getTiePercentage(j);
+            }
+        }
+            
+        //average is needed, so... divide
+        for (int j = 0; j < nrPlayers; j++) {
+            wins[j] /= nrOfWorkers;
+            loses[j] /= nrOfWorkers;
+            ties[j] /= nrOfWorkers;
+        }
+
+        long duration = endTime - startTime;
+            
+        ResultBuilder resultBuilder = new SimulationFinalResult.ResultBuilder().setGameType(gameType)
+                                                                                .setPlayers(profiles);
+            
+        //flop is set
+        if (communityCards[0] != null) {
+            resultBuilder.setFlop(Arrays.copyOfRange(communityCards, 0, 3));
+        }
+            
+        simulationResult = resultBuilder.setTurn(communityCards[3])
+                                        .setRiver(communityCards[4])
+                                        .setWins(wins)
+                                        .setTies(ties)
+                                        .setLoses(loses)
+                                        .setRounds(nrRounds)
+                                        .setThreads(nrOfWorkers)
+                                        .setDuration(duration)
+                                        .build();
     }
     
     private class Supervisor implements Runnable
@@ -450,14 +496,14 @@ public final class Simulator implements WorkerNotifiable
             } catch (InterruptedException ex) {
                 SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_ERROR, ex);
                 notifiable.onSimulationError(event);
-                return;
-            } finally {
                 executor.shutdownNow();
+                return;
             }
             
             try {
                 this.finalizeSimulation();
             } finally {
+                isRunning = false;
                 if (! executor.isShutdown()) {
                     executor.shutdownNow();
                 }
@@ -467,62 +513,16 @@ public final class Simulator implements WorkerNotifiable
         //will be called when all workers are done
         private void finalizeSimulation()
         {
-            isRunning = false;
-            
             if (! isSimulationDone()) {
                 SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_CANCELLED, overallProgress);
                 notifiable.onSimulationCancel(event);
+                
+                return;
             }
 
             endTime = System.currentTimeMillis();
 
-            int nrPlayers = profiles.size ();
-            
-            double[] wins = new double[nrPlayers];
-            double[] loses = new double[nrPlayers];
-            double[] ties = new double[nrPlayers];
-            
-            for (int j = 0; j < nrPlayers; j++) {
-                wins[j] = loses[j] = ties[j] = 0;
-            }
-            
-            //sum up all the percentages
-            for (int i = 0; i < nrOfWorkers; i++) {
-                SimulationWorkerResult result = workers.get(i).getResult();
-                
-                for (int j = 0; j < nrPlayers; j++) {
-                    wins[j] += result.getWinPercentage(j);
-                    loses[j] += result.getLosePercentage(j);
-                    ties[j] += result.getTiePercentage(j);
-                }
-            }
-            
-            //average is needed, so... divide
-            for (int j = 0; j < nrPlayers; j++) {
-                wins[j] /= nrOfWorkers;
-                loses[j] /= nrOfWorkers;
-                ties[j] /= nrOfWorkers;
-            }
-
-            long duration = endTime - startTime;
-            
-            ResultBuilder resultBuilder = new SimulationFinalResult.ResultBuilder().setGameType(gameType).
-                                                                                    setPlayers(profiles);
-            
-            //flop is set
-            if (communityCards[0] != null) {
-                resultBuilder.setFlop(Arrays.copyOfRange(communityCards, 0, 3));
-            }
-            
-            simulationResult = resultBuilder.setTurn(communityCards[3])
-                                            .setRiver(communityCards[4])
-                                            .setWins(wins)
-                                            .setTies(ties)
-                                            .setLoses(loses)
-                                            .setRounds(nrRounds)
-                                            .setThreads(nrOfWorkers)
-                                            .setDuration(duration)
-                                            .build();
+            buildFinalResult();
             
             SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, simulationResult);
             notifiable.onSimulationDone(event);

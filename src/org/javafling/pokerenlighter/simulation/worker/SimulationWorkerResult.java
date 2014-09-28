@@ -1,10 +1,8 @@
 package org.javafling.pokerenlighter.simulation.worker;
 
 /**
- *
+ * Result of the worker job.
  * @author Radu Murzea
- * 
- * @version 1.0
  */
 public class SimulationWorkerResult
 {

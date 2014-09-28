@@ -10,7 +10,9 @@ import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 
 /**
- *
+ * This class performs the actual simulations, based on the parameters passed to its constructor.
+ * Its very advisable to pass a <code>WorkerNotifiable</code> instance to the constructor in order to get notified
+ * of significant events that happen during processing (progress, termination, error etc.).
  * @author Radu Murzea
  */
 public class SimulationWorker implements Runnable
@@ -247,8 +249,7 @@ public class SimulationWorker implements Runnable
 
         for (j = 0; j < this.nrPlayers - 1; ++j) {
             for (k = j + 1; k < this.nrPlayers; ++k) {
-                if (! eliminated[j] && ! eliminated[k])
-                {
+                if (! eliminated[j] && ! eliminated[k]) {
                     compare_result = compareHands(hands[j], hands[k]);
 
                     if (compare_result == 1) {

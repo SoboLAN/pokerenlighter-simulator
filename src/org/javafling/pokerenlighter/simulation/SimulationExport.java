@@ -30,52 +30,52 @@ public class SimulationExport
         
         StringBuilder xml = new StringBuilder();
         
-        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>");
-        xml.append(LINE_END);
-        xml.append("<simulation>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(1));
-        xml.append("<meta>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(2));
-        xml.append("<playercount>");
-        xml.append(result.getNrOfPlayers());
-        xml.append("</playercount>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(2));
-        xml.append("<rounds>");
-        xml.append(result.getRounds ());
-        xml.append("</rounds>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(2));
-        xml.append("<type>");
-        xml.append(result.getPokerType().toString());
-        xml.append("</type>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(2));
-        xml.append("<threads>");
-        xml.append(result.getNrOfThreads());
-        xml.append("</threads>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(2));
-        xml.append("<duration unit=\"milliseconds\">");
-        xml.append(result.getDuration());
-        xml.append("</duration>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(1));
-        xml.append("</meta>");
-        xml.append(LINE_END);
-        xml.append(getNestingCharacters(1));
-        xml.append("<players>");
-        xml.append(LINE_END);
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>")
+            .append(LINE_END)
+            .append("<simulation>")
+            .append(LINE_END)
+            .append(getNestingCharacters(1))
+            .append("<meta>")
+            .append(LINE_END)
+            .append(getNestingCharacters(2))
+            .append("<playercount>")
+            .append(result.getNrOfPlayers())
+            .append("</playercount>")
+            .append(LINE_END)
+            .append(getNestingCharacters(2))
+            .append("<rounds>")
+            .append(result.getRounds ())
+            .append("</rounds>")
+            .append(LINE_END)
+            .append(getNestingCharacters(2))
+            .append("<type>")
+            .append(result.getPokerType().toString())
+            .append("</type>")
+            .append(LINE_END)
+            .append(getNestingCharacters(2))
+            .append("<threads>")
+            .append(result.getNrOfThreads())
+            .append("</threads>")
+            .append(LINE_END)
+            .append(getNestingCharacters(2))
+            .append("<duration unit=\"milliseconds\">")
+            .append(result.getDuration())
+            .append("</duration>")
+            .append(LINE_END)
+            .append(getNestingCharacters(1))
+            .append("</meta>")
+            .append(LINE_END)
+            .append(getNestingCharacters(1))
+            .append("<players>")
+            .append(LINE_END);
         
         for (int i = 1; i <= result.getNrOfPlayers(); i++) {
-            xml.append(getNestingCharacters(2));
-            xml.append("<player id=\"");
-            xml.append(i);
-            xml.append("\">");
-            xml.append(LINE_END);
-            xml.append(getNestingCharacters(3));
+            xml.append(getNestingCharacters(2))
+                .append("<player id=\"")
+                .append(i)
+                .append("\">")
+                .append(LINE_END)
+                .append(getNestingCharacters(3));
             
             PlayerProfile profile = result.getPlayer(i - 1);
             
@@ -87,11 +87,11 @@ public class SimulationExport
             if (profile.getHandType() == HandType.EXACTCARDS) {
                 Card[] cards = profile.getCards();
                 for (Card card : cards) {
-                    xml.append(getNestingCharacters(3));
-                    xml.append("<card>");
-                    xml.append(card.toString());
-                    xml.append("</card>");
-                    xml.append(LINE_END);
+                    xml.append(getNestingCharacters(3))
+                        .append("<card>")
+                        .append(card.toString())
+                        .append("</card>")
+                        .append(LINE_END);
                 }
             } else if (profile.getHandType() == HandType.RANGE) {
                 Range range = profile.getRange();
@@ -127,82 +127,83 @@ public class SimulationExport
             xml.append(LINE_END);
             
             if (flop != null) {
-                xml.append(getNestingCharacters(2));
-                xml.append("<flop id=\"1\">");
-                xml.append(flop[0].toString());
-                xml.append("</flop>");
-                xml.append(LINE_END);
-                xml.append(getNestingCharacters(2));
-                xml.append("<flop id=\"2\">");
-                xml.append(flop[1].toString());
-                xml.append("</flop>");
-                xml.append(LINE_END);
-                xml.append(getNestingCharacters(2));
-                xml.append("<flop id=\"3\">");
-                xml.append(flop[2].toString());
-                xml.append("</flop>");
-                xml.append(LINE_END);
+                xml.append(getNestingCharacters(2))
+                    .append("<flop id=\"1\">")
+                    .append(flop[0].toString())
+                    .append("</flop>")
+                    .append(LINE_END)
+                    .append(getNestingCharacters(2))
+                    .append("<flop id=\"2\">")
+                    .append(flop[1].toString())
+                    .append("</flop>")
+                    .append(LINE_END)
+                    .append(getNestingCharacters(2))
+                    .append("<flop id=\"3\">")
+                    .append(flop[2].toString())
+                    .append("</flop>")
+                    .append(LINE_END);
             }
             
             if (turn != null) {
-                xml.append(getNestingCharacters(2));
-                xml.append("<turn>");
-                xml.append(turn.toString());
-                xml.append("</turn>");
-                xml.append(LINE_END);
+                xml.append(getNestingCharacters(2))
+                    .append("<turn>")
+                    .append(turn.toString())
+                    .append("</turn>")
+                    .append(LINE_END);
             }
             
             if (river != null) {
-                xml.append(getNestingCharacters(2));
-                xml.append("<river>");
-                xml.append(river.toString());
-                xml.append("</river>");
-                xml.append(LINE_END);
+                xml.append(getNestingCharacters(2))
+                    .append("<river>")
+                    .append(river.toString())
+                    .append("</river>")
+                    .append(LINE_END);
             }
             
-            xml.append(getNestingCharacters(1));
-            xml.append("</community>");
-            xml.append(LINE_END);
+            xml.append(getNestingCharacters(1))
+                .append("</community>")
+                .append(LINE_END);
         }
         
-        xml.append(getNestingCharacters(1));
-        xml.append("<result>");
-        xml.append(LINE_END);
+        xml.append(getNestingCharacters(1))
+            .append("<result>")
+            .append(LINE_END);
         
         for (int i = 1; i <= result.getNrOfPlayers(); i++) {
-            xml.append(getNestingCharacters(2));
-            xml.append("<player id=\"");
-            xml.append(i);
-            xml.append("\">");
-            xml.append(LINE_END);
-            xml.append(getNestingCharacters(3));
-            xml.append("<wins>");
-            xml.append(result.getFormattedWinPercentage(i - 1));
-            xml.append("</wins>");
-            xml.append(LINE_END);
-            xml.append(getNestingCharacters(3));
-            xml.append("<loses>");
-            xml.append(result.getFormattedLosePercentage(i - 1));
-            xml.append("</loses>");
-            xml.append(LINE_END);
-            xml.append(getNestingCharacters(3));
-            xml.append("<ties>");
-            xml.append(result.getFormattedTiePercentage(i - 1));
-            xml.append("</ties>");
-            xml.append(LINE_END);
-            xml.append(getNestingCharacters(2));
-            xml.append("</player>");
-            xml.append(LINE_END);
+            xml.append(getNestingCharacters(2))
+                .append("<player id=\"")
+                .append(i)
+                .append("\">")
+                .append(LINE_END)
+                .append(getNestingCharacters(3))
+                .append("<wins>")
+                .append(result.getFormattedWinPercentage(i - 1))
+                .append("</wins>")
+                .append(LINE_END)
+                .append(getNestingCharacters(3))
+                .append("<loses>")
+                .append(result.getFormattedLosePercentage(i - 1))
+                .append("</loses>")
+                .append(LINE_END)
+                .append(getNestingCharacters(3))
+                .append("<ties>")
+                .append(result.getFormattedTiePercentage(i - 1))
+                .append("</ties>")
+                .append(LINE_END)
+                .append(getNestingCharacters(2))
+                .append("</player>")
+                .append(LINE_END);
         }
 
-        xml.append(getNestingCharacters(1));
-        xml.append("</result>");
-        xml.append(LINE_END);
-        xml.append("</simulation>");
+        xml.append(getNestingCharacters(1))
+            .append("</result>")
+            .append(LINE_END)
+            .append("</simulation>");
         
         return xml.toString();
     }
     
+    //returns the specified number of tab characters as a String
     private static String getNestingCharacters(int nestedLevel)
     {
         StringBuilder sb = new StringBuilder();
