@@ -448,10 +448,11 @@ public final class Simulator implements WorkerNotifiable
             try {
                 latch.await();
             } catch (InterruptedException ex) {
-                executor.shutdownNow();
                 SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_ERROR, ex);
                 notifiable.onSimulationError(event);
                 return;
+            } finally {
+                executor.shutdownNow();
             }
             
             this.finalizeSimulation();
