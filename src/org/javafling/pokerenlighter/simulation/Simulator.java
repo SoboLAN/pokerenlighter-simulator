@@ -455,7 +455,13 @@ public final class Simulator implements WorkerNotifiable
                 executor.shutdownNow();
             }
             
-            this.finalizeSimulation();
+            try {
+                this.finalizeSimulation();
+            } finally {
+                if (! executor.isShutdown()) {
+                    executor.shutdownNow();
+                }
+            }
         }
         
         //will be called when all workers are done
@@ -520,10 +526,6 @@ public final class Simulator implements WorkerNotifiable
             
             SimulationEvent event = new SimulationEvent(SimulationEvent.EVENT_SIM_DONE, simulationResult);
             notifiable.onSimulationDone(event);
-            
-            if (! executor.isShutdown()) {
-                executor.shutdownNow();
-            }
         }
     }
 }
