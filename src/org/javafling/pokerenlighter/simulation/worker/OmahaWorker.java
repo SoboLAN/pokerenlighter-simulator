@@ -1,6 +1,5 @@
 package org.javafling.pokerenlighter.simulation.worker;
 
-import java.util.ArrayList;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.combination.Deck;
 import org.javafling.pokerenlighter.combination.OmahaCombination;
@@ -10,15 +9,48 @@ import org.javafling.pokerenlighter.simulation.PokerType;
 
 public class OmahaWorker extends SimulationWorker
 {
-    public OmahaWorker(
-        int ID,
-        ArrayList<PlayerProfile> profiles,
-        Card[] communityCards,
-        int rounds,
-        WorkerNotifiable notifiable
-    )
+    public static abstract class OmahaBuilder<T extends OmahaBuilder<T>> extends SimulationWorker.WorkerBuilder<T>
     {
-        super(ID, profiles, communityCards, rounds, notifiable);
+        @Override
+        public OmahaWorker build()
+        {
+            if (super.getRounds() <= 0) {
+                throw new IllegalStateException("The number of rounds must be a strictly positive number");
+            } else if (super.getProfiles() == null || super.getProfiles().size() < 2) {
+                throw new IllegalStateException("There need to be at least 2 players in every simulation.");
+            } else if (super.getUpdateInterval() <= 0 || 100 % super.getUpdateInterval() != 0) {
+                throw new IllegalStateException("Invalid update interval value");
+            } else if (super.getNotifiable() == null) {
+                throw new IllegalStateException("There needs to be a notifiable for this worker");
+            }
+            
+            for (PlayerProfile profile : super.getProfiles()) {
+                if (profile == null) {
+                    throw new NullPointerException();
+                }
+            }
+            
+            return new OmahaWorker(this);
+        }
+    }
+    
+    private static class Builder2 extends OmahaBuilder<Builder2>
+    {
+        @Override
+        protected Builder2 self()
+        {
+            return this;
+        }
+    }
+    
+    public static OmahaBuilder<?> builder()
+    {
+        return new Builder2();
+    }
+    
+    private OmahaWorker(OmahaBuilder<?> builder)
+    {
+        super(builder);
     }
     
     @Override

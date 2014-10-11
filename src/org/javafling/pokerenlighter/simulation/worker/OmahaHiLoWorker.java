@@ -1,6 +1,5 @@
 package org.javafling.pokerenlighter.simulation.worker;
 
-import java.util.ArrayList;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.combination.Deck;
 import org.javafling.pokerenlighter.combination.OmahaCombination;
@@ -10,15 +9,48 @@ import org.javafling.pokerenlighter.simulation.PokerType;
 
 public class OmahaHiLoWorker extends SimulationWorker
 {
-    public OmahaHiLoWorker(
-        int ID,
-        ArrayList<PlayerProfile> profiles,
-        Card[] communityCards,
-        int rounds,
-        WorkerNotifiable notifiable
-    )
+    public static abstract class OmahaHiLoBuilder<T extends OmahaHiLoBuilder<T>> extends SimulationWorker.WorkerBuilder<T>
     {
-        super(ID, profiles, communityCards, rounds, notifiable);
+        @Override
+        public OmahaHiLoWorker build()
+        {
+            if (super.getRounds() <= 0) {
+                throw new IllegalStateException("The number of rounds must be a strictly positive number");
+            } else if (super.getProfiles() == null || super.getProfiles().size() < 2) {
+                throw new IllegalStateException("There need to be at least 2 players in every simulation.");
+            } else if (super.getUpdateInterval() <= 0 || 100 % super.getUpdateInterval() != 0) {
+                throw new IllegalStateException("Invalid update interval value");
+            } else if (super.getNotifiable() == null) {
+                throw new IllegalStateException("There needs to be a notifiable for this worker");
+            }
+            
+            for (PlayerProfile profile : super.getProfiles()) {
+                if (profile == null) {
+                    throw new NullPointerException();
+                }
+            }
+            
+            return new OmahaHiLoWorker(this);
+        }
+    }
+    
+    private static class Builder2 extends OmahaHiLoBuilder<Builder2>
+    {
+        @Override
+        protected Builder2 self()
+        {
+            return this;
+        }
+    }
+    
+    public static OmahaHiLoBuilder<?> builder()
+    {
+        return new Builder2();
+    }
+    
+    private OmahaHiLoWorker(OmahaHiLoBuilder<?> builder)
+    {
+        super(builder);
     }
     
     @Override

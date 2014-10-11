@@ -8,10 +8,14 @@ import java.util.concurrent.Executors;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
 import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker;
+import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker.OmahaHiLoBuilder;
 import org.javafling.pokerenlighter.simulation.worker.OmahaWorker;
+import org.javafling.pokerenlighter.simulation.worker.OmahaWorker.OmahaBuilder;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorker;
+import org.javafling.pokerenlighter.simulation.worker.SimulationWorker.WorkerBuilder;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorkerResult;
 import org.javafling.pokerenlighter.simulation.worker.TexasHoldemWorker;
+import org.javafling.pokerenlighter.simulation.worker.TexasHoldemWorker.TexasHoldemBuilder;
 import org.javafling.pokerenlighter.simulation.worker.WorkerEvent;
 import org.javafling.pokerenlighter.simulation.worker.WorkerNotifiable;
 
@@ -284,17 +288,30 @@ public final class Simulator implements WorkerNotifiable
         
         this.executor = Executors.newFixedThreadPool(this.nrOfWorkers);
     
+        int workerUpdateInterval = getUpdateInterval(this.nrOfWorkers);
+        
         for (int i = 0; i < this.nrOfWorkers; i++) {
             SimulationWorker worker;
+            WorkerBuilder builder;
             if (this.gameType == PokerType.TEXAS_HOLDEM) {
-                worker = new TexasHoldemWorker(i, this.profiles, this.communityCards, roundsPerWorker, this);
+                builder = TexasHoldemWorker.builder();
             } else if (this.gameType == PokerType.OMAHA) {
-                worker = new OmahaWorker(i, this.profiles, this.communityCards, roundsPerWorker, this);
+                builder = OmahaWorker.builder();
             } else {
-                worker = new OmahaHiLoWorker(i, this.profiles, this.communityCards, roundsPerWorker, this);
+                builder = OmahaHiLoWorker.builder();
             }
             
-            worker.setUpdateInterval(getUpdateInterval(this.nrOfWorkers));
+            builder.setCommunityCards(this.communityCards)
+                .setNotifier(this)
+                .setRounds(roundsPerWorker)
+                .setUpdateInterval(workerUpdateInterval);
+            
+            for (PlayerProfile profile : this.profiles) {
+                builder.addPlayer(profile);
+            }
+            
+            worker = builder.build();
+            
             this.executor.execute(worker);
             this.workers.add(worker);
         }

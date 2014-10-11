@@ -29,55 +29,92 @@ public abstract class SimulationWorker implements Runnable
     protected ArrayList<PlayerProfile> profiles;
     protected int rounds;
     
-    
     //other properties necessary for operations
-    private int ID;
     protected int updateInterval;
-    
     protected int progress;
     
-    public SimulationWorker(int ID,
-                            ArrayList<PlayerProfile> profiles,
-                            Card[] communityCards,
-                            int rounds,
-                            WorkerNotifiable notifiable)
+    public static abstract class WorkerBuilder<T extends WorkerBuilder<T>>
     {
-        this.ID = ID;
-        this.profiles = profiles;
-        this.communityCards = communityCards;
-        this.rounds = rounds;
-        this.updateInterval = 100;
-        this.nrPlayers = profiles.size();
-        this.notifiable = notifiable;
-        this.progress = 0;
-    }
-    
-    /**
-     * Tells the Simulation engine how often to report progress. The progress will be reported by
-     * firing a property change event on all listening PropertyChangeListeners.
-     * <br />
-     * Note: Calling this method AFTER the SimulationWorker started execution will have no effect. If
-     * this method is not called at all, then the progress will be reported only once, when the
-     * SimulationWorker is finished.
-     * 
-     * @param updateInterval the update interval. Value must be a strictly pozitive integer divisible by 100.
-     * 
-     * @throws IllegalArgumentException if the parameter is an invalid value.
-     */
-    public void setUpdateInterval(int updateInterval)
-    {
-        if (updateInterval <= 0 || 100 % updateInterval != 0) {
-            throw new IllegalArgumentException("invalid update interval value");
+        private WorkerNotifiable notifiable;
+        private Card[] communityCards;
+        private ArrayList<PlayerProfile> profiles;
+        private int rounds;
+        private int updateInterval;
+        
+        protected abstract T self();
+        public abstract SimulationWorker build();
+        
+        public T setRounds(int rounds)
+        {
+            this.rounds = rounds;
+            return self();
         }
-    
-        this.updateInterval = updateInterval;
+        
+        public T setCommunityCards(Card[] cards)
+        {
+            this.communityCards = cards;
+            return self();
+        }
+        
+        public T addPlayer(PlayerProfile profile)
+        {
+            if (this.profiles == null) {
+                this.profiles = new ArrayList<>();
+            }
+            
+            this.profiles.add(profile);
+            
+            return self();
+        }
+        
+        public T setUpdateInterval(int updateInterval)
+        {
+            this.updateInterval = updateInterval;
+            return self();
+        }
+        
+        public T setNotifier(WorkerNotifiable notifiable)
+        {
+            this.notifiable = notifiable;
+            return self();
+        }
+        
+        public WorkerNotifiable getNotifiable()
+        {
+            return notifiable;
+        }
+
+        public Card[] getCommunityCards()
+        {
+            return communityCards;
+        }
+
+        public ArrayList<PlayerProfile> getProfiles()
+        {
+            return profiles;
+        }
+
+        public int getRounds()
+        {
+            return rounds;
+        }
+
+        public int getUpdateInterval()
+        {
+            return updateInterval;
+        }
     }
-    
-    public int getID ()
+        
+    protected SimulationWorker(WorkerBuilder<?> builder)
     {
-        return ID;
+        this.communityCards = builder.getCommunityCards();
+        this.notifiable = builder.getNotifiable();
+        this.profiles = builder.getProfiles();
+        this.rounds = builder.getRounds();
+        this.updateInterval = builder.getUpdateInterval();
+        this.nrPlayers = builder.getProfiles().size();
     }
-    
+            
     public int getProgress()
     {
         return progress;
