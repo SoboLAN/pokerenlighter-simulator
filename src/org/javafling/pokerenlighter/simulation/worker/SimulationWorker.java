@@ -65,7 +65,7 @@ public abstract class SimulationWorker implements Runnable
      * @throws IllegalArgumentException if the parameter is an invalid value.
      */
     public void setUpdateInterval(int updateInterval)
-    {    
+    {
         if (updateInterval <= 0 || 100 % updateInterval != 0) {
             throw new IllegalArgumentException("invalid update interval value");
         }

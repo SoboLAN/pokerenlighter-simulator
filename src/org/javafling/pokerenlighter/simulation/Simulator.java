@@ -7,8 +7,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
+import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker;
+import org.javafling.pokerenlighter.simulation.worker.OmahaWorker;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorker;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorkerResult;
+import org.javafling.pokerenlighter.simulation.worker.TexasHoldemWorker;
 import org.javafling.pokerenlighter.simulation.worker.WorkerEvent;
 import org.javafling.pokerenlighter.simulation.worker.WorkerNotifiable;
 
@@ -282,14 +285,14 @@ public final class Simulator implements WorkerNotifiable
         this.executor = Executors.newFixedThreadPool(this.nrOfWorkers);
     
         for (int i = 0; i < this.nrOfWorkers; i++) {
-            SimulationWorker worker = new SimulationWorker(
-                i,
-                this.gameType,
-                this.profiles,
-                this.communityCards,
-                roundsPerWorker,
-                this
-            );
+            SimulationWorker worker;
+            if (this.gameType == PokerType.TEXAS_HOLDEM) {
+                worker = new TexasHoldemWorker(i, this.profiles, this.communityCards, roundsPerWorker, this);
+            } else if (this.gameType == PokerType.OMAHA) {
+                worker = new OmahaWorker(i, this.profiles, this.communityCards, roundsPerWorker, this);
+            } else {
+                worker = new OmahaHiLoWorker(i, this.profiles, this.communityCards, roundsPerWorker, this);
+            }
             
             worker.setUpdateInterval(getUpdateInterval(this.nrOfWorkers));
             this.executor.execute(worker);
