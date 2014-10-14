@@ -32,7 +32,7 @@ public class Example implements SimulationNotifiable
     @Override
     public void onSimulationStart(SimulationEvent event)
     {
-		int workers = (Integer) event.getEventData();
+        int workers = (Integer) event.getEventData();
         System.out.println("Simulator started on " + workers + " threads");
     }
 
@@ -65,14 +65,14 @@ public class Example implements SimulationNotifiable
         System.out.println("Lose 3: " + l2);
         System.out.println("Tie 3: " + t2);
 		
-		long duration = result.getDuration();
+        long duration = result.getDuration();
         System.out.println("Duration: " + duration + " ms");
     }
 
     @Override
     public void onSimulationCancel(SimulationEvent event)
     {
-		int progress = (Integer) event.getEventData();
+        int progress = (Integer) event.getEventData();
         System.out.println("Simulation was stopped at " + progress + " percent");
     }
 
@@ -80,21 +80,20 @@ public class Example implements SimulationNotifiable
     public void onSimulationProgress(SimulationEvent event)
     {
         int progress = (Integer) event.getEventData();
-        
         System.out.println("Progress: " + progress);
     }
 
     @Override
     public void onSimulationError(SimulationEvent event)
     {
-		Exception e = (Exception) event.getEventData();
-        System.out.println("The simulation encountered an error: " + e.getMessage());
+        Exception e = (Exception) event.getEventData();
+        System.err.println("The simulation encountered an error: " + e.getMessage());
     }
     
     public static void main(String[] args)
     {
         Example instance = new Example();
         
-        instance.start ();
+        instance.start();
     }
 }
