@@ -15,15 +15,18 @@ set t0=%time: =0%
 REM First, let's define some variables that contain most used names and paths
 REM throughout the build script. Changes of these variables will propagate down the script.
 
+set mainclass=org/javafling/pokerenlighter/main/PokerEnlighterSimulator
+set manifestfile=Manifest.txt
 set simulatorjar=simulator.jar
 set simulatorclass=org/javafling/pokerenlighter/simulation/Simulator
 set extraclass1=org/javafling/pokerenlighter/simulation/SimulationExport
+set extraclass2=org/javafling/pokerenlighter/main/PokerEnlighterSimulator
 
 REM The actual compilation command. It is compiled without any debugging
 REM symbols, to add some obfuscation. These symbols will probably be removed by Proguard anyway, but
 REM it's not a bad thing to be extra-careful.
 
-javac -g:none -Xlint:unchecked %simulatorclass%.java %extraclass1%.java 2>&1
+javac -g:none -Xlint:unchecked %simulatorclass%.java %extraclass1%.java %extraclass2%.java 2>&1
 timeout /t 1 /nobreak > NUL
 
 REM Next, the script will move inside the "org/" folder and delete all the source code files.
@@ -35,9 +38,13 @@ del /s *.java 2>&1
 timeout /t 1 /nobreak > NUL
 cd..
 
+REM Next, the Manifest file is built. This is needed for the JAR file.
+
+echo Main-Class: %mainclass% > %manifestfile%
+
 REM Package everything in a JAR file.
 
-jar cf0 %simulatorjar% org/* 2>&1
+jar cfm0 %simulatorjar% %manifestfile% org/* 2>&1
 
 REM And we are done. Enjoy.
 
