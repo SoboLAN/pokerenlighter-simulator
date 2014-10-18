@@ -6,6 +6,7 @@ import org.javafling.pokerenlighter.simulation.SimulationEvent;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.javafling.pokerenlighter.simulation.SimulationNotifiable;
 import org.javafling.pokerenlighter.simulation.Simulator;
+import org.javafling.pokerenlighter.simulation.Simulator.SimulatorBuilder;
 
 public class Example implements SimulationNotifiable
 {
@@ -13,15 +14,23 @@ public class Example implements SimulationNotifiable
     
     public Example()
     {
-        this.simulator = new Simulator(PokerType.OMAHA, 100 * 1000, this);
-        this.simulator.setUpdateInterval(20);
+        Card[] flopCards = {new Card(3, 'c'), new Card('J', 's'), new Card(10, 'd')};
         
-        Card[] cards = {new Card('A', 'h'), new Card('K', 'h'), new Card('6', 's'), new Card('3', 'd')};
+        Card[] cards = {new Card('A', 'h'), new Card('K', 'h'), new Card(6, 's'), new Card(3, 'd')};
         PlayerProfile player = new PlayerProfile(HandType.EXACTCARDS, null, cards);
         
-        this.simulator.addPlayer(player);
-        this.simulator.addPlayer(new PlayerProfile(HandType.RANDOM, null, null));
-        this.simulator.addPlayer(new PlayerProfile(HandType.RANDOM, null, null));
+        SimulatorBuilder builder = new Simulator.SimulatorBuilder();
+        
+        builder.setGameType(PokerType.OMAHA)
+            .setNrRounds(100 * 1000)    //simulate for 100 thousand rounds
+            .setNotifiable(this)        //call notification methods on "this" object
+            .setUpdateInterval(10)      //call update method at progress intervals of at least 10 %
+            .addPlayer(player)
+            .addPlayer(new PlayerProfile(HandType.RANDOM, null, null))
+            .addPlayer(new PlayerProfile(HandType.RANDOM, null, null))
+            .setFlop(flopCards);
+        
+        this.simulator = builder.build();
     }
     
     public void start()
@@ -35,7 +44,7 @@ public class Example implements SimulationNotifiable
         int workers = (Integer) event.getEventData();
         System.out.println("Simulator started on " + workers + " threads");
     }
-
+    
     @Override
     public void onSimulationDone(SimulationEvent event)
     {
@@ -64,25 +73,25 @@ public class Example implements SimulationNotifiable
         System.out.println("Win 3: " + w2);
         System.out.println("Lose 3: " + l2);
         System.out.println("Tie 3: " + t2);
-		
+        
         long duration = result.getDuration();
         System.out.println("Duration: " + duration + " ms");
     }
-
+    
     @Override
     public void onSimulationCancel(SimulationEvent event)
     {
         int progress = (Integer) event.getEventData();
         System.out.println("Simulation was stopped at " + progress + " percent");
     }
-
+    
     @Override
     public void onSimulationProgress(SimulationEvent event)
     {
         int progress = (Integer) event.getEventData();
-        System.out.println("Progress: " + progress);
+        System.out.println("Progress: " + progress + " %");
     }
-
+    
     @Override
     public void onSimulationError(SimulationEvent event)
     {
