@@ -4,7 +4,7 @@ setlocal
 REM This file is for building the Poker Enlighter executable.
 
 REM Some very important notes:
-REM - The script assumes the availability of the java, javac and jar commands.
+REM - The script assumes the availability of the javac and jar commands.
 REM - The script makes very specific assumptions of the structure of the JAR file, in the packaging
 REM stage. Please keep this script in sync with this structure.
 
@@ -23,8 +23,7 @@ set extraclass1=org/javafling/pokerenlighter/simulation/SimulationExport
 set extraclass2=org/javafling/pokerenlighter/main/PokerEnlighterSimulator
 
 REM The actual compilation command. It is compiled without any debugging
-REM symbols, to add some obfuscation. These symbols will probably be removed by Proguard anyway, but
-REM it's not a bad thing to be extra-careful.
+REM symbols, to add some obfuscation.
 
 javac -g:none -Xlint:unchecked %simulatorclass%.java %extraclass1%.java %extraclass2%.java 2>&1
 timeout /t 1 /nobreak > NUL
@@ -34,7 +33,7 @@ REM This is to ensure that the resulting executable will not contain the source 
 REM The script will move back to the build folder root after it's done deleting.
 
 cd org
-del /s *.java 2>&1
+del /s *.java > NUL
 timeout /t 1 /nobreak > NUL
 cd..
 
