@@ -2,7 +2,7 @@ package org.javafling.pokerenlighter.simulation.worker;
 
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.combination.Deck;
-import org.javafling.pokerenlighter.combination.OmahaCombination;
+import org.javafling.pokerenlighter.combination.FiveCardOmahaCombination;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
@@ -80,7 +80,7 @@ public class FiveCardOmahaWorker extends SimulationWorker
             }
         }
         
-        OmahaCombination[] playerCombinations = new OmahaCombination[this.nrPlayers];
+        FiveCardOmahaCombination[] playerCombinations = new FiveCardOmahaCombination[this.nrPlayers];
         String[] playerHands = new String[this.nrPlayers];
         Card[] currentHand = new Card[10];
 
@@ -116,7 +116,7 @@ public class FiveCardOmahaWorker extends SimulationWorker
                 currentHand[9] = communityCards[4] == null ? deck.getCard(7 + 5 * this.nrPlayers) : communityCards[4];
                 
                 if (playerCombinations[i] == null) {
-                    playerCombinations[i] = new OmahaCombination(currentHand);
+                    playerCombinations[i] = new FiveCardOmahaCombination(currentHand);
                 } else {
                     playerCombinations[i].setCards(currentHand);
                 }
