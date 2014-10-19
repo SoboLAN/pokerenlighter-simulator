@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
+import org.javafling.pokerenlighter.simulation.worker.FiveCardOmahaHiLoWorker;
 import org.javafling.pokerenlighter.simulation.worker.FiveCardOmahaWorker;
 import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker;
 import org.javafling.pokerenlighter.simulation.worker.OmahaWorker;
@@ -347,8 +348,10 @@ public final class Simulator implements WorkerNotifiable
                 builder = OmahaWorker.builder();
             } else if (this.gameType == PokerType.OMAHA_HILO) {
                 builder = OmahaHiLoWorker.builder();
-            } else {
+            } else if (this.gameType == PokerType.FOMAHA) {
                 builder = FiveCardOmahaWorker.builder();
+            } else {
+                builder = FiveCardOmahaHiLoWorker.builder();
             }
             
             builder.setCommunityCards(this.communityCards)
