@@ -6,8 +6,8 @@ package org.javafling.pokerenlighter.main;
  */
 public class PokerEnlighterSimulator
 {
-    public static final String VERSION = "2.4 build 562";
-    public static final String BUILD_DATE = "28 Sep 2014";
+    public static final String VERSION = "2.5 build 646";
+    public static final String BUILD_DATE = "19 Oct 2014";
     public static final String BUILD_JAVA_VERSION = "JDK 7 Update 51";
     
     public static void main(String[] args)
