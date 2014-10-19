@@ -7,15 +7,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
+import org.javafling.pokerenlighter.simulation.worker.FiveCardOmahaWorker;
 import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker;
-import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker.OmahaHiLoBuilder;
 import org.javafling.pokerenlighter.simulation.worker.OmahaWorker;
-import org.javafling.pokerenlighter.simulation.worker.OmahaWorker.OmahaBuilder;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorker;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorker.WorkerBuilder;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorkerResult;
 import org.javafling.pokerenlighter.simulation.worker.TexasHoldemWorker;
-import org.javafling.pokerenlighter.simulation.worker.TexasHoldemWorker.TexasHoldemBuilder;
 import org.javafling.pokerenlighter.simulation.worker.WorkerEvent;
 import org.javafling.pokerenlighter.simulation.worker.WorkerNotifiable;
 
@@ -347,8 +345,10 @@ public final class Simulator implements WorkerNotifiable
                 builder = TexasHoldemWorker.builder();
             } else if (this.gameType == PokerType.OMAHA) {
                 builder = OmahaWorker.builder();
-            } else {
+            } else if (this.gameType == PokerType.OMAHA_HILO) {
                 builder = OmahaHiLoWorker.builder();
+            } else {
+                builder = FiveCardOmahaWorker.builder();
             }
             
             builder.setCommunityCards(this.communityCards)

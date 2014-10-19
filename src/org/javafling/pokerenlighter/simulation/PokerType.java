@@ -7,7 +7,7 @@ package org.javafling.pokerenlighter.simulation;
  */
 public enum PokerType
 {
-    TEXAS_HOLDEM, OMAHA, OMAHA_HILO;
+    TEXAS_HOLDEM, OMAHA, OMAHA_HILO, FOMAHA;
     
     @Override
     public String toString()
@@ -18,6 +18,8 @@ public enum PokerType
             return "Omaha";
         } else if (this == OMAHA_HILO) {
             return "Omaha Hi/Lo";
+        } else if (this == FOMAHA) {
+            return "5-Card Omaha";
         } else {
             return "";
         }

@@ -46,7 +46,7 @@ public final class PlayerProfile
      * <li>if handType is HandType.RANGE and range is null.</li>
      * </ul>
      * 
-     * @throws IllegalArgumentException if the length of the cards array is not 2 or 4 or if cards
+     * @throws IllegalArgumentException if the length of the cards array is not 2 or 4 or 5 or if cards
      * contains duplicate cards. These conditions will be checked only if handType is HandType.EXACTCARDS.
      */
     public PlayerProfile(HandType handType, Range range, Card[] cards)
@@ -65,7 +65,7 @@ public final class PlayerProfile
                     throw new NullPointerException();
                 }
                 
-                if ((cards.length != 2 && cards.length != 4) || containsDuplicates(cards)) {
+                if ((cards.length != 2 && cards.length != 4 && cards.length != 5) || containsDuplicates(cards)) {
                     throw new IllegalArgumentException();
                 }
             }
