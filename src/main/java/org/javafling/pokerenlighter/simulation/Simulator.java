@@ -7,16 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult.ResultBuilder;
-import org.javafling.pokerenlighter.simulation.worker.FiveCardOmahaHiLoWorker;
-import org.javafling.pokerenlighter.simulation.worker.FiveCardOmahaWorker;
-import org.javafling.pokerenlighter.simulation.worker.OmahaHiLoWorker;
-import org.javafling.pokerenlighter.simulation.worker.OmahaWorker;
-import org.javafling.pokerenlighter.simulation.worker.SimulationWorker;
+import org.javafling.pokerenlighter.simulation.worker.*;
 import org.javafling.pokerenlighter.simulation.worker.SimulationWorker.WorkerBuilder;
-import org.javafling.pokerenlighter.simulation.worker.SimulationWorkerResult;
-import org.javafling.pokerenlighter.simulation.worker.TexasHoldemWorker;
-import org.javafling.pokerenlighter.simulation.worker.WorkerEvent;
-import org.javafling.pokerenlighter.simulation.worker.WorkerNotifiable;
 
 /**
  * The control center of the simulations. This class manages the progress of all the simulations and
@@ -350,6 +342,8 @@ public final class Simulator implements WorkerNotifiable
                 builder = OmahaHiLoWorker.builder();
             } else if (this.gameType == PokerType.FOMAHA) {
                 builder = FiveCardOmahaWorker.builder();
+            } else if (this.gameType == PokerType.SHORT_DECK) {
+                builder = ShortDeckWorker.builder();
             } else {
                 builder = FiveCardOmahaHiLoWorker.builder();
             }
