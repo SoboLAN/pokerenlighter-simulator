@@ -1,30 +1,17 @@
 package org.javafling.pokerenlighter.simulation.worker;
 
-import org.javafling.pokerenlighter.combination.*;
+import org.javafling.pokerenlighter.combination.Card;
+import org.javafling.pokerenlighter.combination.Deck;
+import org.javafling.pokerenlighter.combination.ShortDeckCombination;
 import org.javafling.pokerenlighter.simulation.HandType;
-import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 
 public class ShortDeckWorker extends SimulationWorker {
+
     public static abstract class ShortDeckWorkerBuilder<T extends ShortDeckWorkerBuilder<T>> extends SimulationWorker.WorkerBuilder<T> {
         @Override
         public ShortDeckWorker build() {
-            if (super.getRounds() <= 0) {
-                throw new IllegalStateException("The number of rounds must be a strictly positive number");
-            } else if (super.getProfiles() == null || super.getProfiles().size() < 2) {
-                throw new IllegalStateException("There need to be at least 2 players in every simulation.");
-            } else if (super.getUpdateInterval() <= 0 || 100 % super.getUpdateInterval() != 0) {
-                throw new IllegalStateException("Invalid update interval value");
-            } else if (super.getNotifiable() == null) {
-                throw new IllegalStateException("There needs to be a notifiable for this worker");
-            }
-
-            for (PlayerProfile profile : super.getProfiles()) {
-                if (profile == null) {
-                    throw new NullPointerException();
-                }
-            }
-
+            validate();
             return new ShortDeckWorker(this);
         }
     }
@@ -144,19 +131,8 @@ public class ShortDeckWorker extends SimulationWorker {
                 }
             }
 
-            if (((current_round * 100) / rounds) % updateInterval == 0) {
-                this.progress = (current_round) * 100 / rounds;
-                WorkerEvent event;
-
-                if (this.progress == 100) {
-                    this.buildWorkerResult();
-                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
-                    this.notifiable.onSimulationDone(event);
-                } else {
-                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
-                    this.notifiable.onSimulationProgress(event);
-                }
-            }
+            handleProgress(current_round);
         }
     }
+
 }

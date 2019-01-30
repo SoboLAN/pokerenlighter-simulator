@@ -1,5 +1,14 @@
 package org.javafling.pokerenlighter.combination;
 
+/**
+ * Represents the card-combination in Short Deck (6+) Texas Hold'em (2 cards from player + 5 community cards)
+ * and 36 cards in the deck. In this variant a flush beats a full house.
+ * <br /><br />
+ * This class is not thread-safe.
+ *
+ * @author Radu Murzea
+ * @author Matthias Eichner
+ */
 public class ShortDeckCombination extends TexasCombination {
 
     /**

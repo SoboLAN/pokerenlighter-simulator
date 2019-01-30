@@ -1,8 +1,9 @@
 package org.javafling.pokerenlighter.simulation;
 
+import org.javafling.pokerenlighter.combination.Card;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import org.javafling.pokerenlighter.combination.Card;
 
 /**
  * Result of the simulation. Use the inner class ResultBuilder to build an object of this class.
@@ -110,7 +111,7 @@ public class SimulationFinalResult
                 || wins.length != ties.length
                 || ties.length != loses.length
                 || rounds <= 0
-                || duration <= 0
+                || duration < 0
                 || nrThreads <= 0)
             {
                 throw new IllegalStateException();

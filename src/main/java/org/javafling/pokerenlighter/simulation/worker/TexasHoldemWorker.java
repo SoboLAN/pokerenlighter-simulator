@@ -155,20 +155,8 @@ public class TexasHoldemWorker extends SimulationWorker
                     loses[i]++;
                 }
             }
-            
-            if (((current_round * 100) / rounds) % updateInterval == 0) {
-                this.progress = (current_round) * 100 / rounds;
-                WorkerEvent event;
-                
-                if (this.progress == 100) {
-                    this.buildWorkerResult();
-                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
-                    this.notifiable.onSimulationDone(event);
-                } else {
-                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
-                    this.notifiable.onSimulationProgress(event);
-                }
-            }
+
+            handleProgress(current_round);
         }
     }
 }

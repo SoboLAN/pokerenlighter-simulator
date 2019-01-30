@@ -204,6 +204,13 @@ public class Card
         return Character.toString(getCharCard()) + Character.toString(this.color);
     }
 
+    /**
+     * Returns an array of cards based on the given string. The string should look like <b>TcJh</b> for hole cards or
+     * <b>AsKc6s</b> for a flop.
+     *
+     * @param cards the card string to parse
+     * @return array of cards
+     */
     public static Card[] of(String cards) {
         List<Card> cardList = new ArrayList<>();
         for (int i = 0; i < cards.length(); i = i + 2) {
