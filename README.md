@@ -15,7 +15,7 @@ The main advantages of Poker Enlighter are:
 Website
 -----------------
 
-You can find everything about this project on its website: http://pokerenlighter.javafling.org/ .
+You can find everything about this project on its website: http://pokerenlighter.radumurzea.net/ .
 
 License
 -----------------
@@ -27,9 +27,7 @@ Usage
 
 In order to use the simulator, you have to import the JAR file into your project. You can download it from the Poker Enlighter website.
 
-After this, follow the instructions on how to actually use it on the Developer Guide page: http://pokerenlighter.javafling.org/developers.php .
-
-The code on the Developer Guide page can also be found in the `use-example/Example.java` file.
+After this, follow the example found in the `use-example/Example.java` file.
 
 Contributions
 -----------------
