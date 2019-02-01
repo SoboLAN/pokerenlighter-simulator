@@ -6,7 +6,7 @@ import org.javafling.pokerenlighter.simulation.SimulationEvent;
 import org.javafling.pokerenlighter.simulation.SimulationFinalResult;
 import org.javafling.pokerenlighter.simulation.SimulationNotifiable;
 import org.javafling.pokerenlighter.simulation.Simulator;
-import org.javafling.pokerenlighter.simulation.Simulator.SimulatorBuilder;
+import org.javafling.pokerenlighter.simulation.SimulatorBuilder;
 
 public class Example implements SimulationNotifiable
 {
@@ -19,7 +19,7 @@ public class Example implements SimulationNotifiable
         Card[] cards = {new Card('A', 'h'), new Card('K', 'h'), new Card(6, 's'), new Card(3, 'd')};
         PlayerProfile player = new PlayerProfile(HandType.EXACTCARDS, null, cards);
         
-        SimulatorBuilder builder = new Simulator.SimulatorBuilder();
+        SimulatorBuilder builder = new SimulatorBuilder();
         
         builder.setGameType(PokerType.OMAHA)
             .setNrRounds(100 * 1000)    //simulate for 100 thousand rounds
