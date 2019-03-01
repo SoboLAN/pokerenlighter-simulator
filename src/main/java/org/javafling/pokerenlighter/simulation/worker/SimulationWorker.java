@@ -1,11 +1,12 @@
 package org.javafling.pokerenlighter.simulation.worker;
 
-import java.util.ArrayList;
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.combination.Deck;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
+
+import java.util.ArrayList;
 
 /**
  * This class performs the actual simulations, based on the parameters passed to its constructor.
@@ -32,6 +33,8 @@ public abstract class SimulationWorker implements Runnable
     //other properties necessary for operations
     protected int updateInterval;
     protected int progress;
+
+    protected boolean async;
     
     public static abstract class WorkerBuilder<T extends WorkerBuilder<T>>
     {
@@ -40,10 +43,29 @@ public abstract class SimulationWorker implements Runnable
         private ArrayList<PlayerProfile> profiles;
         private int rounds;
         private int updateInterval;
-        
+        private boolean async = true;
+
         protected abstract T self();
         public abstract SimulationWorker build();
-        
+
+        protected void validate() {
+            if (getRounds() <= 0) {
+                throw new IllegalStateException("The number of rounds must be a strictly positive number");
+            } else if (getProfiles() == null || getProfiles().size() < 2) {
+                throw new IllegalStateException("There need to be at least 2 players in every simulation.");
+            } else if (isAsync() && (getUpdateInterval() <= 0 || 100 % getUpdateInterval() != 0)) {
+                throw new IllegalStateException("Invalid update interval value");
+            } else if (isAsync() && getNotifiable() == null) {
+                throw new IllegalStateException("There needs to be a notifiable for this worker");
+            }
+
+            for (PlayerProfile profile : getProfiles()) {
+                if (profile == null) {
+                    throw new NullPointerException();
+                }
+            }
+        }
+
         public T setRounds(int rounds)
         {
             this.rounds = rounds;
@@ -78,6 +100,11 @@ public abstract class SimulationWorker implements Runnable
             this.notifiable = notifiable;
             return self();
         }
+
+        public T setAsync(boolean async) {
+            this.async = async;
+            return self();
+        }
         
         public WorkerNotifiable getNotifiable()
         {
@@ -103,6 +130,8 @@ public abstract class SimulationWorker implements Runnable
         {
             return updateInterval;
         }
+
+        public boolean isAsync() { return async; }
     }
         
     protected SimulationWorker(WorkerBuilder<?> builder)
@@ -113,13 +142,16 @@ public abstract class SimulationWorker implements Runnable
         this.rounds = builder.getRounds();
         this.updateInterval = builder.getUpdateInterval();
         this.nrPlayers = builder.getProfiles().size();
+        this.async = builder.isAsync();
     }
             
     public int getProgress()
     {
         return progress;
     }
-    
+
+    public boolean isAsync() { return async; }
+
     @Override
     public void run()
     {
@@ -348,4 +380,26 @@ public abstract class SimulationWorker implements Runnable
 
         return 0;
     }
+
+    protected void handleProgress(int current_round) {
+        if ((isAsync() && (((current_round * 100) / rounds) % updateInterval == 0)) ||
+                !isAsync() && current_round >= rounds) {
+            this.progress = (current_round) * 100 / rounds;
+            WorkerEvent event;
+
+            if (this.progress == 100) {
+                this.buildWorkerResult();
+                event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
+                if(this.notifiable != null) {
+                    this.notifiable.onSimulationDone(event);
+                }
+            } else {
+                event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
+                if(this.notifiable != null) {
+                    this.notifiable.onSimulationProgress(event);
+                }
+            }
+        }
+    }
+
 }

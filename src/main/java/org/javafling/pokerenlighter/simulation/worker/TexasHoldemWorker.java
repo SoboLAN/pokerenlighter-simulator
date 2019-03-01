@@ -2,17 +2,17 @@ package org.javafling.pokerenlighter.simulation.worker;
 
 import org.javafling.pokerenlighter.combination.Card;
 import org.javafling.pokerenlighter.combination.Deck;
-import org.javafling.pokerenlighter.combination.FiveCardOmahaCombination;
+import org.javafling.pokerenlighter.combination.TexasCombination;
 import org.javafling.pokerenlighter.simulation.HandType;
 import org.javafling.pokerenlighter.simulation.PlayerProfile;
 import org.javafling.pokerenlighter.simulation.PokerType;
 
-public class FiveCardOmahaWorker extends SimulationWorker
+public class TexasHoldemWorker extends SimulationWorker
 {
-    public static abstract class FiveCardOmahaBuilder<T extends FiveCardOmahaBuilder<T>> extends SimulationWorker.WorkerBuilder<T>
+    public static abstract class TexasHoldemBuilder<T extends TexasHoldemBuilder<T>> extends SimulationWorker.WorkerBuilder<T>
     {
         @Override
-        public FiveCardOmahaWorker build()
+        public TexasHoldemWorker build()
         {
             if (super.getRounds() <= 0) {
                 throw new IllegalStateException("The number of rounds must be a strictly positive number");
@@ -30,11 +30,11 @@ public class FiveCardOmahaWorker extends SimulationWorker
                 }
             }
             
-            return new FiveCardOmahaWorker(this);
+            return new TexasHoldemWorker(this);
         }
     }
     
-    private static class Builder2 extends FiveCardOmahaBuilder<Builder2>
+    private static class Builder2 extends TexasHoldemBuilder<Builder2>
     {
         @Override
         protected Builder2 self()
@@ -43,12 +43,12 @@ public class FiveCardOmahaWorker extends SimulationWorker
         }
     }
     
-    public static FiveCardOmahaBuilder<?> builder()
+    public static TexasHoldemBuilder<?> builder()
     {
         return new Builder2();
     }
     
-    private FiveCardOmahaWorker(FiveCardOmahaBuilder<?> builder)
+    private TexasHoldemWorker(TexasHoldemBuilder<?> builder)
     {
         super(builder);
     }
@@ -56,7 +56,7 @@ public class FiveCardOmahaWorker extends SimulationWorker
     @Override
     public PokerType getGameType()
     {
-        return PokerType.FOMAHA;
+        return PokerType.TEXAS_HOLDEM;
     }
     
     @Override
@@ -64,59 +64,73 @@ public class FiveCardOmahaWorker extends SimulationWorker
     {
         Deck deck = new Deck();
         
-        removeUsedCards(deck);
+        this.removeUsedCards(deck);
         
-        Card[][] playerCards = new Card[this.nrPlayers][5];
+        Card[][] playerCards = new Card[nrPlayers][7];
         
-        for (int i = 0; i < this.nrPlayers; i++) {
-            if (profiles.get(i).getHandType() == HandType.EXACTCARDS) {
+        for (int i = 0; i < nrPlayers; i++) {
+            if (profiles.get (i).getHandType () == HandType.EXACTCARDS) {
                 Card[] excards = profiles.get(i).getCards();
                 
                 playerCards[i][0] = excards[0];
                 playerCards[i][1] = excards[1];
-                playerCards[i][2] = excards[2];
-                playerCards[i][3] = excards[3];
-                playerCards[i][4] = excards[4];
             }
         }
         
-        FiveCardOmahaCombination[] playerCombinations = new FiveCardOmahaCombination[this.nrPlayers];
-        String[] playerHands = new String[this.nrPlayers];
-        Card[] currentHand = new Card[10];
-
+        TexasCombination[] playerCombinations = new TexasCombination[nrPlayers];
+        String[] playerHands = new String[nrPlayers];
+        Card[] currentHand = new Card[7];
+        
         //main simulation loop
         for (int current_round = 1; current_round <= rounds && ! Thread.currentThread().isInterrupted(); current_round++) {
             deck.shuffle(10);
-                        
+            
+            //this is to ensure that all players that selected a range hand will have cards
+            //that fit into those ranges
+            //WARNING: if range(s) is/are narrow, this will have significant performance impact (!!)
+            boolean okRanges = true;
+            do {
+                boolean okRangesInside = true;
+                for (int i = 0; i < profiles.size(); i++) {
+                    if (profiles.get(i).getHandType() == HandType.RANGE
+                        && ! profiles.get(i).getRange().containsHand(deck.getCard(i), deck.getCard(i + nrPlayers)))
+                    {
+                        okRangesInside = false;
+                        break;
+                    }
+                }
+                
+                if (! okRangesInside) {
+                    //minimum shuffle should be enough
+                    deck.shuffle (5);
+                }
+                
+                okRanges = okRangesInside;
+            } while (! okRanges);
+            
             //determine what each player has
-            for (int i = 0; i < this.nrPlayers; i++) {
+            for (int i = 0; i < nrPlayers; i++) {
                 if (profiles.get(i).getHandType() == HandType.EXACTCARDS) {
                     currentHand[0] = playerCards[i][0];
                     currentHand[1] = playerCards[i][1];
-                    currentHand[2] = playerCards[i][2];
-                    currentHand[3] = playerCards[i][3];
-                    currentHand[4] = playerCards[i][4];
                 } else {
                     currentHand[0] = deck.getCard(i);
-                    currentHand[1] = deck.getCard(i + this.nrPlayers);
-                    currentHand[2] = deck.getCard(i + 2 * this.nrPlayers);
-                    currentHand[3] = deck.getCard(i + 3 * this.nrPlayers);
-                    currentHand[4] = deck.getCard(i + 4 * this.nrPlayers);
+                    currentHand[1] = deck.getCard(i + nrPlayers);
                 }
                 
                 //flop
-                currentHand[5] = communityCards[0] == null ? deck.getCard(1 + 5 * this.nrPlayers) : communityCards[0];
-                currentHand[6] = communityCards[1] == null ? deck.getCard(2 + 5 * this.nrPlayers) : communityCards[1];
-                currentHand[7] = communityCards[2] == null ? deck.getCard(3 + 5 * this.nrPlayers) : communityCards[2];
+                currentHand[2] = communityCards[0] == null ? deck.getCard(1 + 2 * nrPlayers) : communityCards[0];
+                currentHand[3] = communityCards[1] == null ? deck.getCard(2 + 2 * nrPlayers) : communityCards[1];
+                currentHand[4] = communityCards[2] == null ? deck.getCard(3 + 2 * nrPlayers) : communityCards[2];
     
                 //turn
-                currentHand[8] = communityCards[3] == null ? deck.getCard(5 + 5 * this.nrPlayers) : communityCards[3];
+                currentHand[5] = communityCards[3] == null ? deck.getCard(5 + 2 * nrPlayers) : communityCards[3];
                 
                 //river
-                currentHand[9] = communityCards[4] == null ? deck.getCard(7 + 5 * this.nrPlayers) : communityCards[4];
+                currentHand[6] = communityCards[4] == null ? deck.getCard(7 + 2 * nrPlayers) : communityCards[4];
                 
                 if (playerCombinations[i] == null) {
-                    playerCombinations[i] = new FiveCardOmahaCombination(currentHand);
+                    playerCombinations[i] = new TexasCombination(currentHand);
                 } else {
                     playerCombinations[i].setCards(currentHand);
                 }
@@ -133,28 +147,16 @@ public class FiveCardOmahaWorker extends SimulationWorker
                 }
             //only 1 winner
             } else {
-                this.wins[winningPlayers[0]]++;
+                wins[winningPlayers[0]]++;
             }
             
-            for (int i = 0; i < this.nrPlayers; i++) {
+            for (int i = 0; i < nrPlayers; i++) {
                 if (! contains(winningPlayers, i)) {
-                    this.loses[i]++;
+                    loses[i]++;
                 }
             }
-            
-            if (((current_round * 100) / this.rounds) % this.updateInterval == 0) {
-                this.progress = (current_round) * 100 / this.rounds;
-                WorkerEvent event;
-                
-                if (this.progress == 100) {
-                    this.buildWorkerResult();
-                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_DONE, this.simResult);
-                    this.notifiable.onSimulationDone(event);
-                } else {
-                    event = new WorkerEvent(WorkerEvent.EVENT_SIMWORKER_PROGRESS, this.progress);
-                    this.notifiable.onSimulationProgress(event);
-                }
-            }
+
+            handleProgress(current_round);
         }
     }
 }

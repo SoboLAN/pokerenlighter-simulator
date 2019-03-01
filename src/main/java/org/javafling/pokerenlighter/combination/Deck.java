@@ -4,20 +4,22 @@ package org.javafling.pokerenlighter.combination;
  * Representation of a standard deck of 52 (French) cards. There are 13 cards of each color (4 colors).
  * <br /><br />
  * This class is not thread-safe.
- * 
+ *
  * @author Radu Murzea
 */
 public class Deck
 {
     //storage place for the cards
-    private Card[] cards;
-    
+    protected Card[] cards;
+
     //random number generator. Needed for the shuffle () method.
-    private HighQualityRandomGenerator rand;
-    
+    protected HighQualityRandomGenerator rand;
+
     //size of the deck (needed since adding and removal of cards from the deck is permitted)
-    private int size;
-    
+    protected int size;
+
+    protected int fullDeckSize;
+
     /**
      * Constructs a deck of cards with the 52 unique cards.
      * The initial order is: 2c, 3c, 4c, ... Kc, Ac, 2d, 3d, 4d, ... Kd, Ad, 2h, 3h, 4h, ... Kh, Ah,
@@ -25,19 +27,29 @@ public class Deck
      * <br />
      * By shuffling the deck, this arrangement is lost and cannot be restored.
      */
-    public Deck()
+    public Deck() {
+        this(52, 2, 13);
+    }
+
+    public Deck(int deckSize, int lowCard, int highCard)
     {
-        size = 52;
+        size = deckSize;
+        fullDeckSize = deckSize;
         cards = new Card[size];
 
-        for (int j = 2, i = 0; i < 13; ++j, ++i) {
-            cards[i + 0 * 13] = new Card(j, 'c');
-            cards[i + 1 * 13] = new Card(j, 'd');
-            cards[i + 2 * 13] = new Card(j, 'h');
-            cards[i + 3 * 13] = new Card(j, 's');
+        int offset = highCard - lowCard + 2;
+        for (int j = lowCard, i = 0; i < offset; ++j, ++i) {
+            cards[i + 0 * offset] = new Card(j, 'c');
+            cards[i + 1 * offset] = new Card(j, 'd');
+            cards[i + 2 * offset] = new Card(j, 'h');
+            cards[i + 3 * offset] = new Card(j, 's');
         }
 
         rand = new HighQualityRandomGenerator();
+    }
+
+    public int getFullDeckSize() {
+        return fullDeckSize;
     }
 
     /**
@@ -53,7 +65,7 @@ public class Deck
         if (intensity < 5 || intensity > 30) {
             throw new IllegalArgumentException("Invalid intensity range");
         }
-        
+
         //repeat "intensity" times
         for (int j = 0; j < intensity; ++j) {
             //each card is swapped with another card (random)
@@ -65,19 +77,19 @@ public class Deck
             }
         }
     }
-    
+
     /**
      * Removes from the <code>Deck</code> the <code>Card</code> given by its parameter.
      * If the <code>Card</code> is not in the <code>Deck</code> nothing happens.
      *
-     * @param c The <code>Card</code> to be removed. 
+     * @param c The <code>Card</code> to be removed.
      */
     public final void removeCard(Card c)
     {
         if (c == null) {
             throw new NullPointerException("Attempted to remove a NULL card from the deck");
         }
-        
+
         //go through the whole deck
         for (int i = 0; i < size; ++i) {
             //find the card
@@ -97,13 +109,13 @@ public class Deck
             }
         }
     }
-    
+
     /**
      * Adds a <code>Card</code> to the <code>Deck</code>. If the <code>Deck</code> is full or
      * the <code>Card</code> already exists in the <code>Deck</code>, nothing happens.
      *
-     * @param c The <code>Card</code> to be added. 
-     * 
+     * @param c The <code>Card</code> to be added.
+     *
      * @throws NullPointerException if the parameter is NULL.
      */
     public final void addCard(Card c)
@@ -111,12 +123,12 @@ public class Deck
         if (c == null) {
             throw new NullPointerException("Attempted to add a NULL card to the deck");
         }
-        
+
         //if the deck is full... well, sorry.
-        if (size == 52) {
+        if (size == getFullDeckSize()) {
             return;
         }
-        
+
         //if the card is already in the deck, do nothing.
         for (int i = 0; i < size; ++i) {
             if (cards[i].equals(c)) {
@@ -135,7 +147,7 @@ public class Deck
      */
     public final boolean isFull()
     {
-        return (size == 52);
+        return (size == getFullDeckSize());
     }
 
     /**
@@ -176,7 +188,7 @@ public class Deck
                 return i;
             }
         }
-        
+
         return -1;
     }
 

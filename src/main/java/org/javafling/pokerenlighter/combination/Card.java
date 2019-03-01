@@ -1,9 +1,12 @@
 package org.javafling.pokerenlighter.combination;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * One of the most important classes in the program.
  * It describes a (poker) card, by its 2 elements: rank and color.
- * 
+ *
  * @author Radu Murzea
  */
 public class Card
@@ -26,7 +29,7 @@ public class Card
     {
         this(Card.getRank(x), y);
     }
-    
+
     /**
      * Creates a card of the specified rank and color.
      *
@@ -39,7 +42,7 @@ public class Card
     {
         // The rank must be a valid card rank (between 2 and 14 inclusively)
         if (x < 2 || x > 14) {
-            throw new IllegalArgumentException("Invalid card rank");
+            throw new IllegalArgumentException("Invalid card rank " + x);
         } else {
             this.card = x;
         }
@@ -50,6 +53,17 @@ public class Card
         } else {
             this.color = y;
         }
+    }
+
+    /**
+     * Creates a card of the specified rank and color.
+     *
+     * @param card the card As, Ah, Td, 6s...
+     *
+     * @throws IllegalArgumentException If x or y have unacceptable values.
+     */
+    public Card(String card) {
+        this(Card.getRank(card.charAt(0)), card.charAt(1));
     }
 
     /**
@@ -73,7 +87,7 @@ public class Card
     {
         return this.card;
     }
-    
+
     /**
      * Returns the card color (same one used to construct the card).
      *
@@ -83,7 +97,7 @@ public class Card
     {
         return this.color;
     }
-    
+
     /**
      * Returns the card rank as a character ('3', 7', 'A', 'K', etc.).
      *
@@ -152,7 +166,7 @@ public class Card
      * Compares 2 cards. Two cards are equal if they have the same rank and the same color.
      *
      * @param c The card to compare.
-     * 
+     *
      * @return true if this object equals c, false otherwise.
      */
     @Override
@@ -189,4 +203,21 @@ public class Card
     {
         return Character.toString(getCharCard()) + Character.toString(this.color);
     }
+
+    /**
+     * Returns an array of cards based on the given string. The string should look like <b>TcJh</b> for hole cards or
+     * <b>AsKc6s</b> for a flop.
+     *
+     * @param cards the card string to parse
+     * @return array of cards
+     */
+    public static Card[] of(String cards) {
+        List<Card> cardList = new ArrayList<>();
+        for (int i = 0; i < cards.length(); i = i + 2) {
+            cardList.add(new Card(cards.substring(i, i + 2)));
+        }
+        Card[] cardArray = new Card[cardList.size()];
+        return cardList.toArray(cardArray);
+    }
+
 }

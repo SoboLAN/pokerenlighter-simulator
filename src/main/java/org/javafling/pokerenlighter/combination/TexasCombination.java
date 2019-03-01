@@ -7,13 +7,13 @@ package org.javafling.pokerenlighter.combination;
  * 
  * @autho Radu Murzea
  */
-public final class TexasCombination
+public class TexasCombination
 {
     // The cards representing the combination
-    private Card[] cards;
+    protected Card[] cards;
     
     //result of "getCombination" is cached here
-    private String result;
+    protected String result;
 
     /**
      * Constructs a TexasCombination object.
